@@ -48,7 +48,7 @@ namespace PicTune.API.Controllers
 
 
             // Generate reset link manually
-            var resetLink = $"https://pictune.onrender.com/reset-password?token={encodedToken}&email={model.Email}";
+            var resetLink = $"https://pictune-ai.vercel.app/reset-password?token={encodedToken}&email={model.Email}";
 
             // Send the reset link via email
             await _emailService.SendPasswordResetEmailAsync(model, resetLink);
