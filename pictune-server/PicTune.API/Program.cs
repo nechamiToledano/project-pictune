@@ -13,6 +13,7 @@ using System.Text.Json.Serialization;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Configuration.AddEnvironmentVariables();
 Env.Load();
 
