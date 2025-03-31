@@ -29,9 +29,9 @@ builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), mysqlOptions =>
     {
-        mysqlOptions.EnableRetryOnFailure(5);
-        mysqlOptions.CommandTimeout(30);
-        mysqlOptions.MaxBatchSize(100);
+        //mysqlOptions.EnableRetryOnFailure(5);
+        //mysqlOptions.CommandTimeout(30);
+        //mysqlOptions.MaxBatchSize(100);
     })
 );
 

@@ -8,6 +8,7 @@ using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
 using PicTune.Core.Models;
 using PicTune.Service.Services;
+using System.Net;
 using System.Security.Claims;
 
 namespace PicTune.API.Controllers
@@ -43,9 +44,11 @@ namespace PicTune.API.Controllers
 
             // Generate reset token
              var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebUtility.UrlEncode(resetToken);
+
 
             // Generate reset link manually
-            var resetLink = $"https://pictune.onrender.com/reset-password?token={resetToken}&email={model.Email}";
+            var resetLink = $"https://pictune.onrender.com/reset-password?token={encodedToken}&email={model.Email}";
 
             // Send the reset link via email
             await _emailService.SendPasswordResetEmailAsync(model, resetLink);
@@ -70,6 +73,8 @@ namespace PicTune.API.Controllers
             {
                 return BadRequest("Invalid reset request.");
             }
+            var decodedToken = WebUtility.UrlDecode(model.Token);
+
 
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
@@ -77,7 +82,7 @@ namespace PicTune.API.Controllers
                 return NotFound("User not found.");
             }
 
-            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            var result = await _userManager.ResetPasswordAsync(user,decodedToken, model.NewPassword);
             if (result.Succeeded) 
             {
                 return Ok("Password reset successfully.");

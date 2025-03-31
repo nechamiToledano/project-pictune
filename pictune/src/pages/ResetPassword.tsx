@@ -56,15 +56,13 @@ export default function ResetPassword() {
           navigate("/signin")
         }, 3000)
       } else {
-        // throw new Error(response.data.message || "Failed to reset password.")
-        setSuccess(true)
-        toast.success("Password reset successfully! Please log in with your new password.")
-
+         throw new Error(response.data.message || "Failed to reset password.")
+       
       }
     } catch (error: any) {
-      // const errorMessage = error.response?.data?.message || "Failed to reset password."
-      // setError(errorMessage)
-      // toast.error(errorMessage)
+      const errorMessage = error.response?.data?.message || "Failed to reset password."
+      setError(errorMessage)
+      toast.error(errorMessage)
       setSuccess(true)
       toast.success("Password reset successfully! Please log in with your new password.")
 
