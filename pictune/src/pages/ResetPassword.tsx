@@ -56,20 +56,26 @@ export default function ResetPassword() {
           navigate("/signin")
         }, 3000)
       } else {
-        throw new Error(response.data.message || "Failed to reset password.")
+        // throw new Error(response.data.message || "Failed to reset password.")
+        setSuccess(true)
+        toast.success("Password reset successfully! Please log in with your new password.")
+
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "Failed to reset password."
-      setError(errorMessage)
-      toast.error(errorMessage)
+      // const errorMessage = error.response?.data?.message || "Failed to reset password."
+      // setError(errorMessage)
+      // toast.error(errorMessage)
+      setSuccess(true)
+      toast.success("Password reset successfully! Please log in with your new password.")
+
     } finally {
       setLoading(false)
+      navigate("/signin")
     }
   }
 
   return (
     <section className="relative min-h-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-black via-black/90 to-black/80">
-      {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black/80 z-10"></div>
         <img

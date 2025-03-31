@@ -59,7 +59,7 @@ export const deletePlaylist = createAsyncThunk("playlists/delete", async (playli
 export const removeSongFromPlaylist = createAsyncThunk(
     "playlists/removeSong",
     async ({ playlistId, songId }: { playlistId: string; songId: number }) => {
-        await api.delete(`/playlists/${playlistId}/music/${songId}`);
+        await api.delete(`/playlists/${playlistId}/songs/${songId}`);
         return { playlistId, songId };
     }
 );
@@ -67,7 +67,7 @@ export const removeSongFromPlaylist = createAsyncThunk(
 export const addSongToPlaylist = createAsyncThunk(
     "playlists/addSong",
     async ({ playlistId, songId }: { playlistId: string; songId: number }) => {
-        await api.post(`/playlists/${playlistId}/music`, { SongId: songId },{
+        await api.post(`/playlists/${playlistId}/songs`, { SongId: songId },{
         headers: { "Content-Type": "application/json" },
         });
 
