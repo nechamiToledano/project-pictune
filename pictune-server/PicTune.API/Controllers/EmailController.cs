@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -44,7 +45,7 @@ namespace PicTune.API.Controllers
              var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             // Generate reset link manually
-            var resetLink = $"http://localhost:5173/reset-password?token={resetToken}&email={model.Email}";
+            var resetLink = $"https://pictune.onrender.com/reset-password?token={resetToken}&email={model.Email}";
 
             // Send the reset link via email
             await _emailService.SendPasswordResetEmailAsync(model, resetLink);

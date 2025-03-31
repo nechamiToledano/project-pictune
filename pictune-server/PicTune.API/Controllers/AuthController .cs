@@ -1,13 +1,18 @@
 ﻿using AutoMapper;
+using DotNetEnv;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PicTune.API.PostModels;
 using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
 using PicTune.Core.Models;
 using PicTune.Service;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PicTune.API.Controllers
@@ -26,11 +31,72 @@ namespace PicTune.API.Controllers
             _mapper = mapper;
             _userManager = userManager;
         }
+        [HttpGet("github")]
+        public IActionResult GitHubLogin()
+        {
+            var properties = new AuthenticationProperties { RedirectUri = "https://pictune.onrender.com/api/auth/github/callback" };
 
-        /// <summary>
-        /// Registers a new user.
-        /// </summary>
-        [HttpPost("signup")]
+            return Challenge(properties, "GitHub");
+        }
+
+        [HttpGet("github/callback")]
+        public async Task<IActionResult> GitHubCallback()
+        {
+            var authenticateResult = await HttpContext.AuthenticateAsync("GitHub");
+
+            if (!authenticateResult.Succeeded)
+                return Unauthorized();
+
+            var claims = authenticateResult.Principal.Claims.ToList();
+            var githubId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var githubUsername = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            // Check if user exists in your database
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                // Register the user if not exists
+                user = new User
+                {
+                    UserName = githubUsername,
+                    Email = email,
+                    Id = githubId
+                };
+
+                await _userManager.CreateAsync(user);
+            }
+
+            // Generate JWT Token
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(Env.GetString("JWT_KEY"));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
+            }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return Ok(new
+            {
+                Token = tokenHandler.WriteToken(token),
+                Expiration = tokenDescriptor.Expires
+            });
+        }
+
+            /// <summary>
+            /// Registers a new user.
+            /// </summary>
+            [HttpPost("signup")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
