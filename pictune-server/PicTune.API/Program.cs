@@ -138,6 +138,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowVercel");
+app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();

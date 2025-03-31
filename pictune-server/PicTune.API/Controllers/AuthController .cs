@@ -31,45 +31,66 @@ namespace PicTune.API.Controllers
             _mapper = mapper;
             _userManager = userManager;
         }
+
+
         [HttpGet("github")]
         public IActionResult GitHubLogin()
         {
-            var callbackUrl = Uri.EscapeDataString("https://pictune.onrender.com/api/auth/github/callback");
-            var properties = new AuthenticationProperties { RedirectUri = callbackUrl };
+            var callbackUrl = "https://pictune.onrender.com/api/auth/github/callback";
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = callbackUrl
+            };
 
-    // Log the URL being used
-    Console.WriteLine($"Redirecting to GitHub with URL: https://github.com/login/oauth/authorize?client_id={Env.GetString("GITHUB_CLIENT_ID")}&redirect_uri={callbackUrl}");
+            var clientId = Env.GetString("GITHUB_CLIENT_ID");
 
-    return Challenge(properties, "GitHub");
+            // Log the URL being used
+            var githubUrl = $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={Uri.EscapeDataString(callbackUrl)}&scope=user:email";
+            Console.WriteLine($"Redirecting to GitHub with URL: {githubUrl}");
+
+            return Redirect(githubUrl); // Redirect to GitHub instead of Challenge
         }
 
         [HttpGet("github/callback")]
-        public async Task<IActionResult> GitHubCallback()
+        public async Task<IActionResult> GitHubCallback(string code)
         {
-            var authenticateResult = await HttpContext.AuthenticateAsync("GitHub");
+            if (string.IsNullOrEmpty(code))
+            {
+                return BadRequest("Authorization code not provided.");
+            }
 
-            if (!authenticateResult.Succeeded)
-                return Unauthorized();
+            var accessToken = await _authService.GetGitHubAccessTokenAsync(code);
 
-            var claims = authenticateResult.Principal.Claims.ToList();
-            var githubId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            var githubUsername = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return BadRequest("Failed to retrieve access token from GitHub.");
+            }
+
+            var userInfo = await _authService.GetGitHubUserInfoAsync(accessToken);
+
+            if (userInfo == null)
+            {
+                return BadRequest("Failed to retrieve user info from GitHub.");
+            }
 
             // Check if user exists in your database
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(userInfo.Email);
 
             if (user == null)
             {
                 // Register the user if not exists
                 user = new User
                 {
-                    UserName = githubUsername,
-                    Email = email,
-                    Id = githubId
+                    UserName = userInfo.Login,
+                    Email = userInfo.Email
                 };
 
-                await _userManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result.Errors);
+                }
             }
 
             // Generate JWT Token
@@ -96,6 +117,8 @@ namespace PicTune.API.Controllers
                 Expiration = tokenDescriptor.Expires
             });
         }
+
+
 
             /// <summary>
             /// Registers a new user.
