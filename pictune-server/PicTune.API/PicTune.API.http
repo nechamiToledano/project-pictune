@@ -1,0 +1,6 @@
+@PicTune.API_HostAddress = http://localhost:5165
+
+GET {{PicTune.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

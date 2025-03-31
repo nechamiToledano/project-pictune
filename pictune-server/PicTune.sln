@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicTune.API", "PicTune.API\PicTune.API.csproj", "{1BE2FB2B-B6D2-452E-BE11-38E8BCECDAE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicTune.Data", "PicTune.Data\PicTune.Data.csproj", "{B71F44BD-5D69-40BE-AF21-CD8CED948817}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicTune.Core", "PicTune.Core\PicTune.Core.csproj", "{5845E925-05B6-4F63-9750-FE8F254E1056}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicTune.Service", "PicTune.Service\PicTune.Service.csproj", "{FA293D32-4EA0-40D8-80D6-B457C12A7190}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3CEC00C7-472B-4FA4-AC34-661E77432FC1}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1BE2FB2B-B6D2-452E-BE11-38E8BCECDAE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BE2FB2B-B6D2-452E-BE11-38E8BCECDAE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BE2FB2B-B6D2-452E-BE11-38E8BCECDAE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BE2FB2B-B6D2-452E-BE11-38E8BCECDAE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B71F44BD-5D69-40BE-AF21-CD8CED948817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B71F44BD-5D69-40BE-AF21-CD8CED948817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B71F44BD-5D69-40BE-AF21-CD8CED948817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B71F44BD-5D69-40BE-AF21-CD8CED948817}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5845E925-05B6-4F63-9750-FE8F254E1056}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5845E925-05B6-4F63-9750-FE8F254E1056}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5845E925-05B6-4F63-9750-FE8F254E1056}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5845E925-05B6-4F63-9750-FE8F254E1056}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA293D32-4EA0-40D8-80D6-B457C12A7190}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA293D32-4EA0-40D8-80D6-B457C12A7190}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA293D32-4EA0-40D8-80D6-B457C12A7190}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA293D32-4EA0-40D8-80D6-B457C12A7190}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

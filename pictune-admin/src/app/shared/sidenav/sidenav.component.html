@@ -1,0 +1,14 @@
+<mat-nav-list>
+  <div class="sidenav-header">
+    <h2>Admin Panel</h2>
+  </div>
+  @for (item of menuItems; track item.name) {
+    <a mat-list-item 
+       [routerLink]="item.route" 
+       routerLinkActive="active-link">
+      <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+      <span matListItemTitle>{{ item.name }}</span>
+    </a>
+  }
+</mat-nav-list>
+

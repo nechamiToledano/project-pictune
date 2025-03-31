@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit' : 'Add' }} Music File</h2>
+
+<form [formGroup]="fileForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required>
+      @if (fileForm.get('name')?.hasError('required') && fileForm.get('name')?.touched) {
+        <mat-error>Name is required</mat-error>
+      }
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Type</mat-label>
+      <input matInput formControlName="type" readonly>
+    </mat-form-field>
+    
+    <div class="file-section" *ngIf="!isEditMode">
+      <button 
+        type="button" 
+        mat-raised-button 
+        color="primary" 
+        (click)="fileInput.click()">
+        <mat-icon>cloud_upload</mat-icon> Upload Music File
+      </button>
+      <input 
+        hidden 
+        type="file" 
+        #fileInput 
+        (change)="onFileSelected($event)" 
+        accept="audio/*">
+      @if (selectedFile) {
+        <div class="file-info">
+          <p>Selected file: {{ selectedFile.name }}</p>
+          <p>Size: {{ formatFileSize(selectedFile.size) }}</p>
+        </div>
+      }
+    </div>
+    
+    @if (isEditMode && fileForm.get('name')?.value) {
+      <div class="file-info">
+        <p>Current file: {{ fileForm.get('name')?.value }}</p>
+        <p>Size: {{ formatFileSize(fileForm.get('size')?.value) }}</p>
+      </div>
+    }
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      type="submit" 
+      [disabled]="fileForm.invalid || loading || (!isEditMode && !selectedFile)">
+      {{ loading ? 'Saving...' : 'Save' }}
+    </button>
+  </mat-dialog-actions>
+</form>
+

@@ -1,0 +1,16 @@
+@if (files$ | async ;as files) {
+    <div>
+      <ul>
+        @for ( file of files; track file.id) {
+          <li>{{ file.name }} ({{ file.type }}) - {{ file.size }} bytes
+
+            <button (click)="onDeleteFile(file.id)">Delete</button>
+
+          </li>
+        }
+      </ul>
+    </div>
+  } @else {
+    <p>No files available.</p>
+  }
+  
