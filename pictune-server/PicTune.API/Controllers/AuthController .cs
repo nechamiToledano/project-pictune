@@ -34,8 +34,8 @@ namespace PicTune.API.Controllers
         [HttpGet("github")]
         public IActionResult GitHubLogin()
         {
-    var callbackUrl = "https://pictune.onrender.com/api/auth/github/callback";
-    var properties = new AuthenticationProperties { RedirectUri = callbackUrl };
+            var callbackUrl = Uri.EscapeDataString("https://pictune.onrender.com/api/auth/github/callback");
+            var properties = new AuthenticationProperties { RedirectUri = callbackUrl };
 
     // Log the URL being used
     Console.WriteLine($"Redirecting to GitHub with URL: https://github.com/login/oauth/authorize?client_id={Env.GetString("GITHUB_CLIENT_ID")}&redirect_uri={callbackUrl}");
