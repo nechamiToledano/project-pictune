@@ -112,10 +112,13 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Enable Swagger & CORS
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors(opt => opt.AddPolicy("MyPolicy", policy =>
+builder.Services.AddCors(options =>
 {
-    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-}));
+    options.AddPolicy("AllowVercel",
+        policy => policy.WithOrigins("https://pictune-ai.vercel.app")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
 
 var app = builder.Build();
 
