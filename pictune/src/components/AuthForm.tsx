@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, Github, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import ForgotPassword from "./ForgotPassword"
 import Background from "@/pages/Background"
 
@@ -43,6 +43,12 @@ export default function AuthForm({
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const navigate = useNavigate()
+
+  // Reset form when tab changes
+  useEffect(() => {
+    setErrors({})
+  }, [activeTab])
 
   if (showForgotPassword) {
     return <ForgotPassword onBack={() => setShowForgotPassword(false)} />
@@ -59,8 +65,35 @@ export default function AuthForm({
 
   const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData({ ...formData, [name]: checked })
+
+    if (name === "acceptTerms" && errors.acceptTerms) {
+      setErrors({ ...errors, acceptTerms: "" })
+    }
   }
 
+  const handleTabChange = (value: string) => {
+    // Reset errors when changing tabs
+    setErrors({})
+
+    // Reset form data when switching tabs
+    setFormData({
+      userName: "",
+      email: "",
+      password: "",
+      rememberMe: false,
+      acceptTerms: false,
+    })
+
+    // Set the active tab
+    setActiveTab(value as "signin" | "signup")
+
+    // Update URL to reflect the current tab
+    navigate(`/${value}`, { replace: true })
+  }
+  
+    const handleGitHubLogin = () => {
+        window.location.href = `${import.meta.env.VITE_API_KEY}/api/auth/github`;
+    };
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
@@ -86,6 +119,24 @@ export default function AuthForm({
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  const validateField = (name: string, value: string) => {
+    if (name === "userName" && !value.trim()) {
+      setErrors((prev) => ({ ...prev, userName: "Username is required" }))
+    } else if (name === "email") {
+      if (!value.trim() && activeTab === "signup") {
+        setErrors((prev) => ({ ...prev, email: "Email is required" }))
+      } else if (value.trim() && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+        setErrors((prev) => ({ ...prev, email: "Invalid email address" }))
+      }
+    } else if (name === "password") {
+      if (!value) {
+        setErrors((prev) => ({ ...prev, password: "Password is required" }))
+      } else if (value.length < 8 && activeTab === "signup") {
+        setErrors((prev) => ({ ...prev, password: "Password must be at least 8 characters" }))
+      }
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,12 +196,7 @@ export default function AuthForm({
             >
               <Card className="border-none shadow-lg shadow-black/50 bg-black/40 backdrop-blur-md text-white overflow-hidden">
                 <div className="h-1 w-full bg-gradient-to-r from-red-500 to-blue-500"></div>
-                <Tabs
-                  defaultValue={activeTab}
-                  value={activeTab}
-                  onValueChange={(value: string) => setActiveTab(value as "signin" | "signup")}
-                  className="w-full"
-                >
+                <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange} className="w-full">
                   <TabsList className="grid grid-cols-2 w-full rounded-none bg-black/30">
                     <TabsTrigger
                       value="signin"
@@ -182,6 +228,7 @@ export default function AuthForm({
                               placeholder="Enter your username"
                               value={formData.userName}
                               onChange={handleChange}
+                              onBlur={() => validateField("userName", formData.userName)}
                               className={cn(
                                 "pl-3 pr-3 py-6 transition-all bg-black/30 border-gray-700 text-white placeholder:text-gray-400",
                                 errors.userName
@@ -193,9 +240,14 @@ export default function AuthForm({
                             />
                           </div>
                           {errors.userName && (
-                            <p id="username-error" className="text-sm text-red-400 mt-1 animate-slideDown">
+                            <motion.p
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              id="username-error"
+                              className="text-sm text-red-400 mt-1"
+                            >
                               {errors.userName}
-                            </p>
+                            </motion.p>
                           )}
                         </div>
 
@@ -212,6 +264,7 @@ export default function AuthForm({
                               placeholder="Enter your password"
                               value={formData.password}
                               onChange={handleChange}
+                              onBlur={() => validateField("password", formData.password)}
                               className={cn(
                                 "pl-3 pr-10 py-6 transition-all bg-black/30 border-gray-700 text-white placeholder:text-gray-400",
                                 errors.password
@@ -233,9 +286,14 @@ export default function AuthForm({
                             </Button>
                           </div>
                           {errors.password && (
-                            <p id="password-error" className="text-sm text-red-400 mt-1 animate-slideDown">
+                            <motion.p
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              id="password-error"
+                              className="text-sm text-red-400 mt-1"
+                            >
                               {errors.password}
-                            </p>
+                            </motion.p>
                           )}
                         </div>
 
@@ -291,6 +349,8 @@ export default function AuthForm({
 
                         <div className="grid grid-cols-1 gap-2">
                           <Button
+                            onClick={handleGitHubLogin}
+
                             variant="outline"
                             type="button"
                             className="py-6 border-gray-700 text-white hover:bg-gray-800"
@@ -318,6 +378,7 @@ export default function AuthForm({
                             placeholder="Choose a username"
                             value={formData.userName}
                             onChange={handleChange}
+                            onBlur={() => validateField("userName", formData.userName)}
                             className={cn(
                               "pl-3 pr-3 py-6 transition-all bg-black/30 border-gray-700 text-white placeholder:text-gray-400",
                               errors.userName
@@ -328,9 +389,14 @@ export default function AuthForm({
                             aria-describedby={errors.userName ? "signup-username-error" : undefined}
                           />
                           {errors.userName && (
-                            <p id="signup-username-error" className="text-sm text-red-400 mt-1 animate-slideDown">
+                            <motion.p
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              id="signup-username-error"
+                              className="text-sm text-red-400 mt-1"
+                            >
                               {errors.userName}
-                            </p>
+                            </motion.p>
                           )}
                         </div>
 
@@ -346,6 +412,7 @@ export default function AuthForm({
                             placeholder="Enter your email"
                             value={formData.email}
                             onChange={handleChange}
+                            onBlur={() => validateField("email", formData.email)}
                             className={cn(
                               "pl-3 pr-3 py-6 transition-all bg-black/30 border-gray-700 text-white placeholder:text-gray-400",
                               errors.email
@@ -356,9 +423,14 @@ export default function AuthForm({
                             aria-describedby={errors.email ? "signup-email-error" : undefined}
                           />
                           {errors.email && (
-                            <p id="signup-email-error" className="text-sm text-red-400 mt-1 animate-slideDown">
+                            <motion.p
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              id="signup-email-error"
+                              className="text-sm text-red-400 mt-1"
+                            >
                               {errors.email}
-                            </p>
+                            </motion.p>
                           )}
                         </div>
 
@@ -375,6 +447,7 @@ export default function AuthForm({
                               placeholder="Create a password"
                               value={formData.password}
                               onChange={handleChange}
+                              onBlur={() => validateField("password", formData.password)}
                               className={cn(
                                 "pl-3 pr-10 py-6 transition-all bg-black/30 border-gray-700 text-white placeholder:text-gray-400",
                                 errors.password
@@ -396,9 +469,14 @@ export default function AuthForm({
                             </Button>
                           </div>
                           {errors.password && (
-                            <p id="signup-password-error" className="text-sm text-red-400 mt-1 animate-slideDown">
+                            <motion.p
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              id="signup-password-error"
+                              className="text-sm text-red-400 mt-1"
+                            >
                               {errors.password}
-                            </p>
+                            </motion.p>
                           )}
 
                           {formData.password && (
@@ -471,7 +549,13 @@ export default function AuthForm({
                                 </Link>
                               </Label>
                               {errors.acceptTerms && (
-                                <p className="text-xs text-red-400 animate-slideDown">{errors.acceptTerms}</p>
+                                <motion.p
+                                  initial={{ opacity: 0, y: -10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="text-xs text-red-400"
+                                >
+                                  {errors.acceptTerms}
+                                </motion.p>
                               )}
                             </div>
                           </div>
@@ -537,6 +621,22 @@ export default function AuthForm({
           </div>
         </div>
       </div>
+
+      <style >{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slideDown {
+          animation: slideDown 0.3s ease forwards;
+        }
+      `}</style>
     </section>
   )
 }
