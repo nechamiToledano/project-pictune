@@ -38,7 +38,7 @@ namespace PicTune.API.Controllers
     var properties = new AuthenticationProperties { RedirectUri = callbackUrl };
 
     // Log the URL being used
-    Console.WriteLine($"Redirecting to GitHub with URL: https://github.com/login/oauth/authorize?client_id={YOUR_CLIENT_ID}&redirect_uri={callbackUrl}");
+    Console.WriteLine($"Redirecting to GitHub with URL: https://github.com/login/oauth/authorize?client_id={Env.GetString("GITHUB_CLIENT_ID")}&redirect_uri={callbackUrl}");
 
     return Challenge(properties, "GitHub");
         }
