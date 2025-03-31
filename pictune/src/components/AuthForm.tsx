@@ -183,7 +183,6 @@ export default function AuthForm({
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
       <Background />
 
       <div className="container mx-auto px-4 z-10 py-10">

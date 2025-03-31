@@ -1,5 +1,5 @@
 import type React from "react"
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom"
 import Home from "./pages/Home"
 import SignIn from "./pages/SignIn"
 import SignUp from "./pages/SignUp"
@@ -29,7 +29,7 @@ const Layout: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
+    <BrowserRouter>
       {/* Add Toaster component here for toast notifications */}
       <Toaster position="top-center" richColors closeButton />
 
@@ -48,7 +48,7 @@ const App: React.FC = () => {
 
               </Route>
       </Routes>
-    </Router>
+      </BrowserRouter>
   )
 }
 
