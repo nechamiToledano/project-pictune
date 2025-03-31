@@ -1,23 +1,25 @@
-using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PicTune.Data;
-using PicTune.Core.Models;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
-using System.Text.Json.Serialization;
 using PicTune.API;
-using DotNetEnv;
-using Microsoft.AspNetCore.Hosting.Server;
-using System.Runtime.InteropServices;
-Env.Load();
-
+using PicTune.Core.Models;
+using PicTune.Data;
+using System.Security.Claims;
+using System.Text.Json.Serialization;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
-string connectionString = Env.GetString ( "DB_CONNECTION_STRING" ) ;
+Env.Load();
+
+string connectionString = Env.GetString("DB_CONNECTION_STRING");
+var jwtKey = Env.GetString("JWT_KEY") ?? "your_secret_key";
+var githubClientId = Env.GetString("GITHUB_CLIENT_ID");
+var githubClientSecret = Env.GetString("GITHUB_CLIENT_SECRET");
 
 // Register AWS services
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
@@ -26,9 +28,9 @@ builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), mysqlOptions =>
     {
-        mysqlOptions.EnableRetryOnFailure(5); // Retry policy for transient failures
-        mysqlOptions.CommandTimeout(30); // Timeout for commands (in seconds)
-        mysqlOptions.MaxBatchSize(100); // Control the batch size for bulk operations
+        mysqlOptions.EnableRetryOnFailure(5);
+        mysqlOptions.CommandTimeout(30);
+        mysqlOptions.MaxBatchSize(100);
     })
 );
 
@@ -37,10 +39,7 @@ builder.Services.AddIdentity<User, Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// JWT Authentication Configuration
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(Env.GetString("JWT_KEY")?? "your_secret_key");
-
+// Authentication Configuration
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -56,9 +55,40 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+})
+.AddCookie()
+.AddOAuth("GitHub", options =>
+{
+    options.ClientId = githubClientId;
+    options.ClientSecret = githubClientSecret;
+    options.CallbackPath = new PathString("/api/auth/github/callback");
+
+    options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+    options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+    options.UserInformationEndpoint = "https://api.github.com/user";
+
+    options.SaveTokens = true;
+
+    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+
+    options.Events.OnCreatingTicket = async context =>
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, options.UserInformationEndpoint);
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
+        request.Headers.Add("User-Agent", "PicTuneApp");
+
+        var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+        response.EnsureSuccessStatusCode();
+
+        var user = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        context.RunClaimActions(user.RootElement);
     };
 });
 
@@ -70,7 +100,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ViewerOnly", policy => policy.RequireRole("Viewer"));
 });
 builder.Services.ServiceDependencyInjector();
-
 
 // Controllers and JSON Configuration
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -106,8 +135,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("MyPolicy");
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
 app.MapGet("/", () => "Api is running");
 
 app.MapControllers();
