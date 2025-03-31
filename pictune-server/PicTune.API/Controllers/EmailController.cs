@@ -44,7 +44,7 @@ namespace PicTune.API.Controllers
              var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             // Generate reset link manually
-            var resetLink = $"https://pictune-ai.vercel.app/reset-password?token={resetToken}&email={model.Email}";
+            var resetLink = $"http://localhost:5173/reset-password?token={resetToken}&email={model.Email}";
 
             // Send the reset link via email
             await _emailService.SendPasswordResetEmailAsync(model, resetLink);
