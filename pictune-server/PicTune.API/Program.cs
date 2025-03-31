@@ -11,12 +11,12 @@ using PicTune.Data;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Text;
+Env.Load();
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
-Env.Load();
-
 string connectionString = Env.GetString("DB_CONNECTION_STRING");
 var jwtKey = Env.GetString("JWT_KEY") ?? "your_secret_key";
 var githubClientId = Env.GetString("GITHUB_CLIENT_ID");
