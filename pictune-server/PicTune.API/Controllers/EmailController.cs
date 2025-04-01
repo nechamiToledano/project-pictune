@@ -52,7 +52,7 @@ namespace PicTune.API.Controllers
             // Send the reset link via email
             await _emailService.SendPasswordResetEmailAsync(model, resetLink);
 
-            return Ok("Password reset link has been sent to your email.");
+            return Ok(new { success = true, message = "Password reset link has been sent to your email." });
         }
 
 

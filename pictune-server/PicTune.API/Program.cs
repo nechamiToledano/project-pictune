@@ -117,7 +117,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy",
         policy => policy.
-        WithOrigins("https://pictune-ai.vercel.app", "https://pictune-ai.onrender.com").AllowAnyHeader()
+        WithOrigins( "https://pictune-ai.onrender.com").AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());
 });
@@ -139,10 +139,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("MyPolicy");
 
 
 app.UseRouting();
-app.UseCors("MyPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
