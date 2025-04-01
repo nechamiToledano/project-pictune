@@ -29,7 +29,7 @@ const Layout: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter  basename="/">
       {/* Add Toaster component here for toast notifications */}
       <Toaster position="top-center" richColors closeButton />
 

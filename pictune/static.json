@@ -1,8 +1,6 @@
 {
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ]s
+  "root": "dist",
+  "routes": {
+    "/**": "index.html"
+  }
 }
