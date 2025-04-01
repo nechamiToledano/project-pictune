@@ -11,8 +11,9 @@ using PicTune.Data;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Text;
-Env.Load();
+using PicTune.Service.Services;
 
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +102,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("EditorOrAdmin", policy => policy.RequireRole("Editor", "Admin"));
     options.AddPolicy("ViewerOnly", policy => policy.RequireRole("Viewer"));
 });
+
+// Register IHttpClientFactory and AuthService
+builder.Services.AddHttpClient();  // Register IHttpClientFactory
+
+
 builder.Services.ServiceDependencyInjector();
 
 // Controllers and JSON Configuration
@@ -118,12 +124,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", policy =>
         policy
-            .WithOrigins("https://pictune-ai.onrender.com") 
+            .WithOrigins("https://pictune-ai.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
     );
 });
+
 builder.Services.AddLogging(options =>
 {
     options.AddConsole();
@@ -148,7 +155,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("MyPolicy");
-
 
 app.UseRouting();
 
