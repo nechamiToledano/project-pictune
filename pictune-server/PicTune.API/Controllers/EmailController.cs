@@ -44,11 +44,10 @@ namespace PicTune.API.Controllers
 
             // Generate reset token
              var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var encodedToken = WebUtility.UrlEncode(resetToken);
 
 
             // Generate reset link manually
-            var resetLink = $"https://pictune-ai.vercel.app/reset-password?token={encodedToken}&email={model.Email}";
+            var resetLink = $"https://pictune-ai.vercel.app/reset-password?token={resetToken}&email={model.Email}";
 
             // Send the reset link via email
             await _emailService.SendPasswordResetEmailAsync(model, resetLink);
@@ -73,7 +72,6 @@ namespace PicTune.API.Controllers
             {
                 return BadRequest("Invalid reset request.");
             }
-            var decodedToken = WebUtility.UrlDecode(model.Token);
 
 
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -81,8 +79,9 @@ namespace PicTune.API.Controllers
             {
                 return NotFound("User not found.");
             }
+            var code = model.Token.Replace(" ", "+");
 
-            var result = await _userManager.ResetPasswordAsync(user,decodedToken, model.NewPassword);
+            var result = await _userManager.ResetPasswordAsync(user,code, model.NewPassword);
             if (result.Succeeded) 
             {
                 return Ok("Password reset successfully.");
