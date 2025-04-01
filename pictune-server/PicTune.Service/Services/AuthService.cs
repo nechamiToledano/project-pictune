@@ -14,7 +14,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Amazon.Runtime;
+using Microsoft.Extensions.Http;
 
 namespace PicTune.Service.Services
 {
