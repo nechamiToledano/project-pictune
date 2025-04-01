@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Amazon.Runtime;
 
 namespace PicTune.Service.Services
 {
@@ -30,7 +31,7 @@ namespace PicTune.Service.Services
             RoleManager<Role> roleManager,
             SignInManager<User> signInManager,
             IConfiguration configuration,
-              HttpClient httpClient)
+              IHttpClientFactory httpClient)
 
             
         {
@@ -38,7 +39,7 @@ namespace PicTune.Service.Services
             _roleManager = roleManager;
             _signInManager = signInManager;
             _configuration = configuration; 
-            _httpClient = httpClient;
+            _httpClient = httpClient.CreateClient();
 
         }
 
