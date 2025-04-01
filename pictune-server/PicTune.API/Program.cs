@@ -139,10 +139,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowVercel");
 
 
 app.UseRouting();
+app.UseCors("AllowVercel");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
