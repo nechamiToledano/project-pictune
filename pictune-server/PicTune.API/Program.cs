@@ -113,15 +113,17 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Enable Swagger & CORS
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("MyPolicy",
-        policy => policy.
-        WithOrigins( "https://pictune-ai.onrender.com").AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials());
+    options.AddPolicy("MyPolicy", policy =>
+        policy
+            .WithOrigins("https://pictune-ai.onrender.com") 
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+    );
 });
-
 var app = builder.Build();
 
 // Ensure data is seeded on startup
