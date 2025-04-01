@@ -124,6 +124,12 @@ builder.Services.AddCors(options =>
             .AllowCredentials()
     );
 });
+builder.Services.AddLogging(options =>
+{
+    options.AddConsole();
+    options.AddDebug();
+});
+
 var app = builder.Build();
 
 // Ensure data is seeded on startup

@@ -61,7 +61,10 @@ export const userLogin = createAsyncThunk(
   "user/login",
   async ({ userName, password }: { userName: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await api.post("/auth/signin", { userName, password });
+      const response = await api.post("/auth/signin", { userName, password },
+        { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
+
+      );
       const { token, email: userEmail } = response.data;
 
       localStorage.setItem("token", token);
