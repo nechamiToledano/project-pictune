@@ -44,9 +44,10 @@ export default function ForgotPassword({ onBack }: ForgotPasswordProps) {
 
       if (response.data.status === 200) {
         setEmailSent(true)
-        localStorage.setItem("token-sent",response.headers['authorization'])
         toast.success("Password reset link sent to your email!")
       } else {
+        console.log(response.data.status +" status");
+        
         throw new Error(response.data.message || "Failed to send reset email")
       }
     } catch (error: any) {
