@@ -118,7 +118,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowVercel",
         policy => policy.WithOrigins("https://pictune-ai.vercel.app")
                         .AllowAnyHeader()
-                        .AllowAnyMethod());
+                        .AllowAnyMethod()
+                        .AllowCredentials());
 });
 
 var app = builder.Build();
