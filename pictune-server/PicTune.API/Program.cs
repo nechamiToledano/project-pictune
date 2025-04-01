@@ -116,7 +116,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVercel",
-        policy => policy.WithOrigins("https://pictune-ai.vercel.app")
+        policy => policy.WithOrigins("https://pictune-ai.onrender.com")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());

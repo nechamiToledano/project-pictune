@@ -49,5 +49,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENV ASPNETCORE_URLS=http://+:5000
+
 CMD ["dotnet", "PicTune.API.dll"]
 ENTRYPOINT ["dotnet", "PicTune.API.dll"]ã
