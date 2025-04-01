@@ -1,4 +1,5 @@
 {
+
   "name": "react-project",
   "private": true,
   "version": "0.0.0",
@@ -7,7 +8,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "homepage": "https://pictune.onrender.com"
+
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.3",
