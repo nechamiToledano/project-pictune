@@ -1,7 +1,8 @@
 {
   "root": "dist",
   "routes": {
-    "/api/*": "/api/",
-    "/*": "/index.html"
+    "/api/*": "/api/", // משאיר את קריאות ה-API ללא שינוי
+    "/static/*": "/static/", // משאיר את קבצי הסטטיים כמו CSS, JS, תמונות
+    "/*": "/index.html" // כל השאר נשלח ל-index.html כדי ש-React Router יטפל בזה
   }
 }
