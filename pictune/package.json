@@ -8,8 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "homepage": "https://pictune.onrender.com"
+    "preview": "vite preview"
 
   },
   "dependencies": {
