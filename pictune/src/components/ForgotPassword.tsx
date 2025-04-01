@@ -42,11 +42,11 @@ export default function ForgotPassword({ onBack }: ForgotPasswordProps) {
     try {
       const response = await api.post("/email/forgot-password", { email: trimmedEmail, userName: trimmedUserName })
 
-      if (response.data.status === 200) {
+      if (response.data.success) {
         setEmailSent(true)
         toast.success("Password reset link sent to your email!")
       } else {
-        console.log(response.data.status +" status");
+        console.log(response+" status");
         
         throw new Error(response.data.message || "Failed to send reset email")
       }
