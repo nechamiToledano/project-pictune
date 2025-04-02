@@ -39,10 +39,7 @@ namespace PicTune.API.Controllers
         [HttpGet("github")]
         public IActionResult GitHubLogin()
         {
-            var properties = new AuthenticationProperties
-            {
-                RedirectUri = "/api/auth/github/callback"
-            };
+            var properties = new AuthenticationProperties { };
 
             return Challenge(properties, "GitHub"); // Using Challenge instead of manual URL building
         }
