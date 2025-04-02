@@ -103,7 +103,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ViewerOnly", policy => policy.RequireRole("Viewer"));
 });
 
-// Register IHttpClientFactory and AuthService
+// Register IHttpClientFactory 
 builder.Services.AddHttpClient();  // Register IHttpClientFactory
 
 

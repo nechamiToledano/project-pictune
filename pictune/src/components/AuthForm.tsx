@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils"
 import { Link, useNavigate } from "react-router-dom"
 import ForgotPassword from "./ForgotPassword"
 import Background from "@/pages/Background"
+import { toast } from "sonner"
 
 interface AuthFormProps {
   defaultTab: "signup" | "signin"
@@ -147,17 +148,18 @@ export default function AuthForm({
     setIsSubmitting(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      onAuthSubmit({
+  await  onAuthSubmit({
         userName: formData.userName,
         email: activeTab === "signup" ? formData.email : undefined,
         password: formData.password,
         rememberMe: formData.rememberMe,
         acceptTerms: formData.acceptTerms,
       })
+      toast.success("You have successfully connected.")
+
     } catch (error) {
       console.error("Error submitting form:", error)
+      toast.error("There was an error connecting. Please try again.")
     } finally {
       setIsSubmitting(false)
     }

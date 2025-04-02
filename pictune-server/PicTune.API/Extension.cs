@@ -28,7 +28,6 @@ namespace PicTune.API
             services.AddScoped<IPlaylistService, PlaylistService>();
             services.AddScoped<IPlaylistRepository, PlaylistRepository>();
             services.AddScoped<IFolderRepository, FolderRepository>();
-
             services.AddScoped<RoleManager<Role>>();
         
            
