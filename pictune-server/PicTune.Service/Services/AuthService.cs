@@ -171,6 +171,20 @@ namespace PicTune.Service.Services
             return string.IsNullOrEmpty(username) ? null : await _userManager.FindByNameAsync(username);
 
         }
+ 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         public async Task<string> GetGitHubAccessTokenAsync(string code)
         {
             var clientId = Env.GetString("GITHUB_CLIENT_ID");

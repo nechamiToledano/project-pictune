@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using PicTune.API.PostModels;
 using PicTune.Core.DTOs;
@@ -24,79 +25,71 @@ namespace PicTune.API.Controllers
         private readonly IAuthService _authService;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IAuthService authService, IMapper mapper, UserManager<User> userManager)
+
+        public AuthController(IAuthService authService, IMapper mapper, UserManager<User> userManager, IConfiguration configuration)
         {
             _authService = authService;
             _mapper = mapper;
             _userManager = userManager;
+            _configuration = configuration;
+
         }
 
 
         [HttpGet("github")]
         public IActionResult GitHubLogin()
         {
-            var callbackUrl = Uri.EscapeDataString(Environment.GetEnvironmentVariable("GITHUB_REDIRECT_URI"));
-
             var properties = new AuthenticationProperties
             {
-                RedirectUri = callbackUrl
+                RedirectUri = "/api/auth/github/callback"
             };
 
-            var clientId = Env.GetString("GITHUB_CLIENT_ID");
-
-            // Log the URL being used
-            var githubUrl = $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={Uri.EscapeDataString(callbackUrl)}&scope=user:email";
-            Console.WriteLine($"Redirecting to GitHub with URL: {githubUrl}");
-
-            return Redirect(githubUrl); // Redirect to GitHub instead of Challenge
+            return Challenge(properties, "GitHub"); // Using Challenge instead of manual URL building
         }
 
         [HttpGet("github/callback")]
-        public async Task<IActionResult> GitHubCallback(string code)
+        public async Task<IActionResult> GitHubCallback()
         {
-            if (string.IsNullOrEmpty(code))
+            var result = await HttpContext.AuthenticateAsync("GitHub");
+
+            if (!result.Succeeded || result.Principal == null)
             {
-                return BadRequest("Authorization code not provided.");
+                return BadRequest("GitHub authentication failed.");
             }
 
-            var accessToken = await _authService.GetGitHubAccessTokenAsync(code);
+            var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
+            var username = result.Principal.FindFirst(ClaimTypes.Name)?.Value;
 
-            if (string.IsNullOrEmpty(accessToken))
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(username))
             {
-                return BadRequest("Failed to retrieve access token from GitHub.");
-            }
-
-            var userInfo = await _authService.GetGitHubUserInfoAsync(accessToken);
-
-            if (userInfo == null)
-            {
-                return BadRequest("Failed to retrieve user info from GitHub.");
+                return BadRequest("Failed to retrieve GitHub user info.");
             }
 
             // Check if user exists in your database
-            var user = await _userManager.FindByEmailAsync(userInfo.Email);
+            var user = await _userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
                 // Register the user if not exists
                 user = new User
                 {
-                    UserName = userInfo.Login,
-                    Email = userInfo.Email
+                    UserName = username,
+                    Email = email
                 };
 
-                var result = await _userManager.CreateAsync(user);
+                var resultCreate = await _userManager.CreateAsync(user);
 
-                if (!result.Succeeded)
+                if (!resultCreate.Succeeded)
                 {
-                    return BadRequest(result.Errors);
+                    return BadRequest(resultCreate.Errors);
                 }
             }
 
             // Generate JWT Token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(Env.GetString("JWT_KEY"));
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -120,11 +113,10 @@ namespace PicTune.API.Controllers
         }
 
 
-
-            /// <summary>
-            /// Registers a new user.
-            /// </summary>
-            [HttpPost("signup")]
+        /// <summary>
+        /// Registers a new user.
+        /// </summary>
+        [HttpPost("signup")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
