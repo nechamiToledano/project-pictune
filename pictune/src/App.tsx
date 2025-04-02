@@ -14,6 +14,7 @@ import PlaylistDetails from "./pages/PlaylistDetails"
 import MusicLibrary from "./pages/MusicLibrary"
 import CreatePlaylistPage from "./components/CreatePlaylist"
 import ResetPassword from "./pages/ResetPassword"
+import NotFoundScreen from "./pages/NotFoundScreen"
 
 const Layout: React.FC = () => {
   return (
@@ -45,6 +46,7 @@ const App: React.FC = () => {
           <Route path="/playlists/:id" element={<PlaylistDetails />} />    
           <Route path="/create-playlist" element={<CreatePlaylistPage />} />    
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<NotFoundScreen />} />
 
               </Route>
       </Routes>

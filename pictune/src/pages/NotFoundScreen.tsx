@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router-dom";
 
-interface NotFoundScreenProps {
-  navigate: (path: string) => void
-}
 
-export default function NotFoundScreen({ navigate }: NotFoundScreenProps) {
+export default function NotFoundScreen() {
+   const navigate=useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="bg-black/40 backdrop-blur-sm p-8 rounded-xl max-w-md text-center border border-gray-800">
