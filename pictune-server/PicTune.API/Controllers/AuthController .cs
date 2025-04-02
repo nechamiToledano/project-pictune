@@ -25,15 +25,13 @@ namespace PicTune.API.Controllers
         private readonly IAuthService _authService;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly IConfiguration _configuration;
 
-
-        public AuthController(IAuthService authService, IMapper mapper, UserManager<User> userManager, IConfiguration configuration)
+        public AuthController(IAuthService authService, IMapper mapper, UserManager<User> userManager)
         {
             _authService = authService;
             _mapper = mapper;
             _userManager = userManager;
-            _configuration = configuration;
+           
 
         }
 
@@ -89,7 +87,7 @@ namespace PicTune.API.Controllers
 
             // Generate JWT Token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+            var key = Encoding.UTF8.GetBytes(Env.GetString("JWT_KEY"));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
