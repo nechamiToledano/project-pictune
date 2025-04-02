@@ -12,6 +12,8 @@ using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Text;
 using PicTune.Service.Services;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 Env.Load();
 
@@ -73,8 +75,9 @@ builder.Services.AddAuthentication(options =>
     options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
     options.TokenEndpoint = "https://github.com/login/oauth/access_token";
     options.UserInformationEndpoint = "https://api.github.com/user";
-
     options.SaveTokens = true;
+
+    options.Scope.Add("user:email");
 
     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
     options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
@@ -83,18 +86,17 @@ builder.Services.AddAuthentication(options =>
     options.Events.OnCreatingTicket = async context =>
     {
         var request = new HttpRequestMessage(HttpMethod.Get, options.UserInformationEndpoint);
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", context.AccessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
         request.Headers.Add("User-Agent", "PicTuneApp");
 
         var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
         response.EnsureSuccessStatusCode();
 
-        var user = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var user = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
         context.RunClaimActions(user.RootElement);
     };
 });
-
 // Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
