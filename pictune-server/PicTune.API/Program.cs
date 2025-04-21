@@ -126,7 +126,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", policy =>
         policy
-            .WithOrigins("https://pictune-ai.onrender.com")
+            .WithOrigins("https://pictune-ai.onrender.com", "http://localhost:4200", "http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
