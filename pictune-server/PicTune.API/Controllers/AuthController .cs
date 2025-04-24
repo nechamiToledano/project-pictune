@@ -36,77 +36,7 @@ namespace PicTune.API.Controllers
         }
 
 
-        [HttpGet("github")]
-        public IActionResult GitHubLogin()
-        {
-            var properties = new AuthenticationProperties { };
-
-            return Challenge(properties, "GitHub"); // Using Challenge instead of manual URL building
-        }
-
-        [HttpGet("github/callback")]
-        public async Task<IActionResult> GitHubCallback()
-        {
-            var result = await HttpContext.AuthenticateAsync("GitHub");
-
-            if (!result.Succeeded || result.Principal == null)
-            {
-                return BadRequest("GitHub authentication failed.");
-            }
-
-            var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
-            var username = result.Principal.FindFirst(ClaimTypes.Name)?.Value;
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(username))
-            {
-                return BadRequest("Failed to retrieve GitHub user info.");
-            }
-
-            // Check if user exists in your database
-            var user = await _userManager.FindByEmailAsync(email);
-
-            if (user == null)
-            {
-                // Register the user if not exists
-                user = new User
-                {
-                    UserName = username,
-                    Email = email
-                };
-
-                var resultCreate = await _userManager.CreateAsync(user);
-
-                if (!resultCreate.Succeeded)
-                {
-                    return BadRequest(resultCreate.Errors);
-                }
-            }
-
-            // Generate JWT Token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(Env.GetString("JWT_KEY"));
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return Ok(new
-            {
-                Token = tokenHandler.WriteToken(token),
-                Expiration = tokenDescriptor.Expires
-            });
-        }
-
+   
 
         /// <summary>
         /// Registers a new user.

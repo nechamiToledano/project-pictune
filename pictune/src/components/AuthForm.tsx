@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Eye, EyeOff, Github, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -92,9 +92,7 @@ export default function AuthForm({
     navigate(`/${value}`, { replace: true })
   }
   
-    const handleGitHubLogin = () => {
-        window.location.href = `${import.meta.env.VITE_API_KEY}/api/auth/github`;
-    };
+  
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
@@ -346,20 +344,7 @@ export default function AuthForm({
                           <div className="relative px-4 bg-black/30 text-xs uppercase text-gray-400">
                             Or continue with
                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-2">
-                          <Button
-                            onClick={handleGitHubLogin}
-
-                            variant="outline"
-                            type="button"
-                            className="py-6 border-gray-700 text-white hover:bg-gray-800"
-                          >
-                            <Github className="mr-2 h-4 w-4" />
-                            GitHub
-                          </Button>
-                        </div>
+                        </div>                          
                       </CardFooter>
                     </form>
                   </TabsContent>
@@ -591,16 +576,7 @@ export default function AuthForm({
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-2">
-                          <Button
-                            variant="outline"
-                            type="button"
-                            className="py-6 border-gray-700 text-white hover:bg-gray-800"
-                          >
-                            <Github className="mr-2 h-4 w-4" />
-                            GitHub
-                          </Button>
-                        </div>
+                       
                       </CardFooter>
                     </form>
                   </TabsContent>

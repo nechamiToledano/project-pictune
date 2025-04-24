@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Http;
+using PicTune.Core.DTOs;
 
 namespace PicTune.Service.Services
 {
@@ -101,7 +102,25 @@ namespace PicTune.Service.Services
         /// </summary>
         public async Task<User?> GetUserByIdAsync(string userId)
         {
-            return string.IsNullOrEmpty(userId) ? null : await _userManager.FindByIdAsync(userId);
+            if (string.IsNullOrEmpty(userId))
+                return null;
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return null;
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var userDto = new User
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt,
+                Roles = (ICollection<Role>)roles.ToList()
+            };
+
+            return userDto;
         }
 
         /// <summary>
