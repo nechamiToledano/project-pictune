@@ -1,0 +1,19 @@
+<div class="dashboard-container">
+    <app-background></app-background>
+
+    <app-navbar [sidenav]="sidenav" [isHandset$]="isHandset$" [user$]="user$"></app-navbar>
+  
+    <mat-sidenav-container class="sidenav-container">
+      <mat-sidenav #sidenav [mode]="(isHandset$ | async) ? 'over' : 'side'"
+                   [opened]="!(isHandset$ | async)" class="sidenav">
+        <app-sidebar></app-sidebar>
+      </mat-sidenav>
+  
+      <mat-sidenav-content>
+        <div class="content-container">
+          <router-outlet></router-outlet>
+        </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>
+  

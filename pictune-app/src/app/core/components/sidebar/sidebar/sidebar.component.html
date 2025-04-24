@@ -1,0 +1,59 @@
+<div class="sidebar-container">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </div>
+    </div>
+    
+    <mat-divider class="sidebar-divider"></mat-divider>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Main</div>
+      
+      <mat-nav-list class="sidebar-nav-list">
+        <a mat-list-item routerLink="/users" routerLinkActive="active" class="sidebar-nav-item">
+          <mat-icon matListItemIcon>people</mat-icon>
+          <span matListItemTitle>Users</span>
+        </a>
+        
+        <a mat-list-item routerLink="/music-files" routerLinkActive="active" class="sidebar-nav-item">
+          <mat-icon matListItemIcon>music_note</mat-icon>
+          <span matListItemTitle>Music Files</span>
+        </a>
+        
+        <a mat-list-item routerLink="/playlists" routerLinkActive="active" class="sidebar-nav-item">
+          <mat-icon matListItemIcon>playlist_play</mat-icon>
+          <span matListItemTitle>Playlists</span>
+        </a>
+      </mat-nav-list>
+    </div>
+    
+    <mat-divider class="sidebar-divider"></mat-divider>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Administration</div>
+        
+        <mat-nav-list class="sidebar-nav-list">
+          <a mat-list-item routerLink="/settings" routerLinkActive="active" class="sidebar-nav-item">
+            <mat-icon matListItemIcon>settings</mat-icon>
+            <span matListItemTitle>Settings</span>
+          </a>
+          
+          <a mat-list-item routerLink="/analytics" routerLinkActive="active" class="sidebar-nav-item">
+            <mat-icon matListItemIcon>analytics</mat-icon>
+            <span matListItemTitle>Analytics</span>
+          </a>
+        </mat-nav-list>
+      </div>
+      
+      <mat-divider class="sidebar-divider"></mat-divider>
+
+    
+    <div class="sidebar-footer">
+      <div class="sidebar-version">
+        <span>PicTune Admin v1.0</span>
+      </div>
+    </div>
+  </div>
+  

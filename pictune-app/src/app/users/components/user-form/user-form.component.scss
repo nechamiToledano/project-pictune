@@ -1,0 +1,26 @@
+.user-form-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .form-row {
+    margin-bottom: 16px;
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  
+  mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }
+  
+  

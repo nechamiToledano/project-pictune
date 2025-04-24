@@ -1,0 +1,233 @@
+/* Update the root variables for better color contrast */
+:root {
+  --primary-gradient: linear-gradient(to right, rgba(220, 38, 38, 0.3), rgba(37, 99, 235, 0.3));
+  --primary-gradient-hover: linear-gradient(to right, rgba(220, 38, 38, 0.5), rgba(37, 99, 235, 0.5));
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --bg-card: rgba(15, 15, 15, 0.7);
+  --bg-card-hover: rgba(25, 25, 25, 0.8);
+  --border-color: rgba(75, 85, 99, 0.5);
+  --navbar-bg: rgba(10, 10, 15, 0.85);
+  --sidebar-bg: rgba(10, 10, 15, 0.8);
+  --icon-color: rgba(255, 255, 255, 0.8);
+  --icon-hover-color: #ffffff;
+}
+
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #000000;
+  color: var(--text-primary);
+}
+
+/* Global styles */
+.gradient-text {
+  background: linear-gradient(to right, #ef4444, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-border {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-gradient);
+  }
+}
+
+.blur-backdrop {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Material overrides */
+.mat-mdc-card {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+  color: var(--text-primary) !important;
+  overflow: hidden !important;
+}
+
+.mat-mdc-card-title {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-card-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-raised-button.mat-primary {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    background: var(--primary-gradient-hover) !important;
+    transform: translateY(-2px);
+  }
+}
+
+.mat-mdc-raised-button.mat-warn {
+  background-color: rgba(244, 67, 54, 0.8) !important;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-outline {
+  color: var(--border-color) !important;
+}
+
+.mat-mdc-form-field-appearance-outline.mat-focused .mat-mdc-form-field-outline {
+  color: rgba(59, 130, 246, 0.8) !important;
+}
+
+.mat-mdc-form-field-label {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-input-element {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field-icon-suffix {
+  color: var(--icon-color) !important;
+}
+
+.mat-mdc-table {
+  background-color: transparent !important;
+}
+
+.mat-mdc-row {
+  background-color: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--bg-card-hover) !important;
+  }
+}
+
+.mat-mdc-header-row {
+  background-color: rgba(10, 10, 15, 0.8) !important;
+}
+
+.mat-mdc-header-cell {
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+}
+
+.mat-mdc-cell {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-paginator {
+  background-color: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-icon-button {
+  color: var(--icon-color) !important;
+  
+  &:hover {
+    color: var(--icon-hover-color) !important;
+  }
+}
+
+.mat-mdc-progress-spinner circle {
+  stroke: white !important;
+}
+
+.mat-mdc-tab-group {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-tab-label {
+  color: var(--text-secondary) !important;
+  opacity: 0.7 !important;
+  
+  &.mat-mdc-tab-label-active {
+    color: var(--text-primary) !important;
+    opacity: 1 !important;
+  }
+}
+
+.mat-mdc-tab-header {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.mat-mdc-tab-header-pagination-chevron {
+  border-color: var(--text-secondary) !important;
+}
+
+.mat-mdc-menu-panel {
+  background-color: rgba(10, 10, 15, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.mat-mdc-menu-item {
+  color: var(--text-primary) !important;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+.mat-mdc-snack-bar-container {
+  background-color: rgba(10, 10, 15, 0.95) !important;
+  color: var(--text-primary) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Fix for icon display */
+.mat-icon {
+  font-family: 'Material Icons' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}

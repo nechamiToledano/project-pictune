@@ -1,0 +1,68 @@
+<div class="user-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Edit User' : 'Create User' }}</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="userName" placeholder="Enter username">
+           @if(userForm.get('userName')?.hasError('required')){ <mat-error >
+              Username is required
+            </mat-error>}
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" placeholder="Enter email" type="email">
+          @if(userForm.get('email')?.hasError('required')){  <mat-error >
+              Email is required
+            </mat-error>}
+            @if(userForm.get('email')?.hasError('email'))
+            {
+            <mat-error >
+              Please enter a valid email address
+            </mat-error>
+          }
+          </mat-form-field>
+        </div>
+        
+        @if (!isEditMode) {
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input matInput formControlName="password" placeholder="Enter password" type="password">
+              @if (userForm.get('password')?.hasError('required')) {
+                <mat-error>
+                  Password is required
+                </mat-error>
+              }
+              @if (userForm.get('password')?.hasError('minlength')) {
+                <mat-error>
+                  Password must be at least 6 characters
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+        }
+        
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid || (loading$ | async)">
+            @if (loading$ | async) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <span>{{ isEditMode ? 'Update' : 'Create' }}</span>
+            }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

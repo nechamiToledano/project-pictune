@@ -1,0 +1,23 @@
+<mat-toolbar class="toolbar">
+    @if (isHandset$ | async) {
+      <button mat-icon-button (click)="sidenav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    }
+    <span>PicTune Admin</span>
+    <span class="spacer"></span>
+  
+    @if (user$ | async; as user) {
+      <button mat-button [matMenuTriggerFor]="userMenu">
+        <mat-icon>account_circle</mat-icon>
+        {{ user.userName }}
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    }
+  </mat-toolbar>
+  
