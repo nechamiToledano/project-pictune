@@ -54,7 +54,7 @@ export class UserEffects {
         ofType(UserActions.loadUser),
         tap(() => console.log("[Effect] loadUser triggered")),
         mergeMap((action) =>
-          this.apiService.getUserProfile().pipe(
+          this.apiService.getUserProfile(action.id).pipe(
             map((user: User) => {
               console.log("[Effect] loadUser success", user);
               return UserActions.loadUserSuccess({ user });

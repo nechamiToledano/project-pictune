@@ -33,7 +33,7 @@ export const authReducer = createReducer(
   on(AuthActions.loginSuccess, (state, { response }) => ({
     ...state,
     token: response.token,
-    roles: response.roles,
+    user: response.user,
     isAuthenticated: true,
     loading: false,
     error: null,
@@ -61,11 +61,7 @@ export const authReducer = createReducer(
     error: null,
   })),
 
-  // Load User Profile
-  on(AuthActions.loadUserProfile, (state) => ({
-    ...state,
-    loading: true,
-  })),
+
 
   on(AuthActions.loadUserProfileSuccess, (state, { user }) => ({
     ...state,

@@ -15,7 +15,6 @@ export const autoLogin = createAction("[Auth] Auto Login")
 export const logout = createAction("[Auth] Logout")
 
 // Get user profile actions
-export const loadUserProfile = createAction("[Auth] Load User Profile")
 
 export const loadUserProfileSuccess = createAction("[Auth] Load User Profile Success", props<{ user: User }>())
 

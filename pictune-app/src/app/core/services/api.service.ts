@@ -23,8 +23,9 @@ export class ApiService {
     return this.http.get<any[]>(`${this.apiUrl}/users`)
   }
 
-  getUserProfile(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/auth/profile`)
+  getUserProfile(id:string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/users/${id}`)
+    
   }
 
   createUser(user: any): Observable<any> {
