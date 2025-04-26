@@ -19,7 +19,7 @@ using PicTune.Core.DTOs;
 
 namespace PicTune.Service.Services
 {
-    public class AuthService:IAuthService
+    public class AuthService : IAuthService
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
@@ -34,12 +34,12 @@ namespace PicTune.Service.Services
             IConfiguration configuration,
               IHttpClientFactory httpClient)
 
-            
+
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
-            _configuration = configuration; 
+            _configuration = configuration;
             _httpClient = httpClient.CreateClient();
 
         }
@@ -69,7 +69,7 @@ namespace PicTune.Service.Services
             // Fetch assigned roles as strings
             var roleNames = await _userManager.GetRolesAsync(user);
 
-         
+
 
             return result;
         }
@@ -92,7 +92,7 @@ namespace PicTune.Service.Services
             {
                 await _userManager.AddToRoleAsync(user, "Viewer");
             }
-            
+
             return GenerateJwtToken(user);
         }
 
@@ -152,7 +152,7 @@ namespace PicTune.Service.Services
             {
                 if (!await _roleManager.RoleExistsAsync(role))
                 {
-                    await _roleManager.CreateAsync(new Role() { Name=role});
+                    await _roleManager.CreateAsync(new Role() { Name = role });
                 }
             }
         }
@@ -185,7 +185,7 @@ namespace PicTune.Service.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public async Task<User?> GetUserByUsernameAsync(string username)
+        public async Task<UserDto?> GetUserByUsernameAsync(string username)
         {
 
             if (string.IsNullOrEmpty(username))
@@ -196,86 +196,21 @@ namespace PicTune.Service.Services
                 return null;
 
             var roles = await _userManager.GetRolesAsync(user);
+            var roleEntities = await _roleManager.Roles
+    .Where(r => roles.Contains(r.Name))  // אנחנו מחפשים את כל ה־Roles לפי שמות התפקידים
+    .ToListAsync();
 
-            var userDto = new User
+            var userDto = new UserDto
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 CreatedAt = user.CreatedAt,
-                Roles = (ICollection<Role>)roles.ToList()
+                Roles = roles.Select(roleName =>roleName ).ToList()
             };
 
             return userDto;
         }
- 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        public async Task<string> GetGitHubAccessTokenAsync(string code)
-        {
-            var clientId = Env.GetString("GITHUB_CLIENT_ID");
-            var clientSecret = Env.GetString("GITHUB_CLIENT_SECRET");
-
-            var requestData = new
-            {
-                client_id = clientId,
-                client_secret = clientSecret,
-                code = code,
-                redirect_uri = "https://pictune.onrender.com/api/auth/github/callback"
-            };
-
-            var requestContent = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync("https://github.com/login/oauth/access_token", requestContent);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Failed to retrieve access token. Status Code: {response.StatusCode}");
-                return null;
-            }
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            // GitHub returns a query string, so we need to parse it
-            var queryParams = System.Web.HttpUtility.ParseQueryString(responseContent);
-            var accessToken = queryParams["access_token"];
-
-            return accessToken;
-        }
-
-        public async Task<GitHubUserInfo> GetGitHubUserInfoAsync(string accessToken)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            var response = await _httpClient.GetAsync("https://api.github.com/user");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Failed to retrieve user info. Status Code: {response.StatusCode}");
-                return null;
-            }
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            var userInfo = JsonSerializer.Deserialize<GitHubUserInfo>(responseContent, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            return userInfo;
-        }
 
     }
 }
-

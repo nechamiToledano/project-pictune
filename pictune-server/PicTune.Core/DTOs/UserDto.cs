@@ -8,7 +8,7 @@ namespace PicTune.Core.DTOs
         public string UserName { get; set; }
         public string Email { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ICollection<Role> Roles { get; set; }
+        public List<string> Roles { get; set; }
 
     }
 }

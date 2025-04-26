@@ -39,7 +39,10 @@ export class AuthEffects {
       ofType(AuthActions.login),
       switchMap((action) =>
         this.apiService.login(action.request.userName, action.request.password).pipe(
+          
           map((response: LoginResponse) => {
+            console.log(response);
+
             localStorage.setItem("user", JSON.stringify(response.user));
             localStorage.setItem("token", response.token);
             return AuthActions.loginSuccess({ response });
