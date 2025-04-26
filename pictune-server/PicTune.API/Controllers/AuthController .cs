@@ -77,8 +77,8 @@ namespace PicTune.API.Controllers
             Response.Headers.Append("Access-Control-Allow-Credentials", "true");
             return Ok(new
             {
-                Token = token,
-                User = user
+                token = token,
+                user = user
             });
 
         }
