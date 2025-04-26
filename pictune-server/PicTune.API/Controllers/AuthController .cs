@@ -70,14 +70,13 @@ namespace PicTune.API.Controllers
                 return Unauthorized(new { Message = "Invalid username or password" });
 
             var user = await _authService.GetUserByUsernameAsync(loginDto.UserName);
-            var roles = await _userManager.GetRolesAsync(user);
 
             Response.Headers.Append("Access-Control-Allow-Origin", "https://pictune-ai.onrender.com");
             Response.Headers.Append("Access-Control-Allow-Credentials", "true");
             return Ok(new
             {
                 Token = token,
-                Roles = roles
+                user = user
             });
 
         }

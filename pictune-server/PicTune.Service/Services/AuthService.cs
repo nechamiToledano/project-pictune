@@ -187,8 +187,26 @@ namespace PicTune.Service.Services
         }
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return string.IsNullOrEmpty(username) ? null : await _userManager.FindByNameAsync(username);
 
+            if (string.IsNullOrEmpty(username))
+                return null;
+
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                return null;
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var userDto = new User
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt,
+                Roles = (ICollection<Role>)roles.ToList()
+            };
+
+            return userDto;
         }
  
         
