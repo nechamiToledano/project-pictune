@@ -6,7 +6,7 @@ export interface Playlist {
   description: string
   userId: string
   createdAt: string
-  musicFiles?: MusicFile[]
+  songs?: MusicFile[]
 }
 
 export interface CreatePlaylistDto {

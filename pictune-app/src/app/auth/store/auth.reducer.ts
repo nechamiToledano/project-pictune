@@ -45,11 +45,7 @@ export const authReducer = createReducer(
     error,
   })),
 
-  // Auto Login
-  on(AuthActions.autoLogin, (state) => ({
-    ...state,
-    loading: true,
-  })),
+
 
   // Logout
   on(AuthActions.logout, (state) => ({

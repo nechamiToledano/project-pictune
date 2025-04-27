@@ -25,24 +25,23 @@ export class AuthEffects {
   ) {
 
     this.init$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(ROOT_EFFECTS_INIT),
-      map(() => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        return token ? AuthActions.autoLogin() : AuthActions.logout();
-      })
-    )
-  );
+      this.actions$.pipe(
+        ofType(ROOT_EFFECTS_INIT),
+        map(() => {
+          const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+          const user = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+          return token && user ? AuthActions.autoLogin() : AuthActions.logout();
+        })
+      )
+    );
+  
 
-  this.login$ = createEffect(() =>
+  this.login$ =  createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
       switchMap((action) =>
         this.apiService.login(action.request.userName, action.request.password).pipe(
-          
           map((response: LoginResponse) => {
-            console.log(response);
-
             localStorage.setItem("user", JSON.stringify(response.user));
             localStorage.setItem("token", response.token);
             return AuthActions.loginSuccess({ response });
@@ -57,24 +56,27 @@ export class AuthEffects {
     )
   );
 
- this. loginSuccess$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.loginSuccess),
-      tap(() => {
-        const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-        const user = userJson ? JSON.parse(userJson) : null;
-       if (!user?.roles?.includes('admin')) {
-         this.snackBar.open('Access denied: Admins only', 'Close', { duration: 3000 });
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          this.router.navigate(['/login']);
-        } else {
-          this.router.navigate(['/']);
-        }
-      })
-    ),
-    { dispatch: false }
-  );
+ this. loginSuccess$ =createEffect(() =>
+  this.actions$.pipe(
+    ofType(AuthActions.loginSuccess),
+    tap(() => {
+      const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      const user = userJson ? JSON.parse(userJson) : null;
+
+      // Check if user is an admin, else logout
+      if (!user?.roles?.includes('Admin')) {
+        this.snackBar.open('Access denied: Admins only', 'Close', { duration: 3000 });
+       typeof window!=='undefined'? localStorage.removeItem('token'):null;
+       typeof window!=='undefined'? localStorage.removeItem('user'):null;
+        this.router.navigate(['/login']);
+      } else {
+        this.router.navigate(['/']);
+      }
+    })
+  ),
+  { dispatch: false }
+);
+
 
   this.autoLogin$ = createEffect(() =>
     this.actions$.pipe(
@@ -83,11 +85,7 @@ export class AuthEffects {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user')!!) : null;
 
-        if (!token || !user) {
-          return of(AuthActions.logout());
-        }
-
-        if (!user.roles?.includes('admin')) {
+        if (!token || !user || !user.roles?.includes('Admin')) {
           return of(AuthActions.logout());
         }
 
@@ -101,15 +99,14 @@ export class AuthEffects {
 
   
 
- this. logout$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.logout),
-      tap(() => {
-        typeof window !== 'undefined' ? localStorage.removeItem('token') : null;
-        typeof window !== 'undefined' ? localStorage.removeItem('user') : null;
-        this.router.navigate(['/login']);
-      })
-    ),
-    { dispatch: false }
-  );
-}}
+ this. logout$=createEffect(() =>
+  this.actions$.pipe(
+    ofType(AuthActions.logout),
+    tap(() => {
+      typeof window !== 'undefined' ? localStorage.removeItem('token') : null;
+      typeof window !== 'undefined' ? localStorage.removeItem('user') : null;
+      this.router.navigate(['/login']);
+    })
+  ),
+  { dispatch: false }
+);}}

@@ -65,13 +65,13 @@ export const userLogin = createAsyncThunk(
         { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
 
       );
-      const { token, email: userEmail } = response.data;
+      const { token, user } = response.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("userName", userName);
-      localStorage.setItem("email", userEmail);
+      localStorage.setItem("email", user.email);
 
-      return { userName, email: userEmail, isLoggedIn: true };
+      return { userName, email: user.email, isLoggedIn: true };
     } catch (error: any) {
       return rejectWithValue(error.response.data);
     }

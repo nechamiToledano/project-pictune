@@ -3,14 +3,14 @@
   --primary-gradient: linear-gradient(to right, rgba(220, 38, 38, 0.3), rgba(37, 99, 235, 0.3));
   --primary-gradient-hover: linear-gradient(to right, rgba(220, 38, 38, 0.5), rgba(37, 99, 235, 0.5));
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  --text-muted: rgba(255, 255, 255, 0.7);
   --bg-card: rgba(15, 15, 15, 0.7);
   --bg-card-hover: rgba(25, 25, 25, 0.8);
   --border-color: rgba(75, 85, 99, 0.5);
   --navbar-bg: rgba(10, 10, 15, 0.85);
   --sidebar-bg: rgba(10, 10, 15, 0.8);
-  --icon-color: rgba(255, 255, 255, 0.8);
+  --icon-color: rgba(255, 255, 255, 0.9);
   --icon-hover-color: #ffffff;
 }
 
@@ -22,6 +22,15 @@ html, body {
   margin: 0; 
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: #000000;
+  color: var(--text-primary);
+}
+
+/* Global text styles - Apply to all text elements */
+* {
+  color: var(--text-primary);
+}
+
+p, span, div, h1, h2, h3, h4, h5, h6, a, button, input, select, textarea, label, li {
   color: var(--text-primary);
 }
 
@@ -230,4 +239,223 @@ html, body {
   word-wrap: normal;
   direction: ltr;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Additional fixes for text visibility */
+.mat-mdc-select-value-text {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-option {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-select-panel {
+  background-color: var(--bg-card) !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.mat-mdc-option:hover:not(.mat-mdc-option-disabled) {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mat-mdc-select-arrow {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator-range-label {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator-page-size-label {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator-icon {
+  fill: var(--text-secondary) !important;
+}
+
+.mat-mdc-checkbox-frame {
+  border-color: var(--text-secondary) !important;
+}
+
+.mat-mdc-checkbox-checked .mat-mdc-checkbox-background {
+  background-color: var(--text-primary) !important;
+}
+
+.mat-mdc-slide-toggle-label {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-dialog-container {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-card) !important;
+}
+
+.mat-mdc-dialog-title {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-dialog-content {
+  color: var(--text-secondary) !important;
+}
+
+/* Fix for select dropdown */
+.mat-mdc-select-panel {
+  background-color: rgba(15, 15, 15, 0.95) !important;
+}
+
+.cdk-overlay-pane {
+  color: var(--text-primary) !important;
+}
+
+/* Override all Angular Material text colors */
+.mdc-text-field__input,
+.mdc-floating-label,
+.mdc-text-field--outlined .mdc-floating-label,
+.mdc-text-field--filled .mdc-floating-label,
+.mdc-text-field-helper-text,
+.mdc-list-item__primary-text,
+.mdc-list-item__secondary-text,
+.mdc-menu-surface,
+.mdc-select__selected-text,
+.mdc-select-helper-text,
+.mdc-data-table__header-cell,
+.mdc-data-table__cell,
+.mdc-tab__text-label,
+.mdc-button__label,
+.mdc-dialog__title,
+.mdc-dialog__content,
+.mdc-form-field,
+.mdc-form-field label,
+.mdc-radio__label,
+.mdc-checkbox__label,
+.mdc-switch__label,
+.mdc-slider__value-indicator-text {
+  color: var(--text-primary) !important;
+}
+
+/* Override for all Angular Material components */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-icon-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  color: var(--text-primary) !important;
+}
+
+/* Override for all form controls */
+.mat-mdc-form-field,
+.mat-mdc-select,
+.mat-mdc-checkbox,
+.mat-mdc-radio-button,
+.mat-mdc-slide-toggle,
+.mat-mdc-slider,
+.mat-mdc-input,
+.mat-mdc-textarea {
+  color: var(--text-primary) !important;
+}
+
+/* Override for all text in overlays */
+.cdk-overlay-container {
+  color: var(--text-primary) !important;
+}
+
+.cdk-overlay-container .mat-mdc-option {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for dropdown menus */
+.mat-mdc-select-panel .mat-mdc-option {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for autocomplete panels */
+.mat-mdc-autocomplete-panel {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-autocomplete-panel .mat-mdc-option {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for tooltips */
+.mat-tooltip {
+  background-color: rgba(10, 10, 15, 0.95) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix for snackbars */
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  background-color: rgba(10, 10, 15, 0.95) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix for datepicker */
+.mat-calendar {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-calendar-body-cell-content {
+  color: var(--text-primary) !important;
+}
+
+.mat-calendar-body-selected {
+  background-color: rgba(59, 130, 246, 0.8) !important;
+  color: white !important;
+}
+
+/* Fix for all text in the application */
+.app-container, 
+.page-container, 
+.content-container, 
+.card-content, 
+.form-container, 
+.table-container,
+.chart-container,
+.settings-container,
+.analytics-container {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for all headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for all paragraphs */
+p {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for all spans */
+span {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for all labels */
+label {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for all links */
+a {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for all buttons */
+button {
+  color: var(--text-primary) !important;
+}
+
+/* Fix for all inputs */
+input, select, textarea {
+  color: var(--text-primary) !important;
 }
