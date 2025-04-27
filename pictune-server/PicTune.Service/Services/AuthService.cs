@@ -100,7 +100,7 @@ namespace PicTune.Service.Services
         /// <summary>
         /// Retrieves user by ID.
         /// </summary>
-        public async Task<User?> GetUserByIdAsync(string userId)
+        public async Task<UserDto?> GetUserByIdAsync(string userId)
         {
             if (string.IsNullOrEmpty(userId))
                 return null;
@@ -108,18 +108,19 @@ namespace PicTune.Service.Services
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return null;
-
             var roles = await _userManager.GetRolesAsync(user);
+            var roleEntities = await _roleManager.Roles
+    .Where(r => roles.Contains(r.Name))  // אנחנו מחפשים את כל ה־Roles לפי שמות התפקידים
+    .ToListAsync();
 
-            var userDto = new User
+            var userDto = new UserDto
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 CreatedAt = user.CreatedAt,
-                Roles = (ICollection<Role>)roles.ToList()
+                Roles = roles.Select(roleName => roleName).ToList()
             };
-
             return userDto;
         }
 

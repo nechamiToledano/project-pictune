@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
-import { fetchUserProfile, userLogin } from "@/store/slices/userSlice";
+import {  userLogin } from "@/store/slices/userSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
 
@@ -12,8 +12,7 @@ const SignIn: React.FC = () => {
     try {
       const result = await dispatch(userLogin({ userName: data.userName, password: data.password }));
       if (userLogin.fulfilled.match(result)) {
-        dispatch(fetchUserProfile())
-        navigate("/");
+  navigate("/");
 
       window.location.reload();
       }

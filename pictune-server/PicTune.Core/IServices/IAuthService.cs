@@ -8,7 +8,7 @@ namespace PicTune.Core.IServices
     {
         Task<IdentityResult> RegisterUserAsync(string username, string password, string email);
         Task<string?> LoginUserAsync(string username, string password);
-        Task<User?> GetUserByIdAsync(string userId);
+        Task<UserDto?> GetUserByIdAsync(string userId);
         Task<UserDto?> GetUserByUsernameAsync(string username);
         Task<User?> UpdateUserByIdAsync(string userId, User model);
         
