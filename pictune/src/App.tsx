@@ -15,10 +15,11 @@ import MusicLibrary from "./pages/MusicLibrary"
 import CreatePlaylistPage from "./components/CreatePlaylist"
 import ResetPassword from "./pages/ResetPassword"
 import NotFoundScreen from "./pages/NotFoundScreen"
-import ProtectedRoute from "./guards/protectedRoute"
-import GuestRoute from "./guards/guestRoute"
+
 import { useSelector } from "react-redux"
 import { RootState } from "./store/store"
+import GuestRoute from "./guards/GuestRoute"
+import ProtectedRoute from "./guards/ProtectedRoute"
 
 const Layout: React.FC = () => {
   return (
