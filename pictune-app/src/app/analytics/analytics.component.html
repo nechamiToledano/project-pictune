@@ -1,0 +1,80 @@
+<div class="page-container fade-in">
+    <div class="page-header">
+      <div class="header-title">
+        <div class="header-icon">
+          <mat-icon>analytics</mat-icon>
+        </div>
+        <h1>Analytics Dashboard</h1>
+      </div>
+      
+
+    </div>
+    
+    <div class="stats-cards">
+      <mat-card class="stat-card">
+        <div class="card-header-line"></div>
+        <div class="stat-card-content">
+          <div class="stat-icon users-icon">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>Total Users</h3>
+            <div class="stat-value">{{ userCount$ | async }}</div>
+            <div class="stat-change positive">
+            
+            </div>
+          </div>
+        </div>
+      </mat-card>
+      
+      <mat-card class="stat-card">
+        <div class="card-header-line"></div>
+        <div class="stat-card-content">
+          <div class="stat-icon files-icon">
+            <mat-icon>music_note</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>Music Files</h3>
+            <div class="stat-value">{{ musicFileCount$ | async }}</div>
+            <div class="stat-change positive">
+          
+            </div>
+          </div>
+        </div>
+      </mat-card>
+      
+      <mat-card class="stat-card">
+        <div class="card-header-line"></div>
+        <div class="stat-card-content">
+          <div class="stat-icon playlists-icon">
+            <mat-icon>playlist_play</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>Playlists</h3>
+            <div class="stat-value">{{ playlistCount$ | async }}</div>
+            <div class="stat-change positive">
+            </div>
+          </div>
+        </div>
+      </mat-card>
+      
+      <mat-card class="stat-card">
+        <div class="card-header-line"></div>
+        <div class="stat-card-content">
+          <div class="stat-icon avg-icon">
+            <mat-icon>bar_chart</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>Avg. Files per Playlist</h3>
+            <div class="stat-value">{{ averageFilesPerPlaylist$ | async }}</div>
+            <div class="stat-change neutral">
+         
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+    
+
+  </div>
+  
