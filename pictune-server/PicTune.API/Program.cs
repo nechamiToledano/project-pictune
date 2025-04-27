@@ -65,38 +65,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 })
-.AddCookie()
-.AddOAuth("GitHub", options =>
-{
-    options.ClientId = githubClientId;
-    options.ClientSecret = githubClientSecret;
-    options.CallbackPath = new PathString("/api/auth/github/callback");
-
-    options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
-    options.TokenEndpoint = "https://github.com/login/oauth/access_token";
-    options.UserInformationEndpoint = "https://api.github.com/user";
-    options.SaveTokens = true;
-
-    options.Scope.Add("user:email");
-
-    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
-    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-
-    options.Events.OnCreatingTicket = async context =>
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, options.UserInformationEndpoint);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
-        request.Headers.Add("User-Agent", "PicTuneApp");
-
-        var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
-        response.EnsureSuccessStatusCode();
-
-        var user = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-
-        context.RunClaimActions(user.RootElement);
-    };
-});
+.AddCookie();
 // Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
@@ -126,7 +95,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", policy =>
         policy
-            .WithOrigins("https://pictune-ai.onrender.com", "http://localhost:4200", "http://localhost:5173")
+            .WithOrigins("https://pictune-ai.onrender.com", "http://localhost:4200", "http://localhost:5173", "https://pictune-admin.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
