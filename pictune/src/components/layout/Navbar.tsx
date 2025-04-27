@@ -15,28 +15,27 @@ import UserProfileDialog from "./UserProfileDialog"
 import { Link } from "react-router-dom"
 import { Avatar, AvatarImage } from "../ui/avatar"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { RootState } from "@/store/store"
+import { useSelector } from "react-redux"
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const isLoggedIn  = useSelector((state: RootState) => state.user.isLoggedIn)
   const [isScrolled, setIsScrolled] = useState(false)
 
 
-  useEffect(() => {
-   
-
-    const token = localStorage.getItem("token")
-    setIsLoggedIn(!!token)
-  const handleScroll = () => {
+  useEffect( () => {
+    const handleScroll = () => {
       if (window.scrollY > 10) {
-        setIsScrolled(true)
+        setIsScrolled(true);
       } else {
-        setIsScrolled(false)
+        setIsScrolled(false);
       }
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [ isLoggedIn])
+    };
+  
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  
 
   
 

@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useNavigate } from "react-router-dom"
-import { fetchUserProfile } from "@/store/slices/userSlice"
+import { fetchUserProfile, userLogout } from "@/store/slices/userSlice"
 import { AppDispatch, RootState } from "@/store/store"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -48,8 +48,7 @@ export default function UserProfileDialog() {
 
   const handleLogout = () => {
     // Clear localStorage and reset any necessary state
-    localStorage.removeItem("token")
-    dispatch({ type: "user/logout" }) // Replace with actual action if needed
+    dispatch(userLogout()) // Replace with actual action if needed
     navigate("/")
     setOpen(false)
   }
@@ -59,8 +58,8 @@ export default function UserProfileDialog() {
     setOpen(false)
   }
 
-  const userName = user?.userName || "User"
-  const userEmail = user?.email || "email@example.com"
+  const userName = user?.userName || "Guest"
+  const userEmail = user?.email || ""
   const userImage =  "" 
 
   const userInitials = userName
@@ -78,6 +77,7 @@ export default function UserProfileDialog() {
               {userInitials}
             </AvatarFallback>
           </Avatar>
+          
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md bg-black/90 backdrop-blur-md text-white border-gray-800 shadow-xl">

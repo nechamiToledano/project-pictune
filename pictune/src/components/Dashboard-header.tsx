@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useNavigate, useLocation } from "react-router-dom"; // ✅ Corrected import
+import { useNavigate } from "react-router-dom"; // ✅ Corrected import
 import UserProfileDialog from "./layout/UserProfileDialog";
 
 interface DashboardHeaderProps {
@@ -27,15 +27,15 @@ export default function DashboardHeader({
   notificationCount = 3,
 }: DashboardHeaderProps) {
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ Fix for pathname
   const [notifications, setNotifications] = useState(notificationCount);
   const [isLoggedIn, setIsLoggedIn] = useState(true); // Default to true for demo
 
   useEffect(() => {
-    setIsLoggedIn(
-      location.pathname.includes("/dashboard") || location.pathname.includes("/music")
-    );
-  }, [location.pathname]);
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+    }, []);
+  
+
 
 
   return (

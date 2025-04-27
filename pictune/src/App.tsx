@@ -15,6 +15,10 @@ import MusicLibrary from "./pages/MusicLibrary"
 import CreatePlaylistPage from "./components/CreatePlaylist"
 import ResetPassword from "./pages/ResetPassword"
 import NotFoundScreen from "./pages/NotFoundScreen"
+import ProtectedRoute from "./guards/protectedRoute"
+import GuestRoute from "./guards/guestRoute"
+import { useSelector } from "react-redux"
+import { RootState } from "./store/store"
 
 const Layout: React.FC = () => {
   return (
@@ -29,6 +33,8 @@ const Layout: React.FC = () => {
 }
 
 const App: React.FC = () => {
+  const isAuthenticated = useSelector((state: RootState) => state.user.isLoggedIn);
+
   return (
     <BrowserRouter  >
       {/* Add Toaster component here for toast notifications */}
@@ -37,18 +43,55 @@ const App: React.FC = () => {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/music" element={<SongsPage />} />
-          <Route path="/music/:id" element={<SongDetails />} />
-          <Route path="/upload" element={<FileUploader />} />
-          <Route path="/playlists" element={<MusicLibrary />} />
-          <Route path="/playlists/:id" element={<PlaylistDetails />} />    
-          <Route path="/create-playlist" element={<CreatePlaylistPage />} />    
+
+          {/* Guest only routes */}
+          <Route path="/signin" element={
+            <GuestRoute isAuthenticated={isAuthenticated}>
+              <SignIn />
+            </GuestRoute>
+          } />
+          <Route path="/signup" element={
+            <GuestRoute isAuthenticated={isAuthenticated}>
+              <SignUp />
+            </GuestRoute>
+          } />
+
+          {/* Protected routes */}
+          <Route path="/music" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SongsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/music/:id" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SongDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="/upload" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <FileUploader />
+            </ProtectedRoute>
+          } />
+          <Route path="/playlists" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <MusicLibrary />
+            </ProtectedRoute>
+          } />
+          <Route path="/playlists/:id" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <PlaylistDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="/create-playlist" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <CreatePlaylistPage />
+            </ProtectedRoute>
+          } />
+
+          {/* Free to access */}
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFoundScreen />} />
-
-              </Route>
+        </Route>
       </Routes>
       </BrowserRouter>
   )

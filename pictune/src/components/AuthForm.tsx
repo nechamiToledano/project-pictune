@@ -16,6 +16,8 @@ import { Link, useNavigate } from "react-router-dom"
 import ForgotPassword from "./ForgotPassword"
 import Background from "@/pages/Background"
 import { toast } from "sonner"
+import { RootState } from "@/store/store"
+import { useSelector } from "react-redux"
 
 interface AuthFormProps {
   defaultTab: "signup" | "signin"
@@ -42,9 +44,9 @@ export default function AuthForm({
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const navigate = useNavigate()
+  const loading = useSelector((state: RootState) => state.user.loading);
 
   // Reset form when tab changes
   useEffect(() => {
@@ -143,8 +145,6 @@ export default function AuthForm({
 
     if (!validateForm()) return
 
-    setIsSubmitting(true)
-
     try {
   await  onAuthSubmit({
         userName: formData.userName,
@@ -153,13 +153,11 @@ export default function AuthForm({
         rememberMe: formData.rememberMe,
         acceptTerms: formData.acceptTerms,
       })
-      toast.success("You have successfully connected.")
 
     } catch (error) {
       console.error("Error submitting form:", error)
       toast.error("There was an error connecting. Please try again.")
     } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -322,9 +320,9 @@ export default function AuthForm({
                         <Button
                           type="submit"
                           className="w-full py-6 transition-all bg-gradient-to-r from-red-700/50 to-blue-700/50 hover:from-red-700 hover:to-blue-700 text-white"
-                          disabled={isSubmitting}
+                          disabled={loading}
                         >
-                          {isSubmitting ? (
+                          {loading ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Signing in...
@@ -335,16 +333,7 @@ export default function AuthForm({
                               <ArrowRight className="ml-2 h-4 w-4" />
                             </>
                           )}
-                        </Button>
-
-                        <div className="relative flex items-center justify-center w-full mt-2">
-                          <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-700"></div>
-                          </div>
-                          <div className="relative px-4 bg-black/30 text-xs uppercase text-gray-400">
-                            Or continue with
-                          </div>
-                        </div>                          
+                        </Button>                         
                       </CardFooter>
                     </form>
                   </TabsContent>
@@ -552,9 +541,9 @@ export default function AuthForm({
                         <Button
                           type="submit"
                           className="w-full py-6 transition-all bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white"
-                          disabled={isSubmitting}
+                          disabled={loading}
                         >
-                          {isSubmitting ? (
+                          {loading ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Creating account...
@@ -567,16 +556,7 @@ export default function AuthForm({
                           )}
                         </Button>
 
-                        <div className="relative flex items-center justify-center w-full mt-2">
-                          <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-700"></div>
-                          </div>
-                          <div className="relative px-4 bg-black/30 text-xs uppercase text-gray-400">
-                            Or continue with
-                          </div>
-                        </div>
 
-                       
                       </CardFooter>
                     </form>
                   </TabsContent>

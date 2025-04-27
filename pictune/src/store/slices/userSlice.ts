@@ -12,7 +12,7 @@ export interface UserState {
 const initialState: UserState = {
   userName: "",
   email: "",
-  isLoggedIn: !!localStorage.getItem("token"), // ✅ Initialize from localStorage
+  isLoggedIn: !!localStorage.getItem("token"), 
   loading: false,
   error: null,
 };
