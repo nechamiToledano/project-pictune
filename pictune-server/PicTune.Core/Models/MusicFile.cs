@@ -14,6 +14,7 @@ namespace PicTune.Core.Models
         public bool IsDeleted { get; set; }
         public string OwnerId { get; set; }
         public int? FolderId { get; set; }
+        public string? Transcript { get; set; }
     }
 
 }

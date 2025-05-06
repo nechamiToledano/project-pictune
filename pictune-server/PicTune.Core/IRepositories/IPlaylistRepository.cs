@@ -15,8 +15,8 @@ namespace PicTune.Core.IRepositories
         Task<IEnumerable<Playlist>> GetAllPlaylistsAsync();
         Task AddPlaylistAsync(Playlist playlist);
         Task DeletePlaylistAsync(Guid id);
-
         Task<bool> AddSongToPlaylistAsync(Guid playlistId, int songId);
         Task<bool> RemoveSongFromPlaylistAsync(Guid playlistId, int songId);
+        Task<Playlist> GeneratePlaylistByPromptAsync(string userPrompt);
     }
 }

@@ -2,7 +2,6 @@ import api from "@/components/Api";
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { MusicFile } from "./musicFilesSlice";
-import { FolderType } from "./folderSlice";
 
 
 export interface PlaylistType {
@@ -15,7 +14,6 @@ export interface PlaylistType {
 interface PlaylistsState {
     currentPlaylist: PlaylistType | null;
     playlists: PlaylistType[];
-    folders: FolderType[];
     currentPlaylistId: string | null;
     currentFolderId: string | null;
     loading: boolean;
@@ -25,7 +23,6 @@ interface PlaylistsState {
 const initialState: PlaylistsState = {
     currentPlaylist: null,
     playlists: [],
-    folders: [],
     currentPlaylistId: null,
     currentFolderId: null,
     loading: false,
@@ -67,13 +64,12 @@ export const removeSongFromPlaylist = createAsyncThunk(
 export const addSongToPlaylist = createAsyncThunk(
     "playlists/addSong",
     async ({ playlistId, songId }: { playlistId: string; songId: number }) => {
-        await api.post(`/playlists/${playlistId}/songs`, { SongId: songId },{
-        headers: { "Content-Type": "application/json" },
-        });
-
-        return { playlistId, songId };
+      await api.post(`/playlists/${playlistId}/songs`, { SongId: songId });
+      const response = await api.get(`/playlists/${playlistId}`);
+      return response.data;
     }
-);
+  );
+  
 
 
 export const updatePlaylist = createAsyncThunk(
@@ -89,6 +85,17 @@ export const updatePlaylist = createAsyncThunk(
   );
 
 
+  export const generatePlaylistByPrompt = createAsyncThunk(
+    "playlists/generateByPrompt",
+    async ({ prompt }: { prompt: string }, { rejectWithValue }) => {
+      try {
+        const response = await api.post(`/playlists/generate_playlist_by_prompt`, { prompt});
+        return response.data; // Assume that the backend returns the updated playlist
+        } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || "Failed to update playlist");
+      }
+    }
+  );
 
 export const playlistsSlice = createSlice({
     name: "playlists",
@@ -139,15 +146,25 @@ export const playlistsSlice = createSlice({
                 state.playlists[index] = updatedPlaylist;
             }
         })
-        .addCase(addSongToPlaylist.fulfilled, (state, action) => {
-            const { playlistId, songId } = action.payload;
-            const playlist = state.playlists.find(p => p.id === playlistId);
-            if (playlist) {
-                const song = state.playlists.flatMap(p => p.songs).find(song => song.id === songId);
-                if (song) {
-                    playlist.songs.push(song);
+            .addCase(generatePlaylistByPrompt.fulfilled, (state, action) => {
+                const generatedPlaylist = action.payload;
+                state.playlists.push(generatedPlaylist);
+                state.currentPlaylist = generatedPlaylist;
+            })
+            .addCase(generatePlaylistByPrompt.rejected, (state, action) => {
+                state.error = action.payload as string;
+            })
+            .addCase(addSongToPlaylist.fulfilled, (state, action) => {
+                const updatedPlaylist = action.payload;
+                const index = state.playlists.findIndex(p => p.id === updatedPlaylist.id);
+                if (index !== -1) {
+                    state.playlists[index] = updatedPlaylist;
+                } else {
+                    state.playlists.push(updatedPlaylist);
                 }
-            }});        
+            })
+            
+                    
     },
 });
 

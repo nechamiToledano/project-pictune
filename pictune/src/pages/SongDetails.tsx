@@ -14,6 +14,7 @@ import Background from "./Background"
 import SongArtwork from "@/components/SongArtwork"
 import SongActions from "@/components/SongActions"
 import SongInfo from "@/components/SongInfo"
+import SongLyrics from "@/components/SongLyrics"
 import AddToPlaylistDialog from "@/components/Add-to-playlist-dialog"
 
 export default function SongDetails() {
@@ -178,7 +179,6 @@ export default function SongDetails() {
 
       <div className="relative z-10 container mx-auto px-4 py-8 flex flex-col min-h-screen mt-14">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-       
           <div className="flex-1 flex flex-col md:flex-row gap-8 items-center md:items-start">
             {/* Left Column - Artwork and Controls */}
             <div className="w-full md:w-1/2 max-w-md">
@@ -236,18 +236,9 @@ export default function SongDetails() {
               <p className="text-white/70 mb-6">Enjoy your music with our enhanced audio player</p>
 
               <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-3">About This Track</h3>
-                <div className="bg-black/30 backdrop-blur-md rounded-lg p-6 mb-6 border border-gray-800">
-                  <p className="leading-relaxed">
-                    This is your music file. You can play, download, or share it with others. The player allows you to
-                    control playback and navigate through the track.
-                  </p>
-                </div>
-
-                <h3 className="text-xl font-semibold mb-3">Lyrics</h3>
-                <div className="bg-black/30 backdrop-blur-md rounded-lg p-6 whitespace-pre-line leading-relaxed h-64 overflow-y-auto border border-gray-800">
-                  <p className="text-center text-white/50 italic">No lyrics available for this track.</p>
-                </div>
+          
+                {/* Integrated SongLyrics component */}
+                <SongLyrics songId={song.id} />
               </div>
 
               <Button
@@ -264,6 +255,3 @@ export default function SongDetails() {
     </section>
   )
 }
-
-
-

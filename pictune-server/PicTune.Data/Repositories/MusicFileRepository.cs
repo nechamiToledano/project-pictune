@@ -3,17 +3,25 @@ using PicTune.Core.IRepositories;
 using PicTune.Core.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text;
 using System.Threading.Tasks;
+using Amazon.S3;
+using Amazon.S3.Model;
 
 namespace PicTune.Data.Repositories
 {
     public class MusicFileRepository : IMusicFileRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAmazonS3 _s3Client;
+        private const string BucketName = "pictune-files-testpnoren";
 
-        public MusicFileRepository(ApplicationDbContext context)
+        public MusicFileRepository(ApplicationDbContext context, IAmazonS3 s3Client)
         {
             _context = context;
+            _s3Client = s3Client;
+
         }
 
         public async Task<MusicFile?> GetByIdAsync(int id)
@@ -59,5 +67,44 @@ namespace PicTune.Data.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<string?> TranscribeFileAsync(string fileUrl)
+        {
+            var httpClient = new HttpClient();
+            var requestBody = new { url = fileUrl };
+            var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await httpClient.PostAsync("http://127.0.0.1:8000/transcribe_song/", content);
+                response.EnsureSuccessStatusCode();
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var json = JsonDocument.Parse(responseContent);
+                if (json.RootElement.TryGetProperty("transcription", out var transcriptionElement))
+                {
+                    return transcriptionElement.GetString();
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Transcription API failed: {ex.Message}");
+                return null;
+            }
+        }
+        public string GeneratePreSignedUrl(string s3Key)
+        {
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = BucketName,
+                Key = s3Key,
+                Expires = DateTime.UtcNow.AddHours(1),
+                Verb = HttpVerb.GET
+            };
+
+            return _s3Client.GetPreSignedURL(request);
+        }
+
     }
 }

@@ -20,6 +20,7 @@ import { useSelector } from "react-redux"
 import { RootState } from "./store/store"
 import GuestRoute from "./guards/GuestRoute"
 import ProtectedRoute from "./guards/ProtectedRoute"
+import AIPlaylistGenerator from "./pages/AIPlaylistGenerator"
 
 const Layout: React.FC = () => {
   return (
@@ -34,9 +35,8 @@ const Layout: React.FC = () => {
 }
 
 const App: React.FC = () => {
-  const isAuthenticated = useSelector((state: RootState) => state.user.isLoggedIn);
-
-  return (
+const isAuthenticated = useSelector((state: RootState) => state.user.isLoggedIn);
+ return (
     <BrowserRouter  >
       {/* Add Toaster component here for toast notifications */}
       <Toaster position="top-center" richColors closeButton />
@@ -88,7 +88,11 @@ const App: React.FC = () => {
               <CreatePlaylistPage />
             </ProtectedRoute>
           } />
-
+         <Route path="/generate-playlist" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AIPlaylistGenerator />
+            </ProtectedRoute>
+          } />
           {/* Free to access */}
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFoundScreen />} />

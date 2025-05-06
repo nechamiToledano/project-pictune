@@ -22,17 +22,12 @@ namespace PicTune.API
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMusicFileRepository, MusicFileRepository>();
             services.AddScoped<IEmailService, EmailService>();
-
             services.AddScoped<IMusicFileService, MusicFileService>();
-            services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IPlaylistService, PlaylistService>();
             services.AddScoped<IPlaylistRepository, PlaylistRepository>();
-            services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<UserManager<User>>();
             services.AddScoped<RoleManager<Role>>();
-        
-           
-
-
+            services.AddHttpClient<IPlaylistRepository, PlaylistRepository>();
         }
 
 

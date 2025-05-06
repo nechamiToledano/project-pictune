@@ -20,7 +20,7 @@ const HeroSection = () => {
                 </span>
               </h1>
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0">
-                Pictune uses advanced AI to create stunning visuals from your music. Upload songs, create playlists, and
+                Playform uses advanced AI to create stunning visuals from your music. Upload songs, create playlists, and
                 get unique AI-generated cover art for your tracks.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">

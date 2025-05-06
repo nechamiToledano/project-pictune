@@ -13,7 +13,7 @@ const Footer = () => {
                 <div className="absolute inset-0 bg-black/20"></div>
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-blue-400">
-                Pictune
+                Playform
               </span>
             </Link>
             <p className="text-gray-400 mb-4">
@@ -148,7 +148,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">© {new Date().getFullYear()} Pictune. All rights reserved.</p>
+          <p className="text-gray-400 text-sm">© {new Date().getFullYear()} Playform. All rights reserved.</p>
           <div className="mt-4 md:mt-0">
             <ul className="flex space-x-6">
               <li>

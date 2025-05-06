@@ -10,10 +10,13 @@ ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 def correct_lyrics(text: str) -> str:
 
+    
     prompt = f"""
-הטקסט הבא הוא תמלול של שיר בעברית. הוא עשוי להכיל טעויות כתיב, טעויות תחביר וגם מילים לא תקינות או לא מתאימות. 
-תקן אותו לעברית תקנית, זורמת, ומדויקת — כולל תיקון מילים שגויות או לא תקינות ").
-שמור על המשקל, הרגש והמשמעות של השיר, ואל תשנה את המבנה השירי (שורות, בתים). אל תוסיף מילים חדשות ואל תוריד שורות שלמות.
+הטקסט הבא הוא תמלול של שיר בעברית. הוא עשוי להכיל טעויות כתיב, טעויות תחביר וגם מילים לא תקינות או מבולבלות.
+תקן אותו לעברית תקנית, רהוטה, ומדויקת — כולל תיקון שיבושי הגייה או תמלול.
+שמור על המקצב, הרגש והמשמעות של השיר, ואל תשנה את המבנה השירי (שורות, בתים). 
+אם יש קטעים לא ברורים (כמו 'ארדיש'), נסה לנחש את הכוונה לפי ההקשר.
+אל תוסיף מילים חדשות ואל תוריד שורות שלמות.
 
 ---
 {text}
@@ -41,7 +44,13 @@ def transcribe_audio(upload_url: str) -> str:
     json_data = {
         'audio_url': upload_url,
         'language_code': 'he',
-        'speech_model': 'nano'
+        'speech_model': 'nano',
+        'punctuate': True,
+        'format_text': True,
+        'auto_chapters': False,
+        'speaker_labels': False,
+        'boost_param': 'high'
+
     }
     response = requests.post('https://api.assemblyai.com/v2/transcript', headers=headers, json=json_data)
     response.raise_for_status()

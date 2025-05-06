@@ -73,5 +73,12 @@ namespace PicTune.Service
         {
             return await _repository.RemoveSongFromPlaylistAsync(playlistId, songId);
         }
+
+        public async Task<Playlist> GeneratePlaylistByPromptAsync(string userPrompt)
+        {
+
+            return await _repository.GeneratePlaylistByPromptAsync(userPrompt);
+        }
+
     }
 }

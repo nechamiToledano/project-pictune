@@ -17,6 +17,7 @@ namespace PicTune.Core.IServices
         Task<bool> DeletePlaylistAsync(Guid id);
         Task<bool> AddSongToPlaylistAsync(Guid playlistId, int songId);
         Task<bool> RemoveSongFromPlaylistAsync(Guid playlistId, int songId);
+        Task<Playlist> GeneratePlaylistByPromptAsync(string userPrompt);
     }
 
 }

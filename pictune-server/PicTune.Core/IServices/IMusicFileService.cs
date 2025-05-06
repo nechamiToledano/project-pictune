@@ -14,6 +14,9 @@ namespace PicTune.Core.IServices
         Task<bool> DeleteMusicFileAsync(int id, string userId);
         Task<bool> UpdateMusicFileAsync(int id, string newFileName, string userId);
         Task<bool> ToggleLikeAsync(int id, string userId);
+        Task<string?> TranscribeMusicFileAsync(int fileId);
+        Task<string?> GeneratePreSignedUrlAsync(int fileId);
+
 
     }
 }

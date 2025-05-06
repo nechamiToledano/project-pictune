@@ -48,7 +48,7 @@ export default function DashboardHeader({
               <div className="h-8 w-8 rounded-full bg-gradient-to-r from-red-600/20 to-blue-600/20 flex items-center justify-center">
                 <Music className="h-4 w-4 text-white" />
               </div>
-              <span className="font-bold text-white text-lg">Pictune</span>
+              <span className="font-bold text-white text-lg">Playform</span>
             </a>
 
             {/* Navigation Links */}

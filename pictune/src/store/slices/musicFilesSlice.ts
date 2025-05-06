@@ -129,17 +129,18 @@ export const toggleLikeMusicFile = createAsyncThunk<
     }
   }
 );
-export const fetchSongLyrics = createAsyncThunk(
-  "musicFiles/fetchLyrics",
-  async (songId: number, { rejectWithValue }) => {
+export const transcribeMusicFile = createAsyncThunk(
+  'musicFiles/transcribe',
+  async (id: number, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/files/${songId}/lyrics`) // API endpoint
-      return response.data.lyrics
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch lyrics")
+      const response = await api.post(`/files/${id}/transcribe`)
+      return response.data
+    } catch (error:any) {
+      return rejectWithValue(  error.response?.data?.message ||'Failed to transcribe')
     }
   }
 )
+
 
 
 const musicFilesSlice = createSlice({
@@ -184,18 +185,19 @@ const musicFilesSlice = createSlice({
         // Handle rejected action if needed
         state.error = action.payload as string;
       })
-      .addCase(fetchSongLyrics.pending, (state) => {
-        state.lyricsLoading = true
-        state.lyricsError = null
+      .addCase(transcribeMusicFile.pending, (state) => {
+        state.lyricsLoading = true;
+        state.lyricsError = null;
       })
-      .addCase(fetchSongLyrics.fulfilled, (state, action) => {
-        state.lyricsLoading = false
-        state.lyrics = action.payload
+      .addCase(transcribeMusicFile.fulfilled, (state, action) => {
+        state.lyricsLoading = false;
+        state.lyrics = action.payload;
       })
-      .addCase(fetchSongLyrics.rejected, (state, action) => {
-        state.lyricsLoading = false
-        state.lyricsError = action.payload as string
+      .addCase(transcribeMusicFile.rejected, (state, action) => {
+        state.lyricsLoading = false;
+        state.lyricsError = action.payload as string;
       })
+      
       .addCase(fetchImage.fulfilled, (state, action: PayloadAction<{ fileUrl: string, imageUrl: string }>) => {
         if (!state.images[action.payload.fileUrl]) {
           state.images[action.payload.fileUrl] = action.payload.imageUrl; // Store image URL in state
