@@ -268,17 +268,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Open Sidebar Button - Fixed at bottom */}
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-40 md:hidden">
-        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetTrigger asChild>
-            <Button className="bg-black text-white px-4 py-2 rounded-md shadow-lg border border-white/10 flex items-center gap-2">
-              <Menu size={18} />
-              Open sidebar
-            </Button>
-          </SheetTrigger>
-        </Sheet>
-      </div>
+     
     </>
   )
 }
