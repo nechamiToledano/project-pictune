@@ -119,6 +119,9 @@ export class ApiService {
   removeFromPlaylist(playlistId: number, musicFileId: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/playlists/${playlistId}/files/${musicFileId}`)
   }
+  getReportSummary() {
+    return this.http.get<{ users: any[]; music: any[] }>(`${this.apiUrl}/reports/summary`);
+  }
 }
 
 

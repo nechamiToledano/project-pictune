@@ -1,6 +1,7 @@
 ﻿using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Identity;
+using PicTune.Core.DTOs;
 using PicTune.Core.IRepositories;
 using PicTune.Core.IServices;
 using PicTune.Core.Models;
@@ -110,7 +111,10 @@ namespace PicTune.Service
         }
 
 
-
+        public async Task<List<StatPoint>> GetMusicUploadStatsAsync()
+        {
+            return await _repository.GetMusicUploadStatsAsync();
+        }
 
 
     }

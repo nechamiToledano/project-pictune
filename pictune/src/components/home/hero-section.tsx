@@ -47,7 +47,7 @@ const HeroSection = () => {
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10"
+            className="absolute rounded-full bg-gradient-to-r from-red-500/10 to-blue-500/10"
             style={{
               width: Math.random() * 300 + 50,
               height: Math.random() * 300 + 50,
@@ -73,17 +73,17 @@ const HeroSection = () => {
           {/* Left side - Text content */}
           <div className="lg:w-1/2 text-center lg:text-left">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Badge className="mb-4 px-4 py-1 bg-purple-500/20 text-purple-300 border-purple-500/30 backdrop-blur-sm">
+              <Badge className="mb-4 px-4 py-1 bg-red-500/20 text-red-300 border-red-500/30 backdrop-blur-sm">
                 Your Music, Reimagined
               </Badge>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
                 Manage Your{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-blue-400">
                   Music
                 </span>{" "}
                 With AI{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-blue-400">
                   Superpowers
                 </span>
               </h1>
@@ -94,7 +94,7 @@ const HeroSection = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 h-12 px-8 text-lg">
+                <Button className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white border-0 h-12 px-8 text-lg">
                   Get Started
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -115,7 +115,7 @@ const HeroSection = () => {
               className="relative bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl p-8 border border-gray-700/50"
             >
               {/* Floating music notes decoration */}
-              <div className="absolute -top-10 -right-10 w-20 h-20 text-purple-400 opacity-20">
+              <div className="absolute -top-10 -right-10 w-20 h-20 text-red-400 opacity-20">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9 18V5l12-2v13"></path>
                   <path d="M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
@@ -130,7 +130,7 @@ const HeroSection = () => {
                     key={index}
                     className={`p-6 rounded-xl transition-all duration-300 ${
                       activeFeature === index
-                        ? "bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30"
+                        ? "bg-gradient-to-br from-red-500/20 to-blue-500/20 border border-red-500/30"
                         : "bg-gray-800/30 border border-gray-700/30 hover:bg-gray-800/50"
                     }`}
                     animate={{
@@ -142,7 +142,7 @@ const HeroSection = () => {
                     <div
                       className={`p-3 rounded-lg inline-block mb-4 ${
                         activeFeature === index
-                          ? "bg-gradient-to-br from-purple-500/30 to-blue-500/30"
+                          ? "bg-gradient-to-br from-red-500/30 to-blue-500/30"
                           : "bg-gray-700/30"
                       }`}
                     >
@@ -157,7 +157,7 @@ const HeroSection = () => {
               {/* Animated progress indicator */}
               <div className="mt-6 bg-gray-800/50 h-1 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                  className="h-full bg-gradient-to-r from-red-500 to-blue-500"
                   animate={{ width: `${(activeFeature + 1) * 25}%` }}
                   transition={{ duration: 0.5 }}
                 />

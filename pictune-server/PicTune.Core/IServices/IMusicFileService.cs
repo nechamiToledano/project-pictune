@@ -1,4 +1,5 @@
-﻿using PicTune.Core.Models;
+﻿using PicTune.Core.DTOs;
+using PicTune.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,6 +17,8 @@ namespace PicTune.Core.IServices
         Task<bool> ToggleLikeAsync(int id, string userId);
         Task<string?> TranscribeMusicFileAsync(int fileId);
         Task<string?> GeneratePreSignedUrlAsync(int fileId);
+        Task<List<StatPoint>> GetMusicUploadStatsAsync();
+
 
 
     }

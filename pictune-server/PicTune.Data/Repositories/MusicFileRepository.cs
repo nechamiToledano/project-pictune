@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
+using PicTune.Core.DTOs;
 
 namespace PicTune.Data.Repositories
 {
@@ -106,5 +107,17 @@ namespace PicTune.Data.Repositories
             return _s3Client.GetPreSignedURL(request);
         }
 
+        public async Task<List<StatPoint>> GetMusicUploadStatsAsync()
+        {
+            return await _context.MusicFiles
+            .GroupBy(m => m.UploadedAt.Date)
+            .Select(g => new StatPoint
+            {
+                Date = g.Key,
+                Count = g.Count()
+            })
+            .OrderBy(s => s.Date)
+            .ToListAsync();
+        }
     }
 }

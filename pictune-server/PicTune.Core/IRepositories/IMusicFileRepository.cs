@@ -1,4 +1,5 @@
-﻿using PicTune.Core.Models;
+﻿using PicTune.Core.DTOs;
+using PicTune.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,6 @@ namespace PicTune.Core.IRepositories
         Task DeleteAsync(int id);
         Task<string?> TranscribeFileAsync(string fileUrl);
         string GeneratePreSignedUrl(string s3Key);
-
-
-
-
+        Task<List<StatPoint>> GetMusicUploadStatsAsync();
     }
 }

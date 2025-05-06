@@ -6,17 +6,32 @@ export default function Background() {
     <>
     <div className="absolute inset-0 z-0">
     <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black/80 z-10"></div>
-    <img
-      src="/bg.png"
-      alt="Background"
-      className="w-full h-full object-cover brightness-50 contrast-125"
-    />
+  
   </div>
 
 
   {/* Background gradient */}
   <div className="absolute inset-0 opacity-30 z-5 bg-gradient-to-br from-red-600 to-blue-600" />
-
+    {/* Equalizer bars */}
+    <div className="absolute bottom-[5%] right-[5%] z-5 flex items-end h-20 space-x-1 opacity-20">
+        {[...Array(12)].map((_, i) => {
+          const height = Math.floor(Math.random() * 100)
+          return (
+            <motion.div
+              key={i}
+              className="w-1 bg-gradient-to-t from-red-500 to-blue-500"
+              initial={{ height: 5 }}
+              animate={{ height: [5, height, 5] }}
+              transition={{
+                duration: 1.5,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+                delay: i * 0.1,
+              }}
+            />
+          )
+        })}
+      </div>
       {/* Floating Decorations */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <motion.div
