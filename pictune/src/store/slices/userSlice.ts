@@ -62,7 +62,7 @@ export const userLogin = createAsyncThunk(
   async ({ userName, password }: { userName: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/signin", { userName, password },
-        { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
+        { headers: { 'Content-Type': 'application/json' }}
 
       );
       const { token, user } = response.data;
