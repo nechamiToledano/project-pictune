@@ -71,10 +71,6 @@ namespace PicTune.API.Controllers
 
             var user = await _authService.GetUserByUsernameAsync(loginDto.UserName);
 
-            Response.Headers.Append("Access-Control-Allow-Origin", "https://pictune-ai.onrender.com");
-            Response.Headers.Append("Access-Control-Allow-Origin", "http://localhost:4200");
-
-            Response.Headers.Append("Access-Control-Allow-Credentials", "true");
             return Ok(new
             {
                 token = token,

@@ -140,6 +140,5 @@ app.UseEndpoints(endpoints =>
 
 app.MapGet("/", () => "Api is running");
 
-app.MapControllers();
 
 app.Run();
