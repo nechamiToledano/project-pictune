@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: pictune-app
+    env: node
+    rootDir: pictune-app
+    buildCommand: npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
