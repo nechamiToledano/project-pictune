@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
 using PicTune.Core.Models;
 using System.Collections.Generic;
@@ -46,5 +47,21 @@ namespace PicTune.Service
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
+
+        public Task<List<StatPoint>> GetUserRegistrationStatsAsync()
+        {
+            var stats = _userManager.Users
+                .GroupBy(u => u.CreatedAt.Date)
+                .OrderBy(g => g.Key)
+                .Select(g => new StatPoint
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                })
+                .ToList();
+
+            return Task.FromResult(stats);
+        }
+
     }
 }

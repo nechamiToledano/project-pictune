@@ -1,0 +1,42 @@
+<div class="page-container fade-in">
+    <div class="page-header">
+      <div class="header-title">
+        <div class="header-icon">
+          <mat-icon>assessment</mat-icon>
+        </div>
+        <h1>Users and Music Report</h1>
+      </div>
+    </div>
+    
+    <mat-card class="content-card">
+      <div class="card-header-line"></div>
+      <mat-card-content>
+        @if (!loading()) {
+          <div class="chart-container">
+            <ngx-charts-line-chart
+              [results]="chartData()"
+              [gradient]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [legend]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              xAxisLabel="תאריך"
+              yAxisLabel="כמות"
+              [scheme]="colorScheme"
+              [animations]="true"
+              [autoScale]="true"
+              [roundDomains]="true"
+            >
+            </ngx-charts-line-chart>
+          </div>
+        } @else {
+          <div class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p> Loading...</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+  

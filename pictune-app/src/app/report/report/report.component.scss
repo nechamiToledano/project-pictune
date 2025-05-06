@@ -1,0 +1,113 @@
+.page-container {
+    padding: 1rem;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(to right, rgba(220, 38, 38, 0.2), rgba(37, 99, 235, 0.2));
+    
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--text-primary);
+    }
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+    direction: rtl;
+  }
+  
+  .content-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .card-header-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, rgba(220, 38, 38, 0.2), rgba(37, 99, 235, 0.2));
+  }
+  
+  .chart-container {
+    height: 400px;
+    width: 100%;
+    direction: ltr; // Keep chart direction left-to-right
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    color: var(--text-primary);
+  }
+  
+  // Override ngx-charts text colors
+  ::ng-deep {
+    .ngx-charts {
+      text {
+        fill: var(--text-primary) !important;
+      }
+      
+      .chart-legend {
+        .legend-labels {
+          background-color: transparent !important;
+        }
+        
+        .legend-label-text {
+          color: var(--text-primary) !important;
+        }
+      }
+      
+      .grid-panel.odd {
+        fill: rgba(255, 255, 255, 0.05) !important;
+      }
+      
+      .line-highlight {
+        stroke: var(--text-primary) !important;
+      }
+      
+      .tooltip-anchor {
+        fill: var(--text-primary) !important;
+      }
+      
+      .tooltip-container {
+        background: rgba(10, 10, 15, 0.95) !important;
+        color: var(--text-primary) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+        
+        .tooltip-item {
+          color: var(--text-primary) !important;
+        }
+      }
+    }
+  }
+  
