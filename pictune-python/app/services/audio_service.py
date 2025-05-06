@@ -1,13 +1,13 @@
 import os
 import requests
 from dotenv import load_dotenv
-import openai
+from openai import OpenAI
 
 
 load_dotenv()
 
 ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def correct_lyrics(text: str) -> str:
 
     
@@ -23,15 +23,15 @@ def correct_lyrics(text: str) -> str:
 ---
 """
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "אתה עורך שירים בעברית באופן שמכבד את המקצב, הרגש והמשמעות."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.4,
-        max_tokens=1000
-    )
+    response = client.chat.completions.create(      
+    model="gpt-4o-mini",  # או gpt-3.5-turbo/gpt-4 לפי מה שזמין לך
+    messages=[
+        {"role": "system", "content": "אתה עורך שירים בעברית באופן שמכבד את המקצב, הרגש והמשמעות."},
+        {"role": "user", "content": prompt}
+    ],
+    temperature=0.4,
+    max_tokens=1000
+)
 
     return response["choices"][0]["message"]["content"]
 
@@ -65,4 +65,3 @@ def transcribe_audio(upload_url: str) -> str:
         elif status == 'failed':
             
             raise Exception('Transcription failed')
-transcribe_audio("https://pictune-files-testpnoren.s3.us-east-1.amazonaws.com/181c3dc4-67f2-4c98-a2da-f2f1669242de.mp3")
