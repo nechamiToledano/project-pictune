@@ -1,0 +1,1 @@
+import{q as c,r as l}from"./chunk-4B5H75DD.js";import{Sc as t,Tc as o}from"./chunk-6WES2Y7B.js";var r=o("users"),S=t(r,l),n=t(r,c),U=t(r,e=>e.selectedUserId),i=t(n,U,(e,s)=>s?e[s]:null),x=t(r,e=>e.loading),d=t(r,e=>e.error);export{S as a,i as b,x as c};
