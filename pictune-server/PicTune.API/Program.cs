@@ -91,17 +91,16 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Enable Swagger & CORS
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", policy =>
         policy
-            .WithOrigins("https://pictune-ai.onrender.com", "http://localhost:4200", "http://localhost:5173", "https://pictune-admin.onrender.com")
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
     );
 });
+
 
 builder.Services.AddLogging(options =>
 {
