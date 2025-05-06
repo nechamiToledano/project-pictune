@@ -24,7 +24,7 @@ def correct_lyrics(text: str) -> str:
 """
 
     response = client.chat.completions.create(      
-    model="gpt-4o-mini",  # או gpt-3.5-turbo/gpt-4 לפי מה שזמין לך
+    model="gpt-4o-mini",  
     messages=[
         {"role": "system", "content": "אתה עורך שירים בעברית באופן שמכבד את המקצב, הרגש והמשמעות."},
         {"role": "user", "content": prompt}
