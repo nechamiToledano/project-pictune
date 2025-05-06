@@ -99,6 +99,7 @@ builder.Services.AddCors(options =>
             .WithOrigins("https://pictune-ai.onrender.com", "http://localhost:4200", "http://localhost:5173", "https://pictune-admin.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
+            .AllowCredentials()
     );
 });
 
@@ -132,12 +133,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
 
 app.MapGet("/", () => "Api is running");
+app.MapControllers();
 
 
 app.Run();
