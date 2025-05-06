@@ -238,8 +238,7 @@ export default function SongDetails() {
               <div className="mb-8">
           
                 {/* Integrated SongLyrics component */}
-                <SongLyrics songId={song.id} />
-              </div>
+                <SongLyrics songId={song.id} currentTime={currentTime} isPlaying={isPlaying} />              </div>
 
               <Button
                 className="w-full bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white backdrop-blur-sm"
