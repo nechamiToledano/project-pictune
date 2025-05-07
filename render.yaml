@@ -1,5 +1,5 @@
 buildCommand: npm run build --configuration=production
-publishPath: dist/pictune-app/browser
+publishPath: pictune-app/dist/pictune-app/browser
 
 routes:
   - type: rewrite
