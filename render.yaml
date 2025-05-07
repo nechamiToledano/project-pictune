@@ -1,10 +1,7 @@
 services:
   - type: web
-    name: pictune-app
-    env: node
+    name: pictune-admin
+    env: static
     rootDir: pictune-app
-    buildCommand: npm run build
-    startCommand: npm run start
-    envVars:
-      - key: NODE_VERSION
-        value: 20
+    buildCommand: npm install && npm run build --configuration production
+    staticPublishPath: dist/pictune-app/browser
