@@ -1,7 +1,7 @@
-services:
-  - type: web
-    name: pictune-admin
-    env: static
-    rootDir: pictune-app
-    buildCommand: npm install && npm run build --configuration production
-    staticPublishPath: dist/pictune-app/browser
+buildCommand: npm run build --configuration=production
+publishPath: dist/pictune-app/browser
+
+routes:
+  - type: rewrite
+    source: /.*
+    destination: /index.html
