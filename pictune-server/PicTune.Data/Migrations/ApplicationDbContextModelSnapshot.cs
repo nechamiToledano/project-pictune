@@ -123,15 +123,15 @@ namespace PicTune.Data.Migrations
 
             modelBuilder.Entity("MusicFilePlaylist", b =>
                 {
+                    b.Property<Guid>("PlaylistsId")
+                        .HasColumnType("char(36)");
+
                     b.Property<int>("SongsId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("playlistsId")
-                        .HasColumnType("char(36)");
+                    b.HasKey("PlaylistsId", "SongsId");
 
-                    b.HasKey("SongsId", "playlistsId");
-
-                    b.HasIndex("playlistsId");
+                    b.HasIndex("SongsId");
 
                     b.ToTable("MusicFilePlaylist");
                 });
@@ -167,6 +167,9 @@ namespace PicTune.Data.Migrations
 
                     b.Property<int?>("FolderId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsLiked")
                         .HasColumnType("tinyint(1)");
@@ -402,15 +405,15 @@ namespace PicTune.Data.Migrations
 
             modelBuilder.Entity("MusicFilePlaylist", b =>
                 {
-                    b.HasOne("PicTune.Core.Models.MusicFile", null)
+                    b.HasOne("PicTune.Data.Models.Playlist", null)
                         .WithMany()
-                        .HasForeignKey("SongsId")
+                        .HasForeignKey("PlaylistsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PicTune.Data.Models.Playlist", null)
+                    b.HasOne("PicTune.Core.Models.MusicFile", null)
                         .WithMany()
-                        .HasForeignKey("playlistsId")
+                        .HasForeignKey("SongsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

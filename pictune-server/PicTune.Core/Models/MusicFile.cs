@@ -15,8 +15,8 @@ namespace PicTune.Core.Models
         public string OwnerId { get; set; }
         public int? FolderId { get; set; }
         public string? Transcript { get; set; }
-        public List<Playlist> playlists { get; set; }
-        public bool IsDeleted { get; set; }
+        public List<Playlist> Playlists { get; set; } = new List<Playlist>();
+        public bool IsDeleted { get; set; } = false;
     }
 
 }
