@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using PicTune.Data.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PicTune.Core.Models
 {
@@ -11,10 +12,10 @@ namespace PicTune.Core.Models
         public long Size { get; set; }
         public DateTime UploadedAt { get; set; }
         public bool IsLiked { get; set; }
-        public bool IsDeleted { get; set; }
         public string OwnerId { get; set; }
         public int? FolderId { get; set; }
         public string? Transcript { get; set; }
+        public List<Playlist> playlists { get; set; }
     }
 
 }

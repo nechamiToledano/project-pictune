@@ -121,6 +121,21 @@ namespace PicTune.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MusicFilePlaylist", b =>
+                {
+                    b.Property<int>("SongsId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("playlistsId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("SongsId", "playlistsId");
+
+                    b.HasIndex("playlistsId");
+
+                    b.ToTable("MusicFilePlaylist");
+                });
+
             modelBuilder.Entity("PermissionRole", b =>
                 {
                     b.Property<int>("PermissionsId")
@@ -134,35 +149,6 @@ namespace PicTune.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("PermissionRole");
-                });
-
-            modelBuilder.Entity("PicTune.Core.Models.Folder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("ParentFolderId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentFolderId");
-
-                    b.ToTable("Folders");
                 });
 
             modelBuilder.Entity("PicTune.Core.Models.MusicFile", b =>
@@ -182,18 +168,12 @@ namespace PicTune.Data.Migrations
                     b.Property<int?>("FolderId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<bool>("IsLiked")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("OwnerId")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<Guid?>("PlaylistId")
-                        .HasColumnType("char(36)");
 
                     b.Property<string>("S3Key")
                         .IsRequired()
@@ -202,12 +182,13 @@ namespace PicTune.Data.Migrations
                     b.Property<long>("Size")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Transcript")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PlaylistId");
 
                     b.ToTable("MusicFiles");
                 });
@@ -335,17 +316,11 @@ namespace PicTune.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("CoverImage")
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
-
-                    b.Property<Guid?>("FolderId")
-                        .HasColumnType("char(36)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -355,8 +330,6 @@ namespace PicTune.Data.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FolderId");
 
                     b.ToTable("Playlists");
                 });
@@ -427,6 +400,21 @@ namespace PicTune.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MusicFilePlaylist", b =>
+                {
+                    b.HasOne("PicTune.Core.Models.MusicFile", null)
+                        .WithMany()
+                        .HasForeignKey("SongsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PicTune.Data.Models.Playlist", null)
+                        .WithMany()
+                        .HasForeignKey("playlistsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PermissionRole", b =>
                 {
                     b.HasOne("PicTune.Core.Models.Permission", null)
@@ -442,29 +430,6 @@ namespace PicTune.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PicTune.Core.Models.Folder", b =>
-                {
-                    b.HasOne("PicTune.Core.Models.Folder", "ParentFolder")
-                        .WithMany()
-                        .HasForeignKey("ParentFolderId");
-
-                    b.Navigation("ParentFolder");
-                });
-
-            modelBuilder.Entity("PicTune.Core.Models.MusicFile", b =>
-                {
-                    b.HasOne("PicTune.Data.Models.Playlist", null)
-                        .WithMany("Songs")
-                        .HasForeignKey("PlaylistId");
-                });
-
-            modelBuilder.Entity("PicTune.Data.Models.Playlist", b =>
-                {
-                    b.HasOne("PicTune.Core.Models.Folder", null)
-                        .WithMany("Playlists")
-                        .HasForeignKey("FolderId");
-                });
-
             modelBuilder.Entity("RoleUser", b =>
                 {
                     b.HasOne("PicTune.Core.Models.Role", null)
@@ -478,16 +443,6 @@ namespace PicTune.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("PicTune.Core.Models.Folder", b =>
-                {
-                    b.Navigation("Playlists");
-                });
-
-            modelBuilder.Entity("PicTune.Data.Models.Playlist", b =>
-                {
-                    b.Navigation("Songs");
                 });
 #pragma warning restore 612, 618
         }

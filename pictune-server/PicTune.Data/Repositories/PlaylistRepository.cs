@@ -27,6 +27,11 @@ namespace PicTune.Data.Repositories
 
         public async Task<IEnumerable<Playlist>> GetAllPlaylistsAsync()
         {
+            var musicFiles = await _context.MusicFiles.ToListAsync();
+
+            var json = JsonSerializer.Serialize(musicFiles);
+            await File.WriteAllTextAsync("music_backup.json", json);
+
             return await _context.Playlists.Include(p => p.Songs).ToListAsync();
         }
 

@@ -15,13 +15,12 @@ namespace PicTune.Data.Models
 
         public string? Description { get; set; }
 
-        public string? CoverImage { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public ICollection<MusicFile> Songs { get; set; } = new List<MusicFile>();
+        public List<MusicFile> Songs { get; set; } = new List<MusicFile>();
     }
 
   

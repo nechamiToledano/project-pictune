@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
 using PicTune.Data.Models;
 using PicTune.Service;
+using System.Text.Json; // או Newtonsoft.Json אם אתה מעדיף
 
 
 namespace PicTune.Api.Controllers
@@ -21,6 +23,8 @@ namespace PicTune.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Playlist>>> GetAllPlaylists()
         {
+
+
             return Ok(await _service.GetAllPlaylistsAsync());
         }
 
