@@ -25,7 +25,7 @@ namespace PicTune.Data.Repositories
         {
             _context = context;
             _s3Client = s3Client;
-            _bucketName = Env.GetString("BUCKET_NAME");
+            _bucketName = Env.GetString("AWS_BUCKET_NAME");
             _python_api_url = Env.GetString("PYTHON_API_URL");
 
         }

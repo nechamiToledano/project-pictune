@@ -22,7 +22,7 @@ public class UploadController : ControllerBase
     {
         _s3Client = s3Client;
         _musicFileService = musicFileService;
-        _bucketName = Env.GetString("BUCKET_NAME");
+        _bucketName = Env.GetString("AWS_BUCKET_NAME");
 
 
     }

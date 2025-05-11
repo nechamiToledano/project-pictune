@@ -24,7 +24,7 @@ namespace PicTune.API.Controllers
         {
             _musicFileService = musicFileService;
             _s3Client = s3Client;
-            _bucketName=Env.GetString("BUCKET_NAME");
+            _bucketName=Env.GetString("AWS_BUCKET_NAME");
 
         }
 
