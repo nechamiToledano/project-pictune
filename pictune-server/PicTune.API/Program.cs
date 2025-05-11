@@ -15,6 +15,9 @@ using PicTune.Service.Services;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using PicTune.Service;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
+using Amazon;
 
 Env.Load();
 
@@ -25,7 +28,15 @@ string connectionString = Env.GetString("DB_CONNECTION_STRING");
 var jwtKey = Env.GetString("JWT_KEY") ?? "my_very_secret_key";
 
 // Register AWS services
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+var awsOptions = new AWSOptions
+{
+    Region = RegionEndpoint.GetBySystemName(Environment.GetEnvironmentVariable("AWS_BUCKET_REGION")),
+    Credentials = new BasicAWSCredentials(
+        Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+        Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
+};
+
+builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
