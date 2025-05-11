@@ -89,7 +89,7 @@ export const updatePlaylist = createAsyncThunk(
     "playlists/generateByPrompt",
     async ({ prompt }: { prompt: string }, { rejectWithValue }) => {
       try {
-        const response = await api.post(`/playlists/generate_playlist_by_prompt`, { prompt});
+        const response = await api.post(`/playlists/generate-playlist-by-prompt`, { prompt});
         return response.data; // Assume that the backend returns the updated playlist
         } catch (error: any) {
         return rejectWithValue(error.response?.data?.message || "Failed to update playlist");

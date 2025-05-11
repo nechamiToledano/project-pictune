@@ -55,7 +55,7 @@ namespace PicTune.API.Controllers
 
 
         [HttpPut("{id}")]
-        [Authorize("EditorOrAdmin")]
+        [Authorize()]
         public async Task<IActionResult> UpdateMusicFile(int id, [FromBody] MusicFileUploadDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -64,7 +64,7 @@ namespace PicTune.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize("EditorOrAdmin")]
+        [Authorize()]
         public async Task<IActionResult> DeleteMusicFile(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
