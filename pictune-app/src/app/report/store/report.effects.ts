@@ -26,5 +26,20 @@ export class ReportEffects {
       )
     )
   )
+  loadUploadsByHour$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ReportActions.loadUploadsByHour),
+      mergeMap(() =>
+        this.apiService.getUploadsByHour().pipe(
+          map((data) =>
+            ReportActions.loadUploadsByHourSuccess({ data })
+          ),
+          catchError((error) =>
+            of(ReportActions.loadUploadsByHourFailure({ error }))
+          )
+        )
+      )
+    )
+  );
   
 }

@@ -27,10 +27,13 @@
     "@ngrx/store": "^19.1.0",
     "@ngrx/store-devtools": "^19.1.0",
     "@swimlane/ngx-charts": "^22.0.0-alpha.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "recharts": "^2.15.3",
     "redux-devtools-extension": "^2.13.9",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
     "zone.js": "^0.15.0"
   },
   "devDependencies": {

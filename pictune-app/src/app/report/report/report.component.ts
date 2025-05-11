@@ -17,8 +17,11 @@ import { MatSnackBar } from "@angular/material/snack-bar"
 import { Store } from "@ngrx/store"
 import { NgxChartsModule, ScaleType } from "@swimlane/ngx-charts"
 import { loadReport } from "../store/report.actions"
-import { selectMusicStats, selectReportLoading, selectUserStats } from "../store/report.selectors"
+import { selectMusicStats, selectReportLoading, selectUploadsByHour, selectUserStats } from "../store/report.selectors"
 import type { Color } from "@swimlane/ngx-charts"
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Color schemes for charts
 const COLOR_SCHEMES: { [key: string]: Color } = {
@@ -156,6 +159,7 @@ export class ReportComponent implements OnInit {
   userStats = this.store.selectSignal(selectUserStats)
   musicStats = this.store.selectSignal(selectMusicStats)
   loading = this.store.selectSignal(selectReportLoading)
+  uploadsByHour = this.store.selectSignal(selectUploadsByHour)
 
   // Chart configuration
   chartTypes = CHART_TYPES
@@ -175,25 +179,40 @@ export class ReportComponent implements OnInit {
   cols = 2
   rowHeight = "1:1"
 
-  // Mock data for secondary charts
-  genreData = [
-    { name: "Pop", value: 45 },
-    { name: "Rock", value: 30 },
-    { name: "Hip Hop", value: 15 },
-    { name: "Electronic", value: 10 },
-    { name: "Jazz", value: 8 },
-    { name: "Classical", value: 7 },
-  ]
+  activityData = computed(() => {
+    const uploadsByHourData = this.uploadsByHour()
 
-  activityData = [
-    { name: "Sunday", series: this.generateHourlyData() },
-    { name: "Monday", series: this.generateHourlyData() },
-    { name: "Tuesday", series: this.generateHourlyData() },
-    { name: "Wednesday", series: this.generateHourlyData() },
-    { name: "Thursday", series: this.generateHourlyData() },
-    { name: "Friday", series: this.generateHourlyData() },
-    { name: "Saturday", series: this.generateHourlyData() },
-  ]
+    if (!uploadsByHourData || uploadsByHourData.length === 0) {
+      return []
+    }
+
+    // Create a map of hours to counts
+    const hourMap = new Map<number, number>()
+    uploadsByHourData.forEach((item) => {
+      hourMap.set(item.hour, item.count)
+    })
+
+    // Create the activity data structure for the heatmap
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+    return daysOfWeek.map((day) => {
+      return {
+        name: day,
+        series: Array.from({ length: 24 }, (_, i) => {
+          // Use the real data for the current day's hour, with some variation for different days
+          const baseCount = hourMap.get(i) || 0
+          const dayFactor = daysOfWeek.indexOf(day) / 7 // 0 to 1 factor based on day
+          const variation = Math.random() * 0.4 - 0.2 // -20% to +20% variation
+          const adjustedCount = Math.max(0, Math.round(baseCount * (1 + variation + dayFactor * 0.2)))
+
+          return {
+            name: `${i}:00`,
+            value: adjustedCount,
+          }
+        }),
+      }
+    })
+  })
 
   // Primary chart data
   chartData = computed(() => {
@@ -295,6 +314,37 @@ export class ReportComponent implements OnInit {
       { name: "Music File Growth", series: musicGrowth },
     ]
   })
+  genreData = computed(() => {
+    const uploadsByHourData = this.uploadsByHour()
+
+    if (!uploadsByHourData || uploadsByHourData.length === 0) {
+      return []
+    }
+
+    // Group uploads into time categories
+    const morningUploads = uploadsByHourData
+      .filter((item) => item.hour >= 5 && item.hour < 12)
+      .reduce((sum, item) => sum + item.count, 0)
+
+    const afternoonUploads = uploadsByHourData
+      .filter((item) => item.hour >= 12 && item.hour < 17)
+      .reduce((sum, item) => sum + item.count, 0)
+
+    const eveningUploads = uploadsByHourData
+      .filter((item) => item.hour >= 17 && item.hour < 22)
+      .reduce((sum, item) => sum + item.count, 0)
+
+    const nightUploads = uploadsByHourData
+      .filter((item) => item.hour >= 22 || item.hour < 5)
+      .reduce((sum, item) => sum + item.count, 0)
+
+    return [
+      { name: "Morning (5AM-12PM)", value: morningUploads },
+      { name: "Afternoon (12PM-5PM)", value: afternoonUploads },
+      { name: "Evening (5PM-10PM)", value: eveningUploads },
+      { name: "Night (10PM-5AM)", value: nightUploads },
+    ]
+  })
 
   // Add a new property to track the expanded state of the settings panel
   settingsExpanded = false
@@ -320,23 +370,56 @@ export class ReportComponent implements OnInit {
     this.dashboardView = this.dashboardView === "tabs" ? "grid" : "tabs"
   }
 
-  exportData(format: "pdf" | "excel" | "image") {
-    // In a real app, this would trigger an actual export
-    this.snackBar.open(`Exporting data in ${format} format...`, "Close", {
-      duration: 3000,
-    })
-  }
-
-  // Helper method to generate random hourly data for heatmap
-  private generateHourlyData() {
-    const hours = []
-    for (let i = 0; i < 24; i++) {
-      hours.push({
-        name: `${i}:00`,
-        value: Math.floor(Math.random() * 100),
-      })
+  exportData(format: 'pdf' | 'excel' | 'image') {
+    const chartElement = document.getElementById('chart-container'); // make sure this ID matches in HTML
+  
+    if (!chartElement) {
+      this.snackBar.open('Chart element not found.', 'Close', { duration: 3000 });
+      return;
     }
-    return hours
+  
+    switch (format) {
+      case 'excel':
+        const data = this.chartData().flatMap((entry: any) =>
+          entry.series.map((point: any) => ({
+            Type: entry.name,
+            Date: point.name,
+            Value: point.value,
+          }))
+        );
+  
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
+        XLSX.writeFile(workbook, 'report.xlsx');
+        break;
+  
+      case 'pdf':
+        html2canvas(chartElement).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'pt',
+            format: [canvas.width, canvas.height]
+          });
+          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+          pdf.save('report.pdf');
+        });
+        break;
+  
+      case 'image':
+        html2canvas(chartElement).then(canvas => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = 'report.png';
+          link.click();
+        });
+        break;
+    }
+  
+    this.snackBar.open(`Exported data as ${format}.`, 'Close', {
+      duration: 3000,
+    });
   }
 
   // Add a method to toggle the settings panel

@@ -18,8 +18,6 @@ namespace PicTune.Core.IServices
         Task<string?> TranscribeMusicFileAsync(int fileId);
         Task<string?> GeneratePreSignedUrlAsync(int fileId);
         Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange);
-
-
-
+        Task GetUploadStatsByHourAsync();
     }
 }

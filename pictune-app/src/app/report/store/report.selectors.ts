@@ -18,3 +18,7 @@ export const selectReportLoading = createSelector(
   selectReportState,
   (state) => state.loading
 );
+export const selectUploadsByHour = createSelector(
+  selectReportState,
+  (state) => state.uploadsByHour
+);

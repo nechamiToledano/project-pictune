@@ -1,4 +1,4 @@
-<div class="page-container fade-in">
+<div id="chart-container" class="page-container fade-in">
   <div class="page-header">
     <div class="header-title">
       <div class="header-icon">
@@ -16,7 +16,6 @@
         <mat-select [(ngModel)]="timeRange" (selectionChange)="loadReportData()">
           <mat-option value="week">Last Week</mat-option>
           <mat-option value="month">Last Month</mat-option>
-          <mat-option value="quarter">Last Quarter</mat-option>
           <mat-option value="year">Last Year</mat-option>
         </mat-select>
       </mat-form-field>
@@ -268,8 +267,8 @@
                     </ngx-charts-bar-vertical>
                   } @else if (secondaryChartType === 'pie') {
                     <ngx-charts-pie-chart
-                      [results]="genreData"
-                      [gradient]="true"
+                    [results]="genreData()"
+                    [gradient]="true"
                       [legend]="showLegend"
                       [labels]="showLabels"
                       [doughnut]="true"
@@ -396,8 +395,8 @@
                       </ngx-charts-bar-vertical>
                     } @else if (secondaryChartType === 'pie') {
                       <ngx-charts-pie-chart
-                        [results]="genreData"
-                        [gradient]="true"
+                      [results]="genreData()"
+                      [gradient]="true"
                         [legend]="showLegend"
                         [labels]="showLabels"
                         [doughnut]="true"
@@ -525,7 +524,7 @@
               @if (secondaryChartType === 'bar') {
                 Files per User Ratio
               } @else if (secondaryChartType === 'pie') {
-                Genre Distribution
+                Upload Time Distribution
               } @else if (secondaryChartType === 'heatmap') {
                 User Activity Heatmap
               } @else {
@@ -536,7 +535,7 @@
               @if (secondaryChartType === 'bar') {
                 Ratio of music files to users over time
               } @else if (secondaryChartType === 'pie') {
-                Distribution of music files by genre
+                Distribution of uploads by time of day
               } @else if (secondaryChartType === 'heatmap') {
                 User activity patterns by day and hour
               } @else {
@@ -563,8 +562,8 @@
                 </ngx-charts-bar-vertical>
               } @else if (secondaryChartType === 'pie') {
                 <ngx-charts-pie-chart
-                  [results]="genreData"
-                  [gradient]="true"
+                [results]="genreData()"
+                [gradient]="true"
                   [legend]="showLegend"
                   [labels]="showLabels"
                   [doughnut]="true"

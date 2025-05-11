@@ -122,6 +122,10 @@ export class ApiService {
   getReportSummary(timeRange:string) {
     return this.http.get<{ users: any[]; music: any[] }>(`${this.apiUrl}/reports/summary?range=${timeRange}`);
   }
+  getUploadsByHour(): Observable<{ hour: number; count: number }[]> {
+    return this.http.get<{ hour: number; count: number }[]>(`${this.apiUrl}/stats/uploads-by-hour`);
+  }
+
 }
 
 

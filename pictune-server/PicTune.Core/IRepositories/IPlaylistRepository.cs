@@ -1,4 +1,5 @@
-﻿using PicTune.Data.Models;
+﻿using PicTune.Core.DTOs;
+using PicTune.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,6 @@ namespace PicTune.Core.IRepositories
         Task<bool> AddSongToPlaylistAsync(Guid playlistId, int songId);
         Task<bool> RemoveSongFromPlaylistAsync(Guid playlistId, int songId);
         Task<Playlist> GeneratePlaylistByPromptAsync(string userPrompt);
+        Task<List<HourlyStatDto>> GetUploadStatsByHourAsync();
     }
 }

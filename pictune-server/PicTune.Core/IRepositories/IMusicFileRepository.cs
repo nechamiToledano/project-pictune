@@ -18,5 +18,6 @@ namespace PicTune.Core.IRepositories
         Task<string?> TranscribeFileAsync(string fileUrl);
         string GeneratePreSignedUrl(string s3Key);
         Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange);
+        Task<List<HourlyStatDto>> GetUploadStatsByHourAsync();
     }
 }
