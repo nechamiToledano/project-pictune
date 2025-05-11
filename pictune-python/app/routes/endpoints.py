@@ -11,11 +11,13 @@ class Song(BaseModel):
     id: int
     transcript: str
 
+class TranscribeRequest(BaseModel):
+    url: str
+
 @router.post("/transcribe_song/")
-async def transcribe_song_endpoint(url:str):
+async def transcribe_song_endpoint(request: TranscribeRequest):
     try:
-        # נניח שאתה שולח URL ולא קובץ - אתה יכול לשנות את הקלט בהתאם
-        transcription = transcribe_audio(url)
+        transcription = transcribe_audio(upload_url=request.url)
         return {"transcription": transcription}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error transcribing song: {str(e)}")
@@ -27,3 +29,6 @@ async def generate_playlist_by_prompt_endpoint(user_prompt: str, songs: List[Son
         return playlist
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating playlist by prompt: {str(e)}")
+@router.get("/")
+def root():
+    return {"message": "API is running"}

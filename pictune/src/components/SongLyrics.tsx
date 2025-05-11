@@ -362,8 +362,7 @@ export default function SongLyrics({ songId, currentTime = 0, isPlaying = false 
             </div>
             <h4 className="text-white font-medium mb-2">No lyrics available for this track</h4>
             <p className="text-gray-400 mb-6 max-w-md">
-              We couldn't find lyrics for this song. Would you like our AI to generate lyrics based on the song title
-              and style?
+              We couldn't find lyrics for this song. Would you like our AI to transcribe the song lyrics?
             </p>
             <Button
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
@@ -373,12 +372,12 @@ export default function SongLyrics({ songId, currentTime = 0, isPlaying = false 
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating...
+                  Transcribing...
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Lyrics with AI
+                  Transcribe Lyrics with AI
                 </>
               )}
             </Button>
