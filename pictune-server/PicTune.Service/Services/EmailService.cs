@@ -38,13 +38,14 @@ namespace PicTune.Service.Services
 
         public async Task<EmailResponseDto> SendPasswordResetEmailAsync(ResetPasswordRequestDto request, string resetLink)
         {
+            
             var subject = "🔐 Reset Your PicTune Password";
             var htmlBody = $@"
                 <html>
                 <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>
                     <div style='max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);'>
                         <h2 style='color: #D9534F;'>Reset Your Password</h2>
-                        <p>Hello,</p>
+                        <p>Hello,{request.UserName}</p>
                         <p>We received a request to reset your PicTune password. Click the button below to continue:</p>
                         <div style='text-align: center; margin: 30px 0;'>
                             <a href='{resetLink}' style='display: inline-block; background-color: #D9534F; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-size: 16px;'>🔁 Reset Password</a>
@@ -60,6 +61,8 @@ namespace PicTune.Service.Services
 
         public async Task<EmailResponseDto> SendSongLinkEmailAsync(SongLinkRequestDto request)
         {
+          
+            
             var subject = "🎶 Your Song from PicTune";
             var htmlBody = $@"
                 <html>

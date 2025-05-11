@@ -33,11 +33,12 @@ def correct_lyrics(text: str) -> str:
     max_tokens=1000
 )
 
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
 
 
 def transcribe_audio(upload_url: str) -> str:
-    print("URL received:", upload_url)
+    
+    print(f"[INFO] Starting download from: {upload_url}")
 
     headers = {
         'authorization': ASSEMBLYAI_API_KEY,
@@ -65,5 +66,5 @@ def transcribe_audio(upload_url: str) -> str:
             transcription=correct_lyrics(check_response.json()['text'])
             return transcription
         elif status == 'failed':
-            
+            print(f"[ERROR] Transcription failed: {check_response.json()}")
             raise Exception('Transcription failed')

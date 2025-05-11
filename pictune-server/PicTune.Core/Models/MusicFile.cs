@@ -10,7 +10,7 @@ namespace PicTune.Core.Models
         public string FileType { get; set; }
         public string S3Key { get; set; }
         public long Size { get; set; }
-        public DateTime UploadedAt { get; set; }
+        public DateTime UploadedAt { get; set; }=DateTime.Now;
         public bool IsLiked { get; set; }
         public string OwnerId { get; set; }
         public int? FolderId { get; set; }
