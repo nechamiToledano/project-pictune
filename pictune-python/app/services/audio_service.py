@@ -68,3 +68,5 @@ def transcribe_audio(upload_url: str) -> str:
         elif status == 'failed':
             print(f"[ERROR] Transcription failed: {check_response.json()}")
             raise Exception('Transcription failed')
+
+transcribe_audio("https://pictune-files-testpnoren.s3.us-east-1.amazonaws.com/0fe3b3f9-8a50-4ed5-8f5d-33cabe6565c9.mp3")
