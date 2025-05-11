@@ -134,5 +134,18 @@ namespace PicTune.Data.Repositories
             .OrderBy(s => s.Date)
             .ToListAsync();
         }
+        public async Task<List<HourlyStatDto>> GetUploadStatsByHourAsync()
+        {
+            return await _context.MusicFiles
+                .GroupBy(f => f.UploadedAt.Hour)
+                .Select(g => new HourlyStatDto
+                {
+                    Hour = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(s => s.Hour)
+                .ToListAsync();
+        }
+
     }
 }

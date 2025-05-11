@@ -115,7 +115,10 @@ namespace PicTune.Service
         {
             return await _repository.GetMusicUploadStatsAsync(timeRange);
         }
-
+        public Task<List<HourlyStatDto>> GetUploadStatsByHourAsync()
+        {
+            return _repository.GetUploadStatsByHourAsync();
+        }
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿// בתוך PicTune.Api.Controllers
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
 
 [ApiController]
@@ -30,5 +31,11 @@ public class ReportsController : ControllerBase
         };
 
         return Ok(result);
+    }
+    [HttpGet("uploads-by-hour")]
+    public async Task<ActionResult<List<HourlyStatDto>>> GetUploadStatsByHour()
+    {
+        var stats = await _musicService.GetUploadStatsByHourAsync();
+        return Ok(stats);
     }
 }
