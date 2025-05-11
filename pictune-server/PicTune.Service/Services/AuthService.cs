@@ -93,7 +93,7 @@ namespace PicTune.Service.Services
                 await _userManager.AddToRoleAsync(user, "Viewer");
             }
 
-            return GenerateJwtToken(user);
+            return await GenerateJwtTokenAsync(user);
         }
 
 
@@ -161,20 +161,24 @@ namespace PicTune.Service.Services
 
 
 
-        /// <summary>
-        /// Generates a JWT token for authenticated users.
-        /// </summary>
-        private string GenerateJwtToken(User user)
+        private async Task<string> GenerateJwtTokenAsync(User user)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = Encoding.UTF8.GetBytes(Env.GetString("JWT_KEY"));
 
             var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Name, user.UserName ?? ""),
+        new Claim(ClaimTypes.Email, user.Email ?? "")
+    };
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            foreach (var role in userRoles)
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName ?? ""),
-                new Claim(ClaimTypes.Email, user.Email ?? "")
-            };
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
@@ -186,6 +190,7 @@ namespace PicTune.Service.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         public async Task<UserDto?> GetUserByUsernameAsync(string username)
         {
 
