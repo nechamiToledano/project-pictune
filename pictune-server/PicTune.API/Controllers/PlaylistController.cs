@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
@@ -11,6 +12,8 @@ namespace PicTune.Api.Controllers
 {
     [Route("api/playlists")]
     [ApiController]
+    [Authorize()]
+
     public class PlaylistController : ControllerBase
     {
         private readonly IPlaylistService _service;

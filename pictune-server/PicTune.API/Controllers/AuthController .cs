@@ -24,14 +24,11 @@ namespace PicTune.API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IMapper _mapper;
-        private readonly UserManager<User> _userManager;
 
-        public AuthController(IAuthService authService, IMapper mapper, UserManager<User> userManager)
+        public AuthController(IAuthService authService, IMapper mapper)
         {
             _authService = authService;
             _mapper = mapper;
-            _userManager = userManager;
-           
 
         }
 

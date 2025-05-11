@@ -6,6 +6,7 @@ using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
 using System.Security.Claims;
 using System.Net;
+using DotNetEnv;
 
 namespace PicTune.API.Controllers
 {
@@ -16,11 +17,15 @@ namespace PicTune.API.Controllers
     {
         private readonly IMusicFileService _musicFileService;
         private readonly IAmazonS3 _s3Client;
+        private readonly string _bucketName;
+
 
         public MusicFileController(IMusicFileService musicFileService, IAmazonS3 s3Client)
         {
             _musicFileService = musicFileService;
             _s3Client = s3Client;
+            _bucketName=Env.GetString("BUCKET_NAME");
+
         }
 
         [HttpGet]
@@ -78,6 +83,8 @@ namespace PicTune.API.Controllers
 
 
         [HttpGet("extract-image")]
+        [Authorize]
+
         public async Task<IActionResult> ExtractImage( [FromQuery] string fileKey)
         {
             if ( string.IsNullOrWhiteSpace(fileKey))
@@ -90,7 +97,7 @@ namespace PicTune.API.Controllers
                 // Fetch the MP3 file from S3
                 var request = new GetObjectRequest
                 {
-                    BucketName = "pictune-files-testpnoren",
+                    BucketName = _bucketName,
                     Key = fileKey
                 };
 

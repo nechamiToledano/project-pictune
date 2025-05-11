@@ -7,19 +7,23 @@ using PicTune.Core.IServices;
 using PicTune.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using PicTune.Service;
+using DotNetEnv;
 
 [ApiController]
 [Route("api/upload")]
-//[Authorize] // Ensure user is authenticated
+[Authorize]
 public class UploadController : ControllerBase
 {
     private readonly IAmazonS3 _s3Client;
     private readonly IMusicFileService _musicFileService;
+    private readonly string _bucketName;
 
     public UploadController(IAmazonS3 s3Client, IMusicFileService musicFileService)
     {
         _s3Client = s3Client;
         _musicFileService = musicFileService;
+        _bucketName = Env.GetString("BUCKET_NAME");
+
 
     }
 
@@ -46,7 +50,7 @@ public class UploadController : ControllerBase
 
         var request = new GetPreSignedUrlRequest
         {
-            BucketName = "pictune-files-testpnoren",
+            BucketName = _bucketName,
             Key = uniqueFileName,
             Verb = HttpVerb.PUT,
             Expires = DateTime.UtcNow.AddMinutes(120), // Increased expiration time

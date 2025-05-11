@@ -27,7 +27,7 @@ namespace PicTune.Data.Repositories
 
         public async Task<IEnumerable<Playlist>> GetAllPlaylistsAsync()
         {
-           
+
 
             return await _context.Playlists.Include(p => p.Songs).ToListAsync();
         }
@@ -112,7 +112,7 @@ namespace PicTune.Data.Repositories
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("http://localhost:8000/generate_playlist_by_prompt/", content);
+            var response = await _httpClient.PostAsync("https://pictune-python.onrender.com/generate_playlist_by_prompt/", content);
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();

@@ -1,4 +1,5 @@
 ﻿// בתוך PicTune.Api.Controllers
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PicTune.Core.IServices;
 
@@ -14,6 +15,7 @@ public class ReportsController : ControllerBase
         _userService = userService;
         _musicService = musicService;
     }
+    [Authorize("AdminOnly")]
 
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummaryReport()

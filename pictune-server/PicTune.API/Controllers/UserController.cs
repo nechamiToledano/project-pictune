@@ -11,6 +11,8 @@ namespace PicTune.API.Controllers
 {
     [Route("api/users")]
     [ApiController]
+    [Authorize("AdminOnly")]
+
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;

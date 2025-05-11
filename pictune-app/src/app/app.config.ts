@@ -2,6 +2,7 @@ import { ApplicationConfig } from '@angular/core';
 import { provideHttpClient, withInterceptorsFromDi, withFetch, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
@@ -24,5 +25,6 @@ export const appConfig: ApplicationConfig = {
     provideStore(appReducers),
     provideEffects(appEffects),
     provideStoreDevtools(),
+    provideAnimations()
   ],
 };

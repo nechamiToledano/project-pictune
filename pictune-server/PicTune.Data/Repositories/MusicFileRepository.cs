@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
 using PicTune.Core.DTOs;
+using DotNetEnv;
 
 namespace PicTune.Data.Repositories
 {
@@ -16,12 +17,16 @@ namespace PicTune.Data.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly IAmazonS3 _s3Client;
-        private const string BucketName = "pictune-files-testpnoren";
+        private readonly string _python_api_url;
+
+        private readonly string _bucketName;
 
         public MusicFileRepository(ApplicationDbContext context, IAmazonS3 s3Client)
         {
             _context = context;
             _s3Client = s3Client;
+            _bucketName = Env.GetString("BUCKET_NAME");
+            _python_api_url = Env.GetString("PYTHON_API_URL");
 
         }
 
@@ -76,7 +81,7 @@ namespace PicTune.Data.Repositories
 
             try
             {
-                var response = await httpClient.PostAsync("http://127.0.0.1:8000/transcribe_song/", content);
+                var response = await httpClient.PostAsync($"{_python_api_url}/transcribe_song/", content);
                 response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -98,7 +103,7 @@ namespace PicTune.Data.Repositories
         {
             var request = new GetPreSignedUrlRequest
             {
-                BucketName = BucketName,
+                BucketName = _bucketName,
                 Key = s3Key,
                 Expires = DateTime.UtcNow.AddHours(1),
                 Verb = HttpVerb.GET

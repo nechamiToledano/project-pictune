@@ -1,23 +1,29 @@
 import { inject } from '@angular/core';
-import { createEffect, ofType } from '@ngrx/effects';
-import { Actions } from '@ngrx/effects';
+import { createEffect, ofType, Actions } from '@ngrx/effects';
 import * as ReportActions from './report.actions';
 import { catchError, map, mergeMap, of } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 
-export const loadReport$ = createEffect((actions$ = inject(Actions)) =>
-  actions$.pipe(
-    ofType(ReportActions.loadReport),
-    mergeMap(() =>
-      inject(ApiService).getReportSummary().pipe(
-        map((response) =>
-          ReportActions.loadReportSuccess({
-            users: response.users,
-            music: response.music,
-          })
-        ),
-        catchError((error) => of(ReportActions.loadReportFailure({ error })))
+export class ReportEffects {
+  private readonly actions$ = inject(Actions);
+  private readonly apiService = inject(ApiService);
+
+  loadReport$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ReportActions.loadReport),
+      mergeMap(() =>
+        this.apiService.getReportSummary().pipe(
+          map((response) =>
+            ReportActions.loadReportSuccess({
+              users: response.users,
+              music: response.music,
+            })
+          ),
+          catchError((error) =>
+            of(ReportActions.loadReportFailure({ error }))
+          )
+        )
       )
     )
-  )
-);
+  );
+}

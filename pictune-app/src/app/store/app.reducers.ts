@@ -4,11 +4,13 @@ import { authReducer } from '../auth/store/auth.reducer';
 import { userReducer } from '../users/store/user.reducer';
 import { musicFileReducer } from '../music-files/store/music-file.reducer';
 import { playlistReducer } from '../playlists/store/playlist.reducer';
+import { reportReducer } from '../report/store/report.reducer';
 
 export const appReducers: ActionReducerMap<AppState> = {
   auth: authReducer,
   users: userReducer, 
   musicFiles:musicFileReducer,
-  playlists:playlistReducer
+  playlists:playlistReducer,
+  report:reportReducer
 };
 

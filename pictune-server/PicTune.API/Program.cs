@@ -22,10 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 string connectionString = Env.GetString("DB_CONNECTION_STRING");
-var jwtKey = Env.GetString("JWT_KEY") ?? "your_secret_key";
-var githubClientId = Environment.GetEnvironmentVariable("GITHUB_CLIENT_ID");
-var githubClientSecret = Environment.GetEnvironmentVariable("GITHUB_CLIENT_SECRET");
-var redirectUri = Environment.GetEnvironmentVariable("GITHUB_REDIRECT_URI");
+var jwtKey = Env.GetString("JWT_KEY") ?? "my_very_secret_key";
 
 // Register AWS services
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());

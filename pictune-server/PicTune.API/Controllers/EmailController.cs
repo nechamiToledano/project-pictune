@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,11 +21,14 @@ namespace PicTune.API.Controllers
         private readonly IEmailService _emailService;
 
         private readonly UserManager<User> _userManager;
+        private readonly string _reactAppUrl;
+
 
         public EmailController(IEmailService emailService, UserManager<User> userManager)
         {
             _emailService = emailService;
             _userManager = userManager;
+            _reactAppUrl = Env.GetString("REACT_APP_URL");
 
         }
 
@@ -47,7 +51,7 @@ namespace PicTune.API.Controllers
 
 
             // Generate reset link manually
-            var resetLink = $"https://pictune-ai.onrender.com/reset-password?token={resetToken}&email={model.Email}";
+            var resetLink = $"{_reactAppUrl}/reset-password?token={resetToken}&email={model.Email}";
 
             // Send the reset link via email
             await _emailService.SendPasswordResetEmailAsync(model, resetLink);

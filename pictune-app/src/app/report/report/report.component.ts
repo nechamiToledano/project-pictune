@@ -23,8 +23,9 @@ export class ReportComponent {
   loading = this.store.selectSignal(selectReportLoading)
 
   // Custom color scheme that matches our app theme
-  colorScheme = "#8884d8"
-
+  colorScheme = {
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
+  };
   chartData = computed(() => {
     const users = this.userStats()
     const music = this.musicStats()
