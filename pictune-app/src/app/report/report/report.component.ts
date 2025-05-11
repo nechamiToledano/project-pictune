@@ -183,7 +183,12 @@ export class ReportComponent implements OnInit {
     const uploadsByHourData = this.uploadsByHour()
 
     if (!uploadsByHourData || uploadsByHourData.length === 0) {
-      return []
+      return [
+        {
+          name: "Sunday",
+          series: [{ name: "0:00", value: 0 }],
+        },
+      ]
     }
 
     // Create a map of hours to counts
@@ -219,8 +224,17 @@ export class ReportComponent implements OnInit {
     const users = this.userStats()
     const music = this.musicStats()
 
-    if (!users || !music) {
-      return []
+    if (!users || !music || users.length === 0 || music.length === 0) {
+      return [
+        {
+          name: "Users",
+          series: [{ name: "No Data", value: 0 }],
+        },
+        {
+          name: "Music Files",
+          series: [{ name: "No Data", value: 0 }],
+        },
+      ]
     }
 
     return [
@@ -246,9 +260,13 @@ export class ReportComponent implements OnInit {
     const users = this.userStats()
     const music = this.musicStats()
 
-    if (!users || !music) {
-      return []
+    if (!users || !music || users.length === 0 || music.length === 0) {
+      return [
+        { name: "Users", value: 0 },
+        { name: "Music Files", value: 0 },
+      ]
     }
+
 
     const totalUsers = users.reduce((sum, u) => sum + u.count, 0)
     const totalMusic = music.reduce((sum, m) => sum + m.count, 0)
@@ -264,21 +282,25 @@ export class ReportComponent implements OnInit {
     const users = this.userStats()
     const music = this.musicStats()
 
-    if (!users || !music) {
-      return []
+    if (!users || !music || users.length === 0 || music.length === 0) {
+      return [{ name: "No Data", value: 0 }]
     }
-
     // Create a map of dates to user counts
     const userMap = new Map<string, number>()
     users.forEach((u) => userMap.set(u.date, u.count))
 
     // Calculate ratio of music files to users for each date
-    return music
+    const ratios = music
       .filter((m) => userMap.has(m.date) && userMap.get(m.date)! > 0)
       .map((m) => ({
         name: m.date,
         value: +(m.count / userMap.get(m.date)!).toFixed(2),
       }))
+      if (ratios.length === 0) {
+        return [{ name: "No Data", value: 0 }]
+      }
+  
+      return ratios
   })
 
   // Growth data for line chart
@@ -287,8 +309,16 @@ export class ReportComponent implements OnInit {
     const music = this.musicStats()
 
     if (!users || !music || users.length < 2 || music.length < 2) {
-      return []
-    }
+      return [
+        {
+          name: "User Growth",
+          series: [{ name: "No Data", value: 0 }],
+        },
+        {
+          name: "Music File Growth",
+          series: [{ name: "No Data", value: 0 }],
+        },
+      ]    }
 
     // Calculate growth percentage for users and music
     const userGrowth = users.slice(1).map((u, i) => {
@@ -318,8 +348,12 @@ export class ReportComponent implements OnInit {
     const uploadsByHourData = this.uploadsByHour()
 
     if (!uploadsByHourData || uploadsByHourData.length === 0) {
-      return []
-    }
+      return [
+        { name: "Morning (5AM-12PM)", value: 0 },
+        { name: "Afternoon (12PM-5PM)", value: 0 },
+        { name: "Evening (5PM-10PM)", value: 0 },
+        { name: "Night (10PM-5AM)", value: 0 },
+      ]    }
 
     // Group uploads into time categories
     const morningUploads = uploadsByHourData

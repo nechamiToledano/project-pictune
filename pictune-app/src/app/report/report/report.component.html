@@ -295,7 +295,7 @@
                     </ngx-charts-line-chart>
                   } @else if (secondaryChartType === 'heatmap') {
                     <ngx-charts-heat-map
-                      [results]="activityData"
+                      [results]="activityData()"
                       [gradient]="false"
                       [xAxis]="true"
                       [yAxis]="true"
@@ -423,7 +423,7 @@
                       </ngx-charts-line-chart>
                     } @else if (secondaryChartType === 'heatmap') {
                       <ngx-charts-heat-map
-                        [results]="activityData"
+                        [results]="activityData()"
                         [gradient]="false"
                         [xAxis]="true"
                         [yAxis]="true"
@@ -590,7 +590,7 @@
                 </ngx-charts-line-chart>
               } @else if (secondaryChartType === 'heatmap') {
                 <ngx-charts-heat-map
-                  [results]="activityData"
+                  [results]="activityData()"
                   [gradient]="false"
                   [xAxis]="true"
                   [yAxis]="true"
