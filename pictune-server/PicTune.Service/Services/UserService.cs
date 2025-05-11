@@ -48,9 +48,18 @@ namespace PicTune.Service
             return result.Succeeded;
         }
 
-        public Task<List<StatPoint>> GetUserRegistrationStatsAsync()
+        public Task<List<StatPoint>> GetUserRegistrationStatsAsync(string timeRange)
         {
+            DateTime fromDate = timeRange switch
+            {
+                "week" => DateTime.Today.AddDays(-7),
+                "month" => DateTime.Today.AddMonths(-1),
+                "year" => DateTime.Today.AddYears(-1),
+                _ => DateTime.MinValue // all data if unknown
+            };
+
             var stats = _userManager.Users
+                .Where(u => u.CreatedAt >= fromDate)
                 .GroupBy(u => u.CreatedAt.Date)
                 .OrderBy(g => g.Key)
                 .Select(g => new StatPoint

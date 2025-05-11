@@ -11,7 +11,7 @@ namespace PicTune.Core.IServices
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<bool> DeleteUserAsync(string id);
         Task<bool> UpdateUserAsync(string id, string newEmail, string newUserName);
-        Task<List<StatPoint>> GetUserRegistrationStatsAsync();
+        Task<List<StatPoint>> GetUserRegistrationStatsAsync(string timeRange);
 
     }
 }

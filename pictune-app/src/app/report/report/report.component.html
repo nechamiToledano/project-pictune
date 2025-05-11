@@ -1,42 +1,614 @@
 <div class="page-container fade-in">
-    <div class="page-header">
-      <div class="header-title">
-        <div class="header-icon">
-          <mat-icon>assessment</mat-icon>
-        </div>
-        <h1>Users and Music Report</h1>
+  <div class="page-header">
+    <div class="header-title">
+      <div class="header-icon">
+        <mat-icon>assessment</mat-icon>
       </div>
+      <h1>User & Music Analytics Dashboard</h1>
     </div>
     
-    <mat-card class="content-card">
-      <div class="card-header-line"></div>
-      <mat-card-content>
-        @if (!loading()) {
-          <div class="chart-container">
-            <ngx-charts-line-chart
-              [results]="chartData()"
-              [gradient]="true"
-              [xAxis]="true"
-              [yAxis]="true"
-              [legend]="true"
-              [showXAxisLabel]="true"
-              [showYAxisLabel]="true"
-              xAxisLabel="תאריך"
-              yAxisLabel="כמות"
-              [scheme]="'vivid'"
-              [animations]="true"
-              [autoScale]="true"
-              [roundDomains]="true"
-            >
-            </ngx-charts-line-chart>
-          </div>
-        } @else {
-          <div class="loading-container">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p> Loading...</p>
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
+    <div class="header-actions">
+      <button mat-icon-button matTooltip="Toggle Dashboard View" (click)="toggleDashboardView()">
+        <mat-icon>{{ dashboardView === 'tabs' ? 'grid_view' : 'tab' }}</mat-icon>
+      </button>
+      
+      <mat-form-field appearance="outline" class="time-range-selector">
+        <mat-select [(ngModel)]="timeRange" (selectionChange)="loadReportData()">
+          <mat-option value="week">Last Week</mat-option>
+          <mat-option value="month">Last Month</mat-option>
+          <mat-option value="quarter">Last Quarter</mat-option>
+          <mat-option value="year">Last Year</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
   </div>
   
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading data...</p>
+    </div>
+  } @else {
+    <!-- Chart Settings Panel -->
+    <mat-card class="settings-card">
+  <div class="card-header-line"></div>
+  <mat-card-header (click)="toggleSettings()" class="settings-header">
+    <mat-card-title>Chart Settings</mat-card-title>
+    <mat-card-subtitle>Customize your visualization</mat-card-subtitle>
+    <div class="spacer"></div>
+    <button mat-icon-button>
+      <mat-icon>{{ settingsExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+  </mat-card-header>
+  
+  @if (settingsExpanded) {
+    <mat-card-content>
+      <div class="settings-container">
+        <div class="settings-row">
+          <div class="settings-group">
+            <h3>Chart Types</h3>
+            <div class="settings-controls">
+              <mat-form-field appearance="outline">
+                <mat-label>Primary Chart</mat-label>
+                <mat-select [(ngModel)]="primaryChartType" (selectionChange)="updateChartSettings()">
+                  @for (type of chartTypes.primary; track type.value) {
+                    <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Secondary Chart</mat-label>
+                <mat-select [(ngModel)]="secondaryChartType" (selectionChange)="updateChartSettings()">
+                  @for (type of chartTypes.secondary; track type.value) {
+                    <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          
+          <div class="settings-group">
+            <h3>Appearance</h3>
+            <div class="settings-controls">
+              <mat-form-field appearance="outline">
+                <mat-label>Color Scheme</mat-label>
+                <mat-select [(ngModel)]="selectedColorScheme" (selectionChange)="updateColorScheme()">
+                  <mat-option value="vivid">Vivid</mat-option>
+                  <mat-option value="natural">Natural</mat-option>
+                  <mat-option value="cool">Cool</mat-option>
+                  <mat-option value="fire">Fire</mat-option>
+                  <mat-option value="nightLights">Night Lights</mat-option>
+                </mat-select>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Chart Height (px)</mat-label>
+                <input matInput type="number" [(ngModel)]="chartHeight" min="200" max="800" (change)="updateChartSettings()">
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        
+        <div class="settings-row">
+          <div class="settings-group">
+            <h3>Display Options</h3>
+            <div class="toggle-controls">
+              <mat-slide-toggle [(ngModel)]="showLabels" (change)="updateChartSettings()" color="primary">
+                Show Labels
+              </mat-slide-toggle>
+              
+              <mat-slide-toggle [(ngModel)]="showLegend" (change)="updateChartSettings()" color="primary">
+                Show Legend
+              </mat-slide-toggle>
+              
+              <mat-slide-toggle [(ngModel)]="animations" (change)="updateChartSettings()" color="primary">
+                Enable Animations
+              </mat-slide-toggle>
+            </div>
+          </div>
+          
+          <div class="settings-group">
+            <h3>Export Options</h3>
+            <div class="export-controls">
+              <button mat-raised-button color="primary" (click)="exportData('pdf')">
+                <mat-icon>picture_as_pdf</mat-icon>
+                Export PDF
+              </button>
+              <button mat-raised-button color="primary" (click)="exportData('excel')">
+                <mat-icon>table_chart</mat-icon>
+                Export Excel
+              </button>
+              <button mat-raised-button color="primary" (click)="exportData('image')">
+                <mat-icon>image</mat-icon>
+                Export Image
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  } @else {
+    <mat-card-content class="compact-settings">
+      <div class="compact-controls">
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-label>Primary Chart</mat-label>
+          <mat-select [(ngModel)]="primaryChartType" (selectionChange)="updateChartSettings()">
+            @for (type of chartTypes.primary; track type.value) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-label>Secondary Chart</mat-label>
+          <mat-select [(ngModel)]="secondaryChartType" (selectionChange)="updateChartSettings()">
+            @for (type of chartTypes.secondary; track type.value) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-label>Color Scheme</mat-label>
+          <mat-select [(ngModel)]="selectedColorScheme" (selectionChange)="updateColorScheme()">
+            <mat-option value="vivid">Vivid</mat-option>
+            <mat-option value="natural">Natural</mat-option>
+            <mat-option value="cool">Cool</mat-option>
+            <mat-option value="fire">Fire</mat-option>
+            <mat-option value="nightLights">Night Lights</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <div class="compact-buttons">
+          <button mat-mini-fab color="primary" matTooltip="Export PDF" (click)="exportData('pdf')">
+            <mat-icon>picture_as_pdf</mat-icon>
+          </button>
+          <button mat-mini-fab color="primary" matTooltip="Export Excel" (click)="exportData('excel')">
+            <mat-icon>table_chart</mat-icon>
+          </button>
+          <button mat-mini-fab color="primary" matTooltip="Export Image" (click)="exportData('image')">
+            <mat-icon>image</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  }
+</mat-card>
+    
+    <!-- Dashboard Content -->
+    @if (dashboardView === 'tabs') {
+      <!-- Tabbed View -->
+      <mat-card class="dashboard-card">
+        <div class="card-header-line"></div>
+        <mat-card-content>
+          <mat-tab-group [(selectedIndex)]="selectedTabIndex" animationDuration="300ms" mat-stretch-tabs="false" mat-align-tabs="start">
+            <mat-tab label="Overview">
+              <div class="tab-content">
+                <div class="chart-container" [style.height.px]="chartHeight">
+                  @if (primaryChartType === 'line') {
+                    <ngx-charts-line-chart
+                      [results]="chartData()"
+                      [gradient]="true"
+                      [xAxis]="true"
+                      [yAxis]="true"
+                      [legend]="showLegend"
+                      [showXAxisLabel]="showLabels"
+                      [showYAxisLabel]="showLabels"
+                      xAxisLabel="Date"
+                      yAxisLabel="Count"
+                      [scheme]="colorScheme"
+                      [animations]="animations"
+                      [autoScale]="true"
+                      [roundDomains]="true"
+                    >
+                    </ngx-charts-line-chart>
+                  } @else if (primaryChartType === 'bar') {
+                    <ngx-charts-bar-vertical-2d
+                      [results]="chartData()"
+                      [gradient]="true"
+                      [xAxis]="true"
+                      [yAxis]="true"
+                      [legend]="showLegend"
+                      [showXAxisLabel]="showLabels"
+                      [showYAxisLabel]="showLabels"
+                      xAxisLabel="Date"
+                      yAxisLabel="Count"
+                      [scheme]="colorScheme"
+                      [animations]="animations"
+                      [groupPadding]="20"
+                    >
+                    </ngx-charts-bar-vertical-2d>
+                  } @else if (primaryChartType === 'pie') {
+                    <ngx-charts-advanced-pie-chart
+                      [results]="totalsByType()"
+                      [gradient]="true"
+                      [animations]="animations"
+                      [scheme]="colorScheme"
+                    >
+                    </ngx-charts-advanced-pie-chart>
+                  } @else if (primaryChartType === 'area') {
+                    <ngx-charts-area-chart
+                      [results]="chartData()"
+                      [gradient]="true"
+                      [xAxis]="true"
+                      [yAxis]="true"
+                      [legend]="showLegend"
+                      [showXAxisLabel]="showLabels"
+                      [showYAxisLabel]="showLabels"
+                      xAxisLabel="Date"
+                      yAxisLabel="Count"
+                      [scheme]="colorScheme"
+                      [animations]="animations"
+                      [autoScale]="true"
+                    >
+                    </ngx-charts-area-chart>
+                  }
+                </div>
+              </div>
+            </mat-tab>
+            
+            <mat-tab label="Detailed Analysis">
+              <div class="tab-content">
+                <div class="chart-container" [style.height.px]="chartHeight">
+                  @if (secondaryChartType === 'bar') {
+                    <ngx-charts-bar-vertical
+                      [results]="ratioData()"
+                      [gradient]="true"
+                      [xAxis]="true"
+                      [yAxis]="true"
+                      [legend]="showLegend"
+                      [showXAxisLabel]="showLabels"
+                      [showYAxisLabel]="showLabels"
+                      xAxisLabel="Date"
+                      yAxisLabel="Files per User"
+                      [scheme]="colorScheme"
+                      [animations]="animations"
+                    >
+                    </ngx-charts-bar-vertical>
+                  } @else if (secondaryChartType === 'pie') {
+                    <ngx-charts-pie-chart
+                      [results]="genreData"
+                      [gradient]="true"
+                      [legend]="showLegend"
+                      [labels]="showLabels"
+                      [doughnut]="true"
+                      [scheme]="colorScheme"
+                      [animations]="animations"
+                    >
+                    </ngx-charts-pie-chart>
+                  } @else if (secondaryChartType === 'line') {
+                    <ngx-charts-line-chart
+                      [results]="growthData()"
+                      [gradient]="true"
+                      [xAxis]="true"
+                      [yAxis]="true"
+                      [legend]="showLegend"
+                      [showXAxisLabel]="showLabels"
+                      [showYAxisLabel]="showLabels"
+                      xAxisLabel="Date"
+                      yAxisLabel="Growth (%)"
+                      [scheme]="colorScheme"
+                      [animations]="animations"
+                      [autoScale]="true"
+                      [roundDomains]="true"
+                    >
+                    </ngx-charts-line-chart>
+                  } @else if (secondaryChartType === 'heatmap') {
+                    <ngx-charts-heat-map
+                      [results]="activityData"
+                      [gradient]="false"
+                      [xAxis]="true"
+                      [yAxis]="true"
+                      [legend]="showLegend"
+                      [showXAxisLabel]="showLabels"
+                      [showYAxisLabel]="showLabels"
+                      xAxisLabel="Day of Week"
+                      yAxisLabel="Hour of Day"
+                      [scheme]="colorScheme"
+                      [animations]="animations"
+                    >
+                    </ngx-charts-heat-map>
+                  }
+                </div>
+              </div>
+            </mat-tab>
+            
+            <mat-tab label="Combined View">
+              <div class="tab-content">
+                <div class="combined-charts">
+                  <div class="chart-container half-width" [style.height.px]="chartHeight">
+                    @if (primaryChartType === 'line') {
+                      <ngx-charts-line-chart
+                        [results]="chartData()"
+                        [gradient]="true"
+                        [xAxis]="true"
+                        [yAxis]="true"
+                        [legend]="showLegend"
+                        [showXAxisLabel]="showLabels"
+                        [showYAxisLabel]="showLabels"
+                        xAxisLabel="Date"
+                        yAxisLabel="Count"
+                        [scheme]="colorScheme"
+                        [animations]="animations"
+                        [autoScale]="true"
+                        [roundDomains]="true"
+                      >
+                      </ngx-charts-line-chart>
+                    } @else if (primaryChartType === 'bar') {
+                      <ngx-charts-bar-vertical-2d
+                        [results]="chartData()"
+                        [gradient]="true"
+                        [xAxis]="true"
+                        [yAxis]="true"
+                        [legend]="showLegend"
+                        [showXAxisLabel]="showLabels"
+                        [showYAxisLabel]="showLabels"
+                        xAxisLabel="Date"
+                        yAxisLabel="Count"
+                        [scheme]="colorScheme"
+                        [animations]="animations"
+                        [groupPadding]="20"
+                      >
+                      </ngx-charts-bar-vertical-2d>
+                    } @else if (primaryChartType === 'pie') {
+                      <ngx-charts-advanced-pie-chart
+                        [results]="totalsByType()"
+                        [gradient]="true"
+                        [animations]="animations"
+                        [scheme]="colorScheme"
+                      >
+                      </ngx-charts-advanced-pie-chart>
+                    } @else if (primaryChartType === 'area') {
+                      <ngx-charts-area-chart
+                        [results]="chartData()"
+                        [gradient]="true"
+                        [xAxis]="true"
+                        [yAxis]="true"
+                        [legend]="showLegend"
+                        [showXAxisLabel]="showLabels"
+                        [showYAxisLabel]="showLabels"
+                        xAxisLabel="Date"
+                        yAxisLabel="Count"
+                        [scheme]="colorScheme"
+                        [animations]="animations"
+                        [autoScale]="true"
+                      >
+                      </ngx-charts-area-chart>
+                    }
+                  </div>
+                  
+                  <div class="chart-container half-width" [style.height.px]="chartHeight">
+                    @if (secondaryChartType === 'bar') {
+                      <ngx-charts-bar-vertical
+                        [results]="ratioData()"
+                        [gradient]="true"
+                        [xAxis]="true"
+                        [yAxis]="true"
+                        [legend]="showLegend"
+                        [showXAxisLabel]="showLabels"
+                        [showYAxisLabel]="showLabels"
+                        xAxisLabel="Date"
+                        yAxisLabel="Files per User"
+                        [scheme]="colorScheme"
+                        [animations]="animations"
+                      >
+                      </ngx-charts-bar-vertical>
+                    } @else if (secondaryChartType === 'pie') {
+                      <ngx-charts-pie-chart
+                        [results]="genreData"
+                        [gradient]="true"
+                        [legend]="showLegend"
+                        [labels]="showLabels"
+                        [doughnut]="true"
+                        [scheme]="colorScheme"
+                        [animations]="animations"
+                      >
+                      </ngx-charts-pie-chart>
+                    } @else if (secondaryChartType === 'line') {
+                      <ngx-charts-line-chart
+                        [results]="growthData()"
+                        [gradient]="true"
+                        [xAxis]="true"
+                        [yAxis]="true"
+                        [legend]="showLegend"
+                        [showXAxisLabel]="showLabels"
+                        [showYAxisLabel]="showLabels"
+                        xAxisLabel="Date"
+                        yAxisLabel="Growth (%)"
+                        [scheme]="colorScheme"
+                        [animations]="animations"
+                        [autoScale]="true"
+                        [roundDomains]="true"
+                      >
+                      </ngx-charts-line-chart>
+                    } @else if (secondaryChartType === 'heatmap') {
+                      <ngx-charts-heat-map
+                        [results]="activityData"
+                        [gradient]="false"
+                        [xAxis]="true"
+                        [yAxis]="true"
+                        [legend]="showLegend"
+                        [showXAxisLabel]="showLabels"
+                        [showYAxisLabel]="showLabels"
+                        xAxisLabel="Day of Week"
+                        yAxisLabel="Hour of Day"
+                        [scheme]="colorScheme"
+                        [animations]="animations"
+                      >
+                      </ngx-charts-heat-map>
+                    }
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <!-- Grid View -->
+      <div class="grid-dashboard">
+        <mat-card class="dashboard-card">
+          <div class="card-header-line"></div>
+          <mat-card-header>
+            <mat-card-title>User & Music File Trends</mat-card-title>
+            <mat-card-subtitle>Overview of user and music file counts over time</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container" [style.height.px]="chartHeight">
+              @if (primaryChartType === 'line') {
+                <ngx-charts-line-chart
+                  [results]="chartData()"
+                  [gradient]="true"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showLabels"
+                  [showYAxisLabel]="showLabels"
+                  xAxisLabel="Date"
+                  yAxisLabel="Count"
+                  [scheme]="colorScheme"
+                  [animations]="animations"
+                  [autoScale]="true"
+                  [roundDomains]="true"
+                >
+                </ngx-charts-line-chart>
+              } @else if (primaryChartType === 'bar') {
+                <ngx-charts-bar-vertical-2d
+                  [results]="chartData()"
+                  [gradient]="true"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showLabels"
+                  [showYAxisLabel]="showLabels"
+                  xAxisLabel="Date"
+                  yAxisLabel="Count"
+                  [scheme]="colorScheme"
+                  [animations]="animations"
+                  [groupPadding]="20"
+                >
+                </ngx-charts-bar-vertical-2d>
+              } @else if (primaryChartType === 'pie') {
+                <ngx-charts-advanced-pie-chart
+                  [results]="totalsByType()"
+                  [gradient]="true"
+                  [animations]="animations"
+                  [scheme]="colorScheme"
+                >
+                </ngx-charts-advanced-pie-chart>
+              } @else if (primaryChartType === 'area') {
+                <ngx-charts-area-chart
+                  [results]="chartData()"
+                  [gradient]="true"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showLabels"
+                  [showYAxisLabel]="showLabels"
+                  xAxisLabel="Date"
+                  yAxisLabel="Count"
+                  [scheme]="colorScheme"
+                  [animations]="animations"
+                  [autoScale]="true"
+                >
+                </ngx-charts-area-chart>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="dashboard-card">
+          <div class="card-header-line"></div>
+          <mat-card-header>
+            <mat-card-title>
+              @if (secondaryChartType === 'bar') {
+                Files per User Ratio
+              } @else if (secondaryChartType === 'pie') {
+                Genre Distribution
+              } @else if (secondaryChartType === 'heatmap') {
+                User Activity Heatmap
+              } @else {
+                Growth Trends
+              }
+            </mat-card-title>
+            <mat-card-subtitle>
+              @if (secondaryChartType === 'bar') {
+                Ratio of music files to users over time
+              } @else if (secondaryChartType === 'pie') {
+                Distribution of music files by genre
+              } @else if (secondaryChartType === 'heatmap') {
+                User activity patterns by day and hour
+              } @else {
+                Percentage growth of users and music files
+              }
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container" [style.height.px]="chartHeight">
+              @if (secondaryChartType === 'bar') {
+                <ngx-charts-bar-vertical
+                  [results]="ratioData()"
+                  [gradient]="true"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showLabels"
+                  [showYAxisLabel]="showLabels"
+                  xAxisLabel="Date"
+                  yAxisLabel="Files per User"
+                  [scheme]="colorScheme"
+                  [animations]="animations"
+                >
+                </ngx-charts-bar-vertical>
+              } @else if (secondaryChartType === 'pie') {
+                <ngx-charts-pie-chart
+                  [results]="genreData"
+                  [gradient]="true"
+                  [legend]="showLegend"
+                  [labels]="showLabels"
+                  [doughnut]="true"
+                  [scheme]="colorScheme"
+                  [animations]="animations"
+                >
+                </ngx-charts-pie-chart>
+              } @else if (secondaryChartType === 'line') {
+                <ngx-charts-line-chart
+                  [results]="growthData()"
+                  [gradient]="true"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showLabels"
+                  [showYAxisLabel]="showLabels"
+                  xAxisLabel="Date"
+                  yAxisLabel="Growth (%)"
+                  [scheme]="colorScheme"
+                  [animations]="animations"
+                  [autoScale]="true"
+                  [roundDomains]="true"
+                >
+                </ngx-charts-line-chart>
+              } @else if (secondaryChartType === 'heatmap') {
+                <ngx-charts-heat-map
+                  [results]="activityData"
+                  [gradient]="false"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showLabels"
+                  [showYAxisLabel]="showLabels"
+                  xAxisLabel="Day of Week"
+                  yAxisLabel="Hour of Day"
+                  [scheme]="colorScheme"
+                  [animations]="animations"
+                >
+                </ngx-charts-heat-map>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  }
+</div>

@@ -11,8 +11,8 @@ export class ReportEffects {
   loadReport$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ReportActions.loadReport),
-      mergeMap(() =>
-        this.apiService.getReportSummary().pipe(
+      mergeMap(({ timeRange }) =>
+        this.apiService.getReportSummary(timeRange).pipe(
           map((response) =>
             ReportActions.loadReportSuccess({
               users: response.users,
@@ -25,5 +25,6 @@ export class ReportEffects {
         )
       )
     )
-  );
+  )
+  
 }

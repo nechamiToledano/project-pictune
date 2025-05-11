@@ -17,7 +17,7 @@ namespace PicTune.Core.IServices
         Task<bool> ToggleLikeAsync(int id, string userId);
         Task<string?> TranscribeMusicFileAsync(int fileId);
         Task<string?> GeneratePreSignedUrlAsync(int fileId);
-        Task<List<StatPoint>> GetMusicUploadStatsAsync();
+        Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange);
 
 
 

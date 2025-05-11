@@ -1,113 +1,312 @@
 .page-container {
-    padding: 1rem;
+  padding: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(to right, rgba(220, 38, 38, 0.2), rgba(37, 99, 235, 0.2));
+  
+  mat-icon {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--text-primary);
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.time-range-selector {
+  width: 150px;
+  margin-bottom: 0;
+}
+
+.settings-card, .dashboard-card {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+// Make sure the settings card has a proper z-index to appear above charts
+.settings-card {
+  z-index: 10;
+  margin-bottom: 1rem;
+}
+
+.card-header-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, rgba(220, 38, 38, 0.2), rgba(37, 99, 235, 0.2));
+}
+
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.settings-group {
+  flex: 1;
+  min-width: 250px;
+  
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+}
+
+.settings-controls, .toggle-controls, .export-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.settings-controls {
+  mat-form-field {
+    flex: 1;
+    min-width: 150px;
+  }
+}
+
+.toggle-controls {
+  margin-top: 0.5rem;
+}
+
+.export-controls {
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.chart-container {
+  width: 100%;
+  min-height: 300px;
+  margin-top: 1rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: var(--text-primary);
+}
+
+.tab-content {
+  padding: 1.5rem 0;
+}
+
+.combined-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.half-width {
+  flex: 1;
+  min-width: 300px;
+}
+
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.5rem;
+}
+
+// Add these styles for the collapsible settings panel
+.settings-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.compact-settings {
+  padding: 0.75rem 1rem;
+}
+
+.compact-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.compact-field {
+  width: auto;
+  min-width: 150px;
+  margin-bottom: 0;
+}
+
+.compact-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+// Make the component responsive
+@media (max-width: 768px) {
+  .settings-row {
+    flex-direction: column;
+    gap: 1.5rem;
   }
   
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+  .combined-charts {
+    flex-direction: column;
   }
   
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  .grid-dashboard {
+    grid-template-columns: 1fr;
   }
   
-  .header-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.75rem;
-    background: linear-gradient(to right, rgba(220, 38, 38, 0.2), rgba(37, 99, 235, 0.2));
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}
+
+// Override ngx-charts text colors
+::ng-deep {
+  .ngx-charts {
+    text {
+      fill: var(--text-primary) !important;
+    }
     
-    mat-icon {
-      font-size: 1.5rem;
-      width: 1.5rem;
-      height: 1.5rem;
-      color: var(--text-primary);
+    .chart-legend {
+      .legend-labels {
+        background-color: transparent !important;
+      }
+      
+      .legend-label-text {
+        color: var(--text-primary) !important;
+      }
+    }
+    
+    .grid-panel.odd {
+      fill: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    .line-highlight {
+      stroke: var(--text-primary) !important;
+    }
+    
+    .tooltip-anchor {
+      fill: var(--text-primary) !important;
+    }
+    
+    .tooltip-container {
+      background: rgba(10, 10, 15, 0.95) !important;
+      color: var(--text-primary) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+      
+      .tooltip-item {
+        color: var(--text-primary) !important;
+      }
+    }
+    
+    // Fix for pie chart labels
+    .pie-label {
+      fill: var(--text-primary) !important;
+    }
+    
+    // Fix for advanced pie chart
+    .advanced-pie-legend {
+      color: var(--text-primary) !important;
+      
+      .legend-items-container {
+        .legend-items {
+          .legend-item {
+            .item-value, .item-label, .item-percent {
+              color: var(--text-primary) !important;
+            }
+          }
+        }
+      }
+      
+      .total-value, .total-label {
+        color: var(--text-primary) !important;
+      }
+    }
+    
+    // Fix for heat map
+    .heat-map {
+      .cell {
+        stroke: rgba(10, 10, 15, 0.3) !important;
+      }
     }
   }
-  
-  h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text-primary);
-    direction: rtl;
+}
+
+// Fix for tabs
+::ng-deep {
+  .mat-mdc-tab-header {
+    background-color: rgba(15, 15, 15, 0.3);
+    border-radius: 8px 8px 0 0;
   }
   
-  .content-card {
-    position: relative;
+  .mat-mdc-tab-body-content {
     overflow: hidden;
   }
   
-  .card-header-line {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(to right, rgba(220, 38, 38, 0.2), rgba(37, 99, 235, 0.2));
+  .mat-mdc-tab-labels {
+    padding: 0 1rem;
   }
   
-  .chart-container {
-    height: 400px;
-    width: 100%;
-    direction: ltr; // Keep chart direction left-to-right
+  .mat-mdc-tab {
+    min-width: 120px;
   }
-  
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 400px;
-    color: var(--text-primary);
-  }
-  
-  // Override ngx-charts text colors
-  ::ng-deep {
-    .ngx-charts {
-      text {
-        fill: var(--text-primary) !important;
-      }
-      
-      .chart-legend {
-        .legend-labels {
-          background-color: transparent !important;
-        }
-        
-        .legend-label-text {
-          color: var(--text-primary) !important;
-        }
-      }
-      
-      .grid-panel.odd {
-        fill: rgba(255, 255, 255, 0.05) !important;
-      }
-      
-      .line-highlight {
-        stroke: var(--text-primary) !important;
-      }
-      
-      .tooltip-anchor {
-        fill: var(--text-primary) !important;
-      }
-      
-      .tooltip-container {
-        background: rgba(10, 10, 15, 0.95) !important;
-        color: var(--text-primary) !important;
-        border-radius: 8px !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
-        
-        .tooltip-item {
-          color: var(--text-primary) !important;
-        }
-      }
-    }
-  }
-  
+}

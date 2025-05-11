@@ -9,8 +9,8 @@ import { toast } from "sonner"
 import { Edit, Save, Sparkles, X, Music, Loader2, Check, AlertCircle, Mic, Clock } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { RootState } from "@/store/store"
-import {  useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "@/store/store"
+import {  useDispatch, useSelector } from "react-redux"
 import { transcribeMusicFile } from "@/store/slices/musicFilesSlice"
 
 interface SongLyricsProps {
@@ -143,8 +143,9 @@ export default function SongLyrics({ songId, currentTime = 0, isPlaying = false 
     simulateProgress()
 
     try {
-      await transcribeMusicFile(songId)
-      toast.success("Lyrics generated successfully!")
+      const dispatch = useDispatch<AppDispatch>()
+      await dispatch(transcribeMusicFile(songId))
+            toast.success("Lyrics generated successfully!")
     } catch (error) {
       console.error("Error generating lyrics:", error)
       toast.error("Failed to generate lyrics")

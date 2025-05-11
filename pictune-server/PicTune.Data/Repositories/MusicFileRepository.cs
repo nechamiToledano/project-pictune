@@ -10,6 +10,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using PicTune.Core.DTOs;
 using DotNetEnv;
+using Microsoft.AspNetCore.Identity;
 
 namespace PicTune.Data.Repositories
 {
@@ -111,10 +112,19 @@ namespace PicTune.Data.Repositories
 
             return _s3Client.GetPreSignedURL(request);
         }
-
-        public async Task<List<StatPoint>> GetMusicUploadStatsAsync()
+      
+        public async Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange)
         {
+            DateTime fromDate = timeRange switch
+            {
+                "week" => DateTime.Today.AddDays(-7),
+                "month" => DateTime.Today.AddMonths(-1),
+                "year" => DateTime.Today.AddYears(-1),
+                _ => DateTime.MinValue // all data if unknown
+            };
+
             return await _context.MusicFiles
+            .Where(u => u.UploadedAt >= fromDate)
             .GroupBy(m => m.UploadedAt.Date)
             .Select(g => new StatPoint
             {

@@ -17,6 +17,6 @@ namespace PicTune.Core.IRepositories
         Task DeleteAsync(int id);
         Task<string?> TranscribeFileAsync(string fileUrl);
         string GeneratePreSignedUrl(string s3Key);
-        Task<List<StatPoint>> GetMusicUploadStatsAsync();
+        Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange);
     }
 }

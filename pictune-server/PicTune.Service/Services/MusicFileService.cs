@@ -111,9 +111,9 @@ namespace PicTune.Service
         }
 
 
-        public async Task<List<StatPoint>> GetMusicUploadStatsAsync()
+        public async Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange)
         {
-            return await _repository.GetMusicUploadStatsAsync();
+            return await _repository.GetMusicUploadStatsAsync(timeRange);
         }
 
 

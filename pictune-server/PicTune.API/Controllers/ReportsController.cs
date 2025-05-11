@@ -18,10 +18,10 @@ public class ReportsController : ControllerBase
     [Authorize("AdminOnly")]
 
     [HttpGet("summary")]
-    public async Task<IActionResult> GetSummaryReport()
+    public async Task<IActionResult> GetSummaryReport([FromQuery] string timeRange = "month")
     {
-        var userStats = await _userService.GetUserRegistrationStatsAsync();
-        var musicStats = await _musicService.GetMusicUploadStatsAsync();
+        var userStats = await _userService.GetUserRegistrationStatsAsync(timeRange);
+        var musicStats = await _musicService.GetMusicUploadStatsAsync(timeRange);
 
         var result = new
         {
