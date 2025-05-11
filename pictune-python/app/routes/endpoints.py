@@ -16,6 +16,8 @@ class TranscribeRequest(BaseModel):
 
 @router.post("/transcribe_song/")
 async def transcribe_song_endpoint(request: TranscribeRequest):
+    print("URL received 1:", request.url)
+
     try:
         transcription = transcribe_audio(upload_url=request.url)
         return {"transcription": transcription}

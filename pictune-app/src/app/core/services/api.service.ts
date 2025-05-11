@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core"
 import type { Observable } from "rxjs"
 import { environment } from "../../../enviroments/enviroment"
 import { HttpClient } from "@angular/common/http"
+import { StatPointUpload } from "../../report/store/report.actions"
+import { log } from "node:console"
 @Injectable({
   providedIn: 'root'
 })
@@ -120,10 +122,15 @@ export class ApiService {
     return this.http.delete<any>(`${this.apiUrl}/playlists/${playlistId}/files/${musicFileId}`)
   }
   getReportSummary(timeRange:string) {
+  
     return this.http.get<{ users: any[]; music: any[] }>(`${this.apiUrl}/reports/summary?range=${timeRange}`);
   }
-  getUploadsByHour(): Observable<{ hour: number; count: number }[]> {
-    return this.http.get<{ hour: number; count: number }[]>(`${this.apiUrl}/stats/uploads-by-hour`);
+  getUploadsByHour(): Observable<StatPointUpload[]> {
+    
+    const res= this.http.get<StatPointUpload[]>(`${this.apiUrl}/reports/uploads-by-hour`);
+    console.log(res);
+    
+return res;
   }
 
 }

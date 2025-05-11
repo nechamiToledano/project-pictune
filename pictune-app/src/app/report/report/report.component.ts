@@ -16,7 +16,7 @@ import { MatTooltipModule } from "@angular/material/tooltip"
 import { MatSnackBar } from "@angular/material/snack-bar"
 import { Store } from "@ngrx/store"
 import { NgxChartsModule, ScaleType } from "@swimlane/ngx-charts"
-import { loadReport } from "../store/report.actions"
+import { loadReport, loadUploadsByHour } from "../store/report.actions"
 import { selectMusicStats, selectReportLoading, selectUploadsByHour, selectUserStats } from "../store/report.selectors"
 import type { Color } from "@swimlane/ngx-charts"
 import * as XLSX from 'xlsx';
@@ -181,6 +181,7 @@ export class ReportComponent implements OnInit {
 
   activityData = computed(() => {
     const uploadsByHourData = this.uploadsByHour()
+console.log(uploadsByHourData);
 
     if (!uploadsByHourData || uploadsByHourData.length === 0) {
       return [
@@ -385,12 +386,15 @@ export class ReportComponent implements OnInit {
 
   ngOnInit() {
     this.loadReportData()
+    this.loadUploadData()
   }
 
   loadReportData() {
     this.store.dispatch(loadReport({ timeRange: this.timeRange }))
   }
-
+  loadUploadData() {
+    this.store.dispatch(loadUploadsByHour())
+  }
   updateChartSettings() {
     // This method would be called when chart settings change
     // In a real app, you might want to save user preferences

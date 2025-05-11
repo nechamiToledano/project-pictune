@@ -37,6 +37,8 @@ def correct_lyrics(text: str) -> str:
 
 
 def transcribe_audio(upload_url: str) -> str:
+    print("URL received:", upload_url)
+
     headers = {
         'authorization': ASSEMBLYAI_API_KEY,
         'content-type': 'application/json'

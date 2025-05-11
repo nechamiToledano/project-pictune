@@ -32,6 +32,7 @@ export class ReportEffects {
       mergeMap(() =>
         this.apiService.getUploadsByHour().pipe(
           map((data) =>
+                        
             ReportActions.loadUploadsByHourSuccess({ data })
           ),
           catchError((error) =>
