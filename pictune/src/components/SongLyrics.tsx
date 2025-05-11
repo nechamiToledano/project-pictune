@@ -37,7 +37,7 @@ export default function SongLyrics({ songId, currentTime = 0, isPlaying = false 
   const [activeLyricIndex, setActiveLyricIndex] = useState(-1)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
-
+  const dispatch = useDispatch<AppDispatch>()
   const { lyrics, lyricsLoading } = useSelector((state: RootState) => state.musicFiles)
 
   // Cleanup interval on unmount
@@ -143,7 +143,6 @@ export default function SongLyrics({ songId, currentTime = 0, isPlaying = false 
     simulateProgress()
 
     try {
-      const dispatch = useDispatch<AppDispatch>()
       await dispatch(transcribeMusicFile(songId))
             toast.success("Lyrics generated successfully!")
     } catch (error) {
