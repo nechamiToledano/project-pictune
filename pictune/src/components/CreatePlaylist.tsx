@@ -6,15 +6,15 @@ import { useDispatch } from "react-redux"
 import { createPlaylist } from "@/store/slices/playlistsSlice"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { ListMusic, Save, ArrowLeft, Music } from "lucide-react"
+import { ListMusic, Save, ArrowLeft, Music, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { AppDispatch } from "@/store/store"
-import Background from "@/pages/Background"
+import type { AppDispatch } from "@/store/store"
+import Background from "@/components/Background"
 
 const CreatePlaylistPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -46,11 +46,8 @@ const CreatePlaylistPage: React.FC = () => {
   }
 
   return (
-    <section className="relative min-h-screen overflow-hidden pt-20 pb-20 bg-gradient-to-br from-black via-black/90 to-black/80">
- 
-   
-
-  <Background />
+    <section className="relative min-h-screen overflow-hidden pt-20 pb-20">
+      <Background />
 
       <div className="container mx-auto px-4 z-10 relative">
         <motion.div
@@ -62,12 +59,12 @@ const CreatePlaylistPage: React.FC = () => {
           <Button
             variant="ghost"
             onClick={() => navigate("/playlists")}
-            className="mb-6 text-white hover:text-white hover:bg-white/20 self-start"
+            className="mb-6 text-white hover:text-white hover:bg-white/10 self-start"
           >
             <ArrowLeft className="h-5 w-5 mr-2" /> Back to Playlists
           </Button>
 
-          <Card className="border-gray-800 bg-black/40 backdrop-blur-md shadow-xl overflow-hidden">
+          <Card className="border-gray-800 bg-black/30 backdrop-blur-md shadow-xl overflow-hidden">
             <div className="h-1 w-full bg-gradient-to-r from-red-500 to-blue-500"></div>
 
             <CardHeader className="pb-2">
@@ -121,30 +118,11 @@ const CreatePlaylistPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-6 bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white transition-all duration-300"
+                  className="w-full py-6 bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white transition-all duration-300"
                 >
                   {isSubmitting ? (
                     <>
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
+                      <Loader2 className="animate-spin mr-2 h-5 w-5 text-white" />
                       Creating...
                     </>
                   ) : (
@@ -164,4 +142,3 @@ const CreatePlaylistPage: React.FC = () => {
 }
 
 export default CreatePlaylistPage
-

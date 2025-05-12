@@ -21,7 +21,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { generatePlaylistByPrompt, PlaylistType } from "@/store/slices/playlistsSlice"
-import Background from "./Background"
+import Background from "../components/Background"
 import { AppDispatch } from "@/store/store"
 import { useDispatch } from "react-redux"
 

@@ -88,7 +88,7 @@ const isAuthenticated = useSelector((state: RootState) => state.user.isLoggedIn)
               <CreatePlaylistPage />
             </ProtectedRoute>
           } />
-         <Route path="/generate-playlist" element={
+         <Route path="/ai-playlist" element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <AIPlaylistGenerator />
             </ProtectedRoute>

@@ -28,7 +28,7 @@ const HowItWorksSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Update the section title and description */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How Playform Works</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">How PicTune Works</h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
             Transform your music with AI-generated cover art in three simple steps
           </p>

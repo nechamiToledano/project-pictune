@@ -14,6 +14,7 @@ export interface MusicFile {
   createdAt: string
   uploadedAt: string
   extractedImageUrl?: string // New field for the extracted image URL
+  transcript:string|null
 }
 
 interface MusicFileState {
@@ -23,7 +24,7 @@ interface MusicFileState {
   songUrls: Record<number, string>; // New: Store URLs by file ID
   loading: boolean;
   error: string | null;
-  lyrics: string | null;
+  transcript: string | null;
   lyricsError: string | null;
   lyricsLoading: boolean;
   images: Record<string, string>;
@@ -36,7 +37,7 @@ const initialState: MusicFileState = {
   songUrls: {}, // Initialize as an empty object
   loading: false,
   error: null,
-  lyrics: null,
+  transcript: null,
   lyricsError: null,
   lyricsLoading: false,
   images: {},
@@ -87,7 +88,10 @@ export const fetchMusicFiles = createAsyncThunk(
 export const fetchMusicFileById = createAsyncThunk("musicFiles/fetchById", async (id: number, { rejectWithValue }) => {
   try {
     const response = await api.get(`/files/${id}`)
+    console.log(response.data);
+    
     return response.data as MusicFile
+
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || "Failed to fetch music file")
   }
@@ -134,9 +138,9 @@ export const transcribeMusicFile = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await api.post(`/files/${id}/transcribe`)
-      return response.data
-    } catch (error:any) {
-      return rejectWithValue(  error.response?.data?.message ||'Failed to transcribe')
+      return { id, transcript: response.data as string } // 👈 חשוב
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to transcribe')
     }
   }
 )
@@ -165,7 +169,20 @@ const musicFilesSlice = createSlice({
         state.loading = false
         state.error = action.payload as string
       })
-
+      .addCase(transcribeMusicFile.fulfilled, (state, action: PayloadAction<{ id: number, transcript: string }>) => {
+        state.lyricsLoading = false;
+      
+        const file = state.files.find(f => f.id === action.payload.id)
+        if (file) {
+          file.transcript = action.payload.transcript
+        }
+      
+        // אפשר גם לעדכן selectedFile אם זה הקובץ הפעיל
+        if (state.selectedFile?.id === action.payload.id) {
+          state.selectedFile.transcript = action.payload.transcript
+        }
+      })
+      
       .addCase(fetchMusicFileById.fulfilled, (state, action: PayloadAction<MusicFile>) => {
         state.selectedFile = action.payload
       })
@@ -189,10 +206,7 @@ const musicFilesSlice = createSlice({
         state.lyricsLoading = true;
         state.lyricsError = null;
       })
-      .addCase(transcribeMusicFile.fulfilled, (state, action) => {
-        state.lyricsLoading = false;
-        state.lyrics = action.payload;
-      })
+     
       .addCase(transcribeMusicFile.rejected, (state, action) => {
         state.lyricsLoading = false;
         state.lyricsError = action.payload as string;

@@ -1,15 +1,16 @@
 "use client"
 
-import { useEffect} from "react"
+import { useEffect } from "react"
 import { motion } from "framer-motion"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { InfoIcon, PlayCircle, PauseCircle } from "lucide-react"
+import { InfoIcon, PlayCircle, PauseCircle, Music } from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { fetchImage, type MusicFile } from "@/store/slices/musicFilesSlice"
-import { AppDispatch, RootState } from "@/store/store"
+import type { AppDispatch, RootState } from "@/store/store"
 import { useDispatch, useSelector } from "react-redux"
+import { Badge } from "@/components/ui/badge"
 
 interface MusicCardProps {
   song: MusicFile
@@ -21,23 +22,22 @@ interface MusicCardProps {
 export default function MusicCard({ song, index, isPlaying, onPlayPause }: MusicCardProps) {
   const dispatch = useDispatch<AppDispatch>()
   const imageUrl = useSelector((state: RootState) => state.musicFiles.images[song.s3Key])
-  
+
   useEffect(() => {
-    if (song.s3Key && !imageUrl) { // Avoid redundant requests
+    if (song.s3Key && !imageUrl) {
+      // Avoid redundant requests
       dispatch(fetchImage(song.s3Key))
     }
   }, [dispatch, song.s3Key, imageUrl])
-  return (
-  
-    
-    <motion.div
-      className="relative rounded-xl overflow-hidden h-full group"
 
+  return (
+    <motion.div
+      className="relative rounded-xl overflow-hidden group"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
     >
-      <Card className="border border-gray-800 bg-black/30 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 h-full relative z-10 overflow-hidden">
+      <Card className="border border-gray-800 bg-gray-900/30 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 h-full relative z-10 overflow-hidden">
         {/* Top gradient bar */}
         <div
           className={cn(
@@ -50,17 +50,19 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause }: Music
           )}
         />
 
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl text-white font-bold truncate">{song.fileName}</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <div className="aspect-square relative mb-4 rounded-xl overflow-hidden bg-black/30 backdrop-blur-md shadow-md group-hover:shadow-lg transition-all duration-300">
-            <img
-             src={imageUrl}
-              alt={song.fileName}
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-            />
+        <CardContent className="p-3">
+          <div className="aspect-square relative mb-3 rounded-lg overflow-hidden bg-gray-900/50 backdrop-blur-md shadow-md group-hover:shadow-lg transition-all duration-300">
+            {imageUrl ? (
+              <img
+                src={imageUrl || "/placeholder.svg"}
+                alt={song.fileName}
+                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-900/30 via-purple-900/30 to-blue-900/30">
+                <Music className="h-12 w-12 text-white/20" />
+              </div>
+            )}
 
             {/* Overlay gradient */}
             <div
@@ -79,7 +81,7 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause }: Music
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "rounded-full w-16 h-16 transition-all duration-300",
+                  "rounded-full w-12 h-12 transition-all duration-300",
                   isPlaying
                     ? "bg-gradient-to-r from-red-600/20 to-blue-600/20 shadow-xl"
                     : "bg-black/50 backdrop-blur-md text-white hover:scale-105",
@@ -87,27 +89,35 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause }: Music
                 onClick={onPlayPause}
               >
                 {isPlaying ? (
-                  <PauseCircle className="h-10 w-10 text-white" />
+                  <PauseCircle className="h-8 w-8 text-white" />
                 ) : (
-                  <PlayCircle className="h-10 w-10 text-white" />
+                  <PlayCircle className="h-8 w-8 text-white" />
                 )}
               </Button>
             </div>
           </div>
 
-          <div className="flex justify-between items-center text-sm text-gray-400 mb-2">
-            <div>{formatFileSize(song.size)}</div>
-            <div>{new Date(song.uploadedAt).toLocaleDateString()}</div>
+          <div className="space-y-1.5">
+            <h3 className="font-medium text-sm text-white line-clamp-1">{song.fileName}</h3>
+
+            <div className="flex justify-between items-center text-xs text-gray-400">
+              <Badge variant="outline" className="text-xs bg-gray-800/50 text-gray-300 border-gray-700">
+                {formatFileSize(song.size)}
+              </Badge>
+              <span className="text-xs text-gray-500">{formatDate(song.uploadedAt)}</span>
+            </div>
           </div>
         </CardContent>
 
-        <CardFooter>
+        <CardFooter className="p-3 pt-0">
           <Button
             asChild
-            className="w-full bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white transition-all duration-300"
+            variant="ghost"
+            size="sm"
+            className="w-full bg-gradient-to-r from-red-600/10 to-blue-600/10 hover:from-red-700/20 hover:to-blue-700/20 text-white transition-all duration-300 h-8"
           >
-            <Link to={`/music/${song.id}`} className="flex items-center justify-center gap-2">
-              <InfoIcon className="h-4 w-4" /> View Details
+            <Link to={`/music/${song.id}`} className="flex items-center justify-center gap-1">
+              <InfoIcon className="h-3 w-3" /> Details
             </Link>
           </Button>
         </CardFooter>
@@ -123,3 +133,8 @@ function formatFileSize(bytes: number) {
   else return (bytes / 1048576).toFixed(1) + " MB"
 }
 
+// Helper function to format date
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+}

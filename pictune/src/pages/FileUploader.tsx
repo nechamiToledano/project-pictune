@@ -8,7 +8,7 @@ import ProgressBar from '@/components/ProgressBar';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import {  getPresignedUrl, saveFileMetadata, uploadFileToS3 } from '@/services/uploadService';
-import Background from './Background';
+import Background from '../components/Background';
 export default function FileUploaderPage() {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);

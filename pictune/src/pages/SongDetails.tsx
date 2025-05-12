@@ -7,11 +7,10 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Download } from "lucide-react"
-import { fetchMusicFileById, fetchMusicFileUrl } from "@/store/slices/musicFilesSlice"
+import { Download, Play, Pause, AlertTriangle, Music } from "lucide-react"
+import { fetchImage, fetchMusicFileById, fetchMusicFileUrl } from "@/store/slices/musicFilesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
-import Background from "./Background"
-import SongArtwork from "@/components/SongArtwork"
+import Background from "../components/Background"
 import SongActions from "@/components/SongActions"
 import SongInfo from "@/components/SongInfo"
 import SongLyrics from "@/components/SongLyrics"
@@ -37,32 +36,42 @@ export default function SongDetails() {
 
   useEffect(() => {
     if (songUrl) {
+      // Clean up any existing audio element
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = ""
+        audioRef.current.load()
+      }
+
+      // Create new audio element
       const audio = new Audio(songUrl)
       audioRef.current = audio
 
-      audio.addEventListener("timeupdate", updateProgress)
-      audio.addEventListener("loadedmetadata", () => {
+      const handleTimeUpdate = () => {
+        setCurrentTime(audio.currentTime)
+      }
+
+      const handleLoadedMetadata = () => {
         setDuration(audio.duration)
-      })
-      audio.addEventListener("ended", () => {
+      }
+
+      const handleEnded = () => {
         setIsPlaying(false)
         setCurrentTime(0)
-      })
+      }
+
+      audio.addEventListener("timeupdate", handleTimeUpdate)
+      audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+      audio.addEventListener("ended", handleEnded)
 
       return () => {
         audio.pause()
-        audio.removeEventListener("timeupdate", updateProgress)
-        audio.removeEventListener("loadedmetadata", () => {})
-        audio.removeEventListener("ended", () => {})
+        audio.removeEventListener("timeupdate", handleTimeUpdate)
+        audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
+        audio.removeEventListener("ended", handleEnded)
       }
     }
   }, [songUrl])
-
-  const updateProgress = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime)
-    }
-  }
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return "0:00"
@@ -82,6 +91,19 @@ export default function SongDetails() {
     setCurrentTime(audioRef.current.currentTime)
   }
 
+  const togglePlayback = () => {
+    if (!audioRef.current) return
+
+    if (isPlaying) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play().catch((error) => {
+        console.error("Error playing audio:", error)
+      })
+    }
+    setIsPlaying(!isPlaying)
+  }
+
   const downloadSong = () => {
     if (!song) return
 
@@ -94,84 +116,183 @@ export default function SongDetails() {
     document.body.removeChild(a)
   }
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white text-xl flex items-center gap-3">
-          <div className="animate-spin">
-            <svg className="h-8 w-8 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-          </div>
-          Loading song details...
-        </div>
-      </div>
-    )
+  // Get image URL from Redux store
+  const imageUrl = useSelector((state: RootState) => state.musicFiles.images[song?.s3Key || ""])
 
-  if (error)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="bg-black/40 backdrop-blur-sm p-8 rounded-xl max-w-md text-center border border-gray-800">
-          <div className="text-red-400 mb-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-12 w-12 mx-auto"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-white mb-2">Error Loading Song</h2>
-          <p className="text-gray-400">{error}</p>
-          <Button
-            onClick={() => navigate("/music")}
-            className="mt-4 bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white"
-          >
-            Back to Music
-          </Button>
-        </div>
-      </div>
-    )
+  useEffect(() => {
+    if (song?.s3Key && !imageUrl) {
+      dispatch(fetchImage(song.s3Key))
+    }
+  }, [dispatch, song?.s3Key, imageUrl])
 
-  if (!song)
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="bg-black/40 backdrop-blur-sm p-8 rounded-xl max-w-md text-center border border-gray-800">
-          <div className="text-yellow-400 mb-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-12 w-12 mx-auto"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-white mb-2">Song Not Found</h2>
-          <p className="text-gray-400">The song you're looking for could not be found.</p>
-          <Button
-            onClick={() => navigate("/music")}
-            className="mt-4 bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white"
-          >
-            Back to Music
-          </Button>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="relative z-10">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-6">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-red-500/20 to-blue-500/20 animate-pulse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <svg
+                  className="animate-spin h-10 w-10 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-medium text-white mb-2">Loading Song</h3>
+              <p className="text-gray-400">Please wait while we prepare your music...</p>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(10)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-red-500/5 to-blue-500/5"
+              style={{
+                width: Math.random() * 300 + 50,
+                height: Math.random() * 300 + 50,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, Math.random() * 100 - 50],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
         </div>
       </div>
     )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-900/50 backdrop-blur-lg p-8 rounded-2xl max-w-md text-center border border-gray-800/50 shadow-xl"
+          >
+            <div className="bg-red-500/10 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+              <AlertTriangle className="h-10 w-10 text-red-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-3">Error Loading Song</h2>
+            <p className="text-gray-400 mb-6">{error}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={() => dispatch(fetchMusicFileById(Number(id)))}
+                className="bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white"
+              >
+                Try Again
+              </Button>
+              <Button
+                onClick={() => navigate("/music")}
+                variant="outline"
+                className="border-gray-700 text-white hover:bg-white/10"
+              >
+                Back to Music
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(10)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-red-500/5 to-blue-500/5"
+              style={{
+                width: Math.random() * 300 + 50,
+                height: Math.random() * 300 + 50,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, Math.random() * 100 - 50],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (!song) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-900/50 backdrop-blur-lg p-8 rounded-2xl max-w-md text-center border border-gray-800/50 shadow-xl"
+          >
+            <div className="bg-yellow-500/10 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+              <Music className="h-10 w-10 text-yellow-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-3">Song Not Found</h2>
+            <p className="text-gray-400 mb-6">The song you're looking for could not be found.</p>
+            <Button
+              onClick={() => navigate("/music")}
+              className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white"
+            >
+              Back to Music
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(10)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-red-500/5 to-blue-500/5"
+              style={{
+                width: Math.random() * 300 + 50,
+                height: Math.random() * 300 + 50,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, Math.random() * 100 - 50],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -182,9 +303,31 @@ export default function SongDetails() {
           <div className="flex-1 flex flex-col md:flex-row gap-8 items-center md:items-start">
             {/* Left Column - Artwork and Controls */}
             <div className="w-full md:w-1/2 max-w-md">
-              <SongArtwork song={song} isPlaying={isPlaying} setIsPlaying={setIsPlaying} songUrl={songUrl} />
+              <div className="relative aspect-square bg-gray-900/30 backdrop-blur-md rounded-xl overflow-hidden mb-6 border border-gray-800">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl || "/placeholder.svg"}
+                    alt={song.fileName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-900/30 via-purple-900/30 to-blue-900/30">
+                    <span className="text-6xl font-bold text-white/20">{song.fileName.charAt(0).toUpperCase()}</span>
+                  </div>
+                )}
 
-              <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 mb-6 border border-gray-800">
+                {/* Play/Pause Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Button
+                    onClick={togglePlayback}
+                    className="rounded-full w-16 h-16 bg-black/50 hover:bg-black/70 text-white border border-gray-700"
+                  >
+                    {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8 ml-1" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="bg-gray-900/30 backdrop-blur-md rounded-xl p-4 mb-6 border border-gray-800">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-white/80 text-sm">{formatTime(currentTime)}</span>
                   <span className="text-white/80 text-sm">{formatTime(duration)}</span>
@@ -232,16 +375,18 @@ export default function SongDetails() {
 
             {/* Right Column - Details and Lyrics */}
             <div className="w-full md:w-1/2 text-white">
-              <h1 className="text-4xl font-bold mb-2">{song.fileName}</h1>
+              <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                {song.fileName}
+              </h1>
               <p className="text-white/70 mb-6">Enjoy your music with our enhanced audio player</p>
 
               <div className="mb-8">
-          
                 {/* Integrated SongLyrics component */}
-                <SongLyrics songId={song.id} currentTime={currentTime} isPlaying={isPlaying} />              </div>
+                <SongLyrics songId={song.id} currentTime={currentTime} isPlaying={isPlaying} duration={duration} />
+              </div>
 
               <Button
-                className="w-full bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white backdrop-blur-sm"
+                className="w-full bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white backdrop-blur-sm"
                 size="lg"
                 onClick={downloadSong}
               >

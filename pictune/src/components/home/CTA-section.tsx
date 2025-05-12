@@ -7,7 +7,7 @@ const CTASection = () => {
         <div className="max-w-4xl mx-auto bg-gradient-to-br from-red-900/20 to-blue-900/20 border border-gray-800 rounded-2xl p-8 md:p-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Enhance Your Music?</h2>
           <p className="text-xl text-gray-300 mb-8">
-            Join thousands of music lovers who are already using Playform to create stunning visuals for their tracks.
+            Join thousands of music lovers who are already using PicTune to create stunning visuals for their tracks.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button className="bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white border-0 h-12 px-8 text-lg">
