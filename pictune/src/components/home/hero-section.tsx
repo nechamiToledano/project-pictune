@@ -200,7 +200,7 @@ export default function HeroSection() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white border-0 h-12 px-8 text-lg">
+                <Button  className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white border-0 h-12 px-8 text-lg">
                   Get Started
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>

@@ -32,7 +32,7 @@ export default function AllMusic() {
   const [retryCount, setRetryCount] = useState(0)
 
   // Adjust songs per page based on view
-  const songsPerPage = view === "grid" ? 6 : 12
+  const songsPerPage = view === "grid" ? 8 : 12
 
   // Extract tab or query params (e.g., 'favorites' or 'userName')
   const queryParams = new URLSearchParams(location.search)
@@ -188,7 +188,7 @@ export default function AllMusic() {
                 asChild
                 className="bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white"
               >
-                <Link to="/upload-music">Upload Music</Link>
+                <Link to="/upload">Upload Music</Link>
               </Button>
             </div>
           </div>
@@ -249,7 +249,7 @@ export default function AllMusic() {
                           asChild
                           className="bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white"
                         >
-                          <Link to="/upload-music">Upload Music</Link>
+                          <Link to="/upload">Upload Music</Link>
                         </Button>
                       </>
                     )}
