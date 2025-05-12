@@ -47,6 +47,7 @@ export default function SongLyrics({ songId, currentTime = 0, isPlaying = false,
   const transcriptFromFile = currentSong?.transcript
 
   const hasTranscriptionData = Boolean(transcriptFromFile)
+console.log(isPlaying);
 
   // Cleanup interval on unmount
   useEffect(() => {
@@ -143,7 +144,7 @@ export default function SongLyrics({ songId, currentTime = 0, isPlaying = false,
     const parsedLyrics: TimedLyric[] = []
     let currentTime = 0
 
-    lines.forEach((line, index) => {
+    lines.forEach((line, _) => {
       if (line.trim() === "") {
         // Empty line, just add it with minimal duration
         parsedLyrics.push({

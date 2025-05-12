@@ -50,7 +50,7 @@ const PlaylistDetails: React.FC = () => {
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null)
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0)
+  const [_, setCurrentSongIndex] = useState<number>(0)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentSongUrl, setCurrentSongUrl] = useState<string | null>(null)
   const [editMode, setEditMode] = useState(false)
