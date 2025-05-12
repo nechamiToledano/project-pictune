@@ -58,8 +58,8 @@ export default function UserProfileDialog() {
     setOpen(false)
   }
 
-  const userName = user?.userName || "Guest"
-  const userEmail = user?.email || ""
+  const userName = user?.userName 
+  const userEmail = user?.email 
   const userImage =  "" 
 
   const userInitials = userName
