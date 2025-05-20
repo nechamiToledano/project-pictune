@@ -21,7 +21,7 @@ import { RootState } from "./store/store"
 import GuestRoute from "./guards/GuestRoute"
 import ProtectedRoute from "./guards/ProtectedRoute"
 import AIPlaylistGenerator from "./pages/AIPlaylistGenerator"
-import ClipEditor from "./components/clip-editor"
+import ClipEditor from "./components/clip-editor/clip-editor"
 
 const Layout: React.FC = () => {
   return (
