@@ -2,36 +2,44 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Upload, ListMusic, FileAudio, Sparkles, ChevronRight, Play, Music, Headphones } from "lucide-react"
+import { Upload, Sparkles, ChevronRight, Play, Music, Headphones, Video, FileAudio } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
 
 export default function HeroSection() {
   const [activeFeature, setActiveFeature] = useState(0)
-
+const navigate=useNavigate();
   const features = [
     {
+      to:'upload',
       icon: <Upload className="h-6 w-6" />,
       title: "Upload Songs",
       description: "Easily upload and organize your music collection with our intuitive interface.",
     },
     {
-      icon: <ListMusic className="h-6 w-6" />,
-      title: "Create Playlists",
-      description: "Build and manage custom playlists to suit any mood, activity, or occasion.",
-    },
+      to:'ai-playlist',
+      icon: <Sparkles className="h-6 w-6" />,
+      title: "AI Playlist Creator",
+      description: "Type a prompt like 'chill coding beats' and instantly generate a playlist you can edit, save, and enjoy.",
+    }
+    
+,    
     {
+      to:'music',
       icon: <FileAudio className="h-6 w-6" />,
       title: "Transcribe Lyrics",
       description: "Automatically generate accurate transcriptions of your favorite songs.",
     },
     {
-      icon: <Sparkles className="h-6 w-6" />,
-      title: "AI Playlist Generation",
-      description: "Create personalized playlists based on your prompts and preferences.",
+      to:'song2clip',
+      icon: <Video className="h-6 w-6" />,
+      title: "Song2Clip",
+      description: "Turn your song into a clip with images, synced lyrics, and smooth effects.",
     },
   ]
+  
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -200,9 +208,11 @@ export default function HeroSection() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button  className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white border-0 h-12 px-8 text-lg">
+                <Button  className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white border-0 h-12 px-8 text-lg"
+                onClick={()=>navigate('/signin')}>
                   Get Started
                   <ChevronRight className="ml-2 h-5 w-5" />
+                  
                 </Button>
 
                 <Button
@@ -240,7 +250,10 @@ export default function HeroSection() {
                           ? "bg-gradient-to-br from-red-500/20 to-blue-500/20 border border-red-500/30 scale-105 z-10"
                           : "bg-black/30 border border-gray-700/30 hover:bg-gray-800/40",
                       )}
-                      onClick={() => setActiveFeature(index)}
+                      onClick={() => {setActiveFeature(index);
+                        navigate(feature.to)
+                      }
+                      }
                       whileHover={{ scale: activeFeature === index ? 1.05 : 1.03 }}
                       animate={
                         activeFeature === index

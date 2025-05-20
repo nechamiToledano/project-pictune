@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, JSX } from "react"
-import { ChevronDown, Music, Home, Sparkles, Upload, ListMusic, Heart, LogIn } from "lucide-react"
+import { ChevronDown, Music, Home, Sparkles, Upload, ListMusic, Heart, LogIn, Video } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import UserProfileDialog from "./UserProfileDialog"
 import { NavLink, Link } from "react-router-dom"
@@ -95,6 +95,7 @@ const Navbar = () => {
               <NavItem to="/" label="Home" icon={<Home size={16} className="mr-1" />} />
               <NavItem to="/ai-playlist" label="AI Playlist" icon={<Sparkles size={16} className="mr-1" />} />
               <NavItem to="/upload" label="Upload" icon={<Upload size={16} className="mr-1" />} />
+              <NavItem to="/song2clip" label="Song2Clip" icon={<Video size={16} className="mr-1" />} />
 
               <div ref={libraryRef} className="relative">
                 <Button

@@ -21,6 +21,7 @@ import { RootState } from "./store/store"
 import GuestRoute from "./guards/GuestRoute"
 import ProtectedRoute from "./guards/ProtectedRoute"
 import AIPlaylistGenerator from "./pages/AIPlaylistGenerator"
+import ClipEditor from "./components/clip-editor"
 
 const Layout: React.FC = () => {
   return (
@@ -91,6 +92,11 @@ const isAuthenticated = useSelector((state: RootState) => state.user.isLoggedIn)
          <Route path="/ai-playlist" element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <AIPlaylistGenerator />
+            </ProtectedRoute>
+          } />
+           <Route path="/song2clip" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ClipEditor />
             </ProtectedRoute>
           } />
           {/* Free to access */}

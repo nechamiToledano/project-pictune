@@ -2,6 +2,8 @@ import api from "@/components/Api"
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit"
 
 export interface MusicFile {
+  duration: number
+  artist: any
   id: number
   fileName: string
   fileType: string
@@ -13,67 +15,61 @@ export interface MusicFile {
   isLiked: boolean
   createdAt: string
   uploadedAt: string
-  extractedImageUrl?: string // New field for the extracted image URL
-  transcript:string|null
+  extractedImageUrl?: string
+  transcript: string | null
 }
 
 interface MusicFileState {
-  files: MusicFile[];
-  selectedFile: MusicFile | null;
-  songUrl: string | null;
-  songUrls: Record<number, string>; // New: Store URLs by file ID
-  loading: boolean;
-  error: string | null;
-  transcript: string | null;
-  lyricsError: string | null;
-  lyricsLoading: boolean;
-  images: Record<string, string>;
+  files: MusicFile[]
+  selectedFile: MusicFile | null
+  songUrl: string | null
+  songUrls: Record<number, string>
+  loading: boolean
+  error: string | null
+  transcript: string | null
+  lyricsError: string | null
+  lyricsLoading: boolean
+  images: Record<string, string>
 }
 
 const initialState: MusicFileState = {
   files: [],
   selectedFile: null,
   songUrl: null,
-  songUrls: {}, // Initialize as an empty object
+  songUrls: {},
   loading: false,
   error: null,
   transcript: null,
   lyricsError: null,
   lyricsLoading: false,
   images: {},
-};
-
+}
 
 export const fetchImage = createAsyncThunk(
   "musicFiles/fetchImage",
   async (fileUrl: string, { getState, rejectWithValue }) => {
-    const state = getState() as { musicFiles: MusicFileState };
-
-    // Check if the image for this file has already been fetched
+    const state = getState() as { musicFiles: MusicFileState }
     if (state.musicFiles.images[fileUrl]) {
-      return { fileUrl, imageUrl: state.musicFiles.images[fileUrl] };
+      return { fileUrl, imageUrl: state.musicFiles.images[fileUrl] }
     }
-
     try {
-      
-      const response = await api.get(`/files/extract-image?fileKey=${fileUrl}`, { responseType: 'blob' });
-      const imageUrl = URL.createObjectURL(response.data); 
-      return { fileUrl, imageUrl };
+      const response = await api.get(`/files/extract-image?fileKey=${fileUrl}`, { responseType: 'blob' })
+      const imageUrl = URL.createObjectURL(response.data)
+      return { fileUrl, imageUrl }
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch image");
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch image")
     }
   }
-);
+)
 
 export const fetchMusicFiles = createAsyncThunk(
   "musicFiles/fetchAll",
-  async (filters: { owner?: boolean ;favorites?: boolean; } = {}, { rejectWithValue }) => {
+  async (filters: { owner?: boolean; favorites?: boolean } = {}, { rejectWithValue }) => {
     try {
       const response = await api.get("/files", {
         params: {
           owner: filters.owner || undefined,
           favorites: filters.favorites || undefined,
-
         },
       })
       return response.data as MusicFile[]
@@ -83,15 +79,10 @@ export const fetchMusicFiles = createAsyncThunk(
   }
 )
 
-
-// Fetch a single music file
 export const fetchMusicFileById = createAsyncThunk("musicFiles/fetchById", async (id: number, { rejectWithValue }) => {
   try {
     const response = await api.get(`/files/${id}`)
-    console.log(response.data);
-    
     return response.data as MusicFile
-
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || "Failed to fetch music file")
   }
@@ -100,52 +91,42 @@ export const fetchMusicFileById = createAsyncThunk("musicFiles/fetchById", async
 export const fetchMusicFileUrl = createAsyncThunk(
   "musicFiles/fetchUrl",
   async (id: number, { getState, rejectWithValue }) => {
-    const state = getState() as { musicFiles: MusicFileState };
-
-    // Check if the URL for this song is already cached
+    const state = getState() as { musicFiles: MusicFileState }
     if (state.musicFiles.songUrl && state.musicFiles.selectedFile?.id === id) {
-      return state.musicFiles.songUrl; // Return the existing URL
+      return state.musicFiles.songUrl
     }
-
     try {
-      const response = await api.get(`/files/${id}/play`);
-      return response.data.url as string;
+      const response = await api.get(`/files/${id}/play`)
+      return response.data.url as string
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch song URL");
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch song URL")
     }
   }
-);
+)
 
-export const toggleLikeMusicFile = createAsyncThunk<
-  number, // Return type of the action (id)
-  number, // Argument type of the action (id)
-  { rejectValue: string } // Custom error handling
->(
+export const toggleLikeMusicFile = createAsyncThunk<number, number, { rejectValue: string }>(
   "musicFiles/toggleLike",
   async (id, { rejectWithValue }) => {
     try {
-      await api.post(`/files/${id}/like`);
-      return id; // Returning the ID after liking the music
+      await api.post(`/files/${id}/like`)
+      return id
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to toggle like status"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to toggle like status")
     }
   }
-);
+)
+
 export const transcribeMusicFile = createAsyncThunk(
   'musicFiles/transcribe',
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await api.post(`/files/${id}/transcribe`)
-      return { id, transcript: response.data as string } // 👈 חשוב
+      return { id, transcript: response.data as string }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to transcribe')
     }
   }
 )
-
-
 
 const musicFilesSlice = createSlice({
   name: "musicFiles",
@@ -170,63 +151,47 @@ const musicFilesSlice = createSlice({
         state.error = action.payload as string
       })
       .addCase(transcribeMusicFile.fulfilled, (state, action: PayloadAction<{ id: number, transcript: string }>) => {
-        state.lyricsLoading = false;
-      
+        state.lyricsLoading = false
         const file = state.files.find(f => f.id === action.payload.id)
-        if (file) {
-          file.transcript = action.payload.transcript
-        }
-      
-        // אפשר גם לעדכן selectedFile אם זה הקובץ הפעיל
+        if (file) file.transcript = action.payload.transcript
         if (state.selectedFile?.id === action.payload.id) {
           state.selectedFile.transcript = action.payload.transcript
         }
       })
-      
       .addCase(fetchMusicFileById.fulfilled, (state, action: PayloadAction<MusicFile>) => {
         state.selectedFile = action.payload
       })
-
-     
-  
       .addCase(toggleLikeMusicFile.fulfilled, (state, action) => {
         if (state.selectedFile && state.selectedFile.id === action.payload) {
           state.selectedFile.isLiked = !state.selectedFile.isLiked
         }
-
-        // Update the file in the list
         const file = state.files.find((f) => f.id === action.payload)
         if (file) file.isLiked = !file.isLiked
       })
       .addCase(toggleLikeMusicFile.rejected, (state, action) => {
-        // Handle rejected action if needed
-        state.error = action.payload as string;
+        state.error = action.payload as string
       })
       .addCase(transcribeMusicFile.pending, (state) => {
-        state.lyricsLoading = true;
-        state.lyricsError = null;
+        state.lyricsLoading = true
+        state.lyricsError = null
       })
-     
       .addCase(transcribeMusicFile.rejected, (state, action) => {
-        state.lyricsLoading = false;
-        state.lyricsError = action.payload as string;
+        state.lyricsLoading = false
+        state.lyricsError = action.payload as string
       })
-      
       .addCase(fetchImage.fulfilled, (state, action: PayloadAction<{ fileUrl: string, imageUrl: string }>) => {
         if (!state.images[action.payload.fileUrl]) {
-          state.images[action.payload.fileUrl] = action.payload.imageUrl; // Store image URL in state
+          state.images[action.payload.fileUrl] = action.payload.imageUrl
         }
       })
       .addCase(fetchMusicFileUrl.fulfilled, (state, action: PayloadAction<string>) => {
         if (state.selectedFile) {
-          state.songUrl = action.payload;
-          state.songUrls[state.selectedFile.id] = action.payload; // Store URL by file ID
+          state.songUrl = action.payload
+          state.songUrls[state.selectedFile.id] = action.payload
         }
       })
-  
   },
 })
-
 
 export const { clearSongUrl } = musicFilesSlice.actions
 export default musicFilesSlice.reducer

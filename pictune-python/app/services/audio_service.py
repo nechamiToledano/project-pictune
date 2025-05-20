@@ -1,72 +1,73 @@
+import json
 import os
+import time
 import requests
 from dotenv import load_dotenv
-from openai import OpenAI
-
 
 load_dotenv()
 
 ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-def correct_lyrics(text: str) -> str:
+base_url = "https://api.assemblyai.com"
 
-    
-    prompt = f"""
-הטקסט הבא הוא תמלול של שיר בעברית. הוא עשוי להכיל טעויות כתיב, טעויות תחביר וגם מילים לא תקינות או מבולבלות.
-תקן אותו לעברית תקנית, רהוטה, ומדויקת — כולל תיקון שיבושי הגייה או תמלול.
-שמור על המקצב, הרגש והמשמעות של השיר, ואל תשנה את המבנה השירי (שורות, בתים). 
-אם יש קטעים לא ברורים (כמו 'ארדיש'), נסה לנחש את הכוונה לפי ההקשר.
-אל תוסיף מילים חדשות ואל תוריד שורות שלמות.
-
----
-{text}
----
-"""
-
-    response = client.chat.completions.create(      
-    model="gpt-4o-mini",  
-    messages=[
-        {"role": "system", "content": "אתה עורך שירים בעברית באופן שמכבד את המקצב, הרגש והמשמעות."},
-        {"role": "user", "content": prompt}
-    ],
-    temperature=0.4,
-    max_tokens=1000
-)
-
-    return response.choices[0].message.content
-
-
-def transcribe_audio(upload_url: str) -> str:
-    
-    print(f"[INFO] Starting download from: {upload_url}")
+def transcribe_audio(upload_url: str) -> dict:
+    print(f"[INFO] Sending audio to AssemblyAI: {upload_url}")
 
     headers = {
         'authorization': ASSEMBLYAI_API_KEY,
         'content-type': 'application/json'
     }
-    json_data = {
-        'audio_url': upload_url,
-        'language_code': 'he',
-        'speech_model': 'nano',
-        'punctuate': True,
-        'format_text': True,
-        'auto_chapters': False,
-        'speaker_labels': False,
-        'boost_param': 'high'
 
+    json_data = {
+        "audio_url": upload_url,
+        "speech_model": "nano",
+        "language_code": "he",  
+        "punctuate": True,
+        "format_text": True
     }
-    response = requests.post('https://api.assemblyai.com/v2/transcript', headers=headers, json=json_data)
+
+    url = base_url + "/v2/transcript"
+    response = requests.post(url, json=json_data, headers=headers)
     response.raise_for_status()
     transcript_id = response.json()['id']
-    while True:
-        check_response = requests.get(f'https://api.assemblyai.com/v2/transcript/{transcript_id}', headers=headers)
-        check_response.raise_for_status()
-        status = check_response.json()['status']
-        if status == 'completed':
-            transcription=correct_lyrics(check_response.json()['text'])
-            return transcription
-        elif status == 'failed':
-            print(f"[ERROR] Transcription failed: {check_response.json()}")
-            raise Exception('Transcription failed')
+    polling_endpoint = f"{base_url}/v2/transcript/{transcript_id}"
 
-transcribe_audio("https://pictune-files-testpnoren.s3.us-east-1.amazonaws.com/0fe3b3f9-8a50-4ed5-8f5d-33cabe6565c9.mp3")
+    while True:
+        result = requests.get(polling_endpoint, headers=headers).json()
+
+        if result['status'] == 'completed':
+            paragraphs_url = f"{base_url}/v2/transcript/{transcript_id}/paragraphs"
+            paragraphs = requests.get(paragraphs_url, headers=headers).json()
+            return format_transcription_result(paragraphs)
+
+        elif result['status'] == 'failed':
+            print(f"[ERROR] Transcription failed: {result}")
+            raise Exception("Transcription failed")
+
+        elif result['status'] == 'error':
+            raise RuntimeError(f"Error: {result['error']}")
+
+        else:
+            print(f"[INFO] Waiting... Status: {result['status']}")
+            time.sleep(3)
+
+def format_transcription_result(paragraphs_result):
+    result = {
+        "full_text": "",
+        "words": []
+    }
+
+    for paragraph in paragraphs_result.get('paragraphs', []):
+        paragraph_text = paragraph.get('text', '')
+        result["full_text"] += paragraph_text + "\n\n"
+
+        for word in paragraph.get('words', []):
+            word_data = {
+                "text": word.get('text', ''),
+                "start": word.get('start'),
+                "end": word.get('end'),
+            }
+            result["words"].append(word_data)
+
+    return result
+
+
