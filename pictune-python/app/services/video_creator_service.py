@@ -34,7 +34,6 @@ def create_video_from_segments_with_settings(
     audio_url,
     clip_settings: dict,
     output_path="final_video.mp4",
-    font_default_path="C:/Windows/Fonts/Arial.ttf",
     background_height=720,
 ):
     temp_folder = "temp_assets"
@@ -98,12 +97,11 @@ def create_video_from_segments_with_settings(
 
         print("Generating subtitle clips...")
         subtitle_clips = []
-        font_path = clip_settings.get("fontFamily", font_default_path)
+        font_path ="C:/Windows/Fonts/Arial.ttf"
         font_size = clip_settings.get("fontSize", 48)
         text_color = clip_settings.get("textColor", "white")
         text_position = clip_settings.get("textPosition", ("center", "bottom"))
         text_box_size = (1200, 150)
-        text_align = clip_settings.get("textAlign", "center")
 
         for segment in word_segments:
             start = segment["start"] / 1000.0
@@ -111,17 +109,17 @@ def create_video_from_segments_with_settings(
             duration = end - start
             word = segment["text"].strip()
             hebrew_text = word[::-1] if clip_settings.get("autoSubtitles", False) else word
+            print(f"[DEBUG] Adding subtitle: '{hebrew_text}' | {start:.2f}s → {end:.2f}s")
 
             try:
                 txt_clip = (
                     TextClip(
                         text=hebrew_text,
                         font=font_path,
-                        fontsize=font_size,
+                        font_size=font_size,
                         color=text_color,
                         method="caption",
                         size=text_box_size,
-                        align=text_align,
                     )
                     .with_position(text_position)
                     .with_duration(duration)

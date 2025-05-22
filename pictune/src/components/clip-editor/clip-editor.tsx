@@ -49,7 +49,7 @@ export interface ClipSettings {
 }
 
 const defaultSettings: ClipSettings = {
-  words:[],
+  words: [],
   textPosition: "center",
   animation: "fade",
   fontSize: 24,
@@ -87,7 +87,9 @@ export default function ClipEditor() {
   const [duration, setDuration] = useState<number>(3.0)
   const [selectedSong, setSelectedSong] = useState<MusicFile | null>(null)
   const [settings, setSettings] = useState<ClipSettings>(defaultSettings)
-  const dispatch=useDispatch<AppDispatch>();
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  const dispatch = useDispatch<AppDispatch>();
   const updateSetting = (key: string, value: any) => {
     setSettings((prev) => ({
       ...prev,
@@ -116,9 +118,9 @@ export default function ClipEditor() {
       alert("Please select a song first.");
       return;
     }
-  
+
     const formData = new FormData();
-  
+
     // הוספת ההגדרות כ־JSON כולל המילים מהסטור
     const state = store.getState();
     const words = state.words; // ודא שזה הנתיב הנכון ל־slice
@@ -126,32 +128,34 @@ export default function ClipEditor() {
       ...settings,
       words,
     };
-  
+
     formData.append("settings", JSON.stringify(fullSettings));
-  
+
     // הוספת כתובת השיר
     const url = await dispatch(fetchMusicFileUrl(selectedSong.id)).unwrap();
     formData.append("songUrl", String(url));
-  
+
     // הוספת קבצי מדיה
     mediaFiles.forEach((file) => {
       formData.append("mediaFiles", file);
     });
-  
+
     try {
       const response = await axios.post("http://127.0.0.1:8000/create-clip", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-  
+      const fileUrl = response.data.videoUrl;
+      setVideoUrl(`http://localhost:8000${fileUrl}`);
+
       alert("Clip created successfully: " + response.data.fileUrl);
     } catch (error: any) {
       alert("Error: " + (error.response?.data?.message || error.message));
     }
   };
-  
-  
+
+
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white " dir="ltr" >
@@ -206,6 +210,12 @@ export default function ClipEditor() {
               selectedSong={selectedSong}
             />
           </div>
+          {videoUrl && (
+            <div className="mt-6">
+              <h2 className="text-lg font-semibold mb-2">Clip Preview</h2>
+              <video controls src={videoUrl} className="w-full rounded-lg shadow-lg" />
+            </div>
+          )}
 
           {/* Editor Panel */}
           <div className="lg:col-span-1">

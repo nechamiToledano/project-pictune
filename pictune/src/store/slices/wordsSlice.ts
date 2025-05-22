@@ -47,5 +47,4 @@ export const {
   updateWordText,
   updateWordTime
 } = wordsSlice.actions
-
 export default wordsSlice.reducer

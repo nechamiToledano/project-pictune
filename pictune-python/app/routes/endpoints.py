@@ -4,7 +4,7 @@ import shutil
 from tempfile import mkdtemp
 import uuid
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List
 
@@ -45,14 +45,13 @@ async def generate_playlist_by_prompt_endpoint(user_prompt: str, songs: List[Son
         raise HTTPException(status_code=500, detail=f"Error generating playlist by prompt: {str(e)}")
 @router.post("/create-clip")
 async def create_clip(
+    
     settings: str = Form(...),
     songUrl: str = Form(...),
     mediaFiles: List[UploadFile] = File(default=[]),
 ):
     try:
-        print(songUrl)
         parsed_settings = json.loads(settings)
-
         temp_dir = mkdtemp(prefix="clip_")
         media_paths = []
         for media in mediaFiles:
@@ -82,10 +81,23 @@ async def create_clip(
 
         shutil.rmtree(temp_dir)
 
-        return JSONResponse({"videoUrl": f"/videos/{output_filename}"})
+        return JSONResponse({"fileUrl": f"/videos/{output_filename}"})
 
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+@router.get("/videos/{filename}")
+async def get_video_file(filename: str):
+    video_path = os.path.join("temp_videos", filename)
+    if not os.path.exists(video_path):
+        return JSONResponse({"error": "File not found"}, status_code=404)
+    
+    return FileResponse(
+        video_path,
+        media_type="video/mp4",
+        filename=filename,
+        headers={"Cache-Control": "no-cache"}
+    )
+
 @router.get("/")
 def root():
     return {"message": "API is running"}
