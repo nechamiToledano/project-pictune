@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { Play, Pause, Music } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -41,6 +40,26 @@ export default function PreviewPanel({
   const progressRef = useRef<HTMLDivElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const previewTimerRef = useRef<number | null>(null)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (mediaFiles.length && isVideo) {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const blob = new Blob([reader.result as ArrayBuffer], { type: mediaFiles[0].type })
+        const url = URL.createObjectURL(blob)
+        setVideoUrl(url)
+      }
+      reader.readAsArrayBuffer(mediaFiles[0])
+    } else {
+      setVideoUrl(null)
+    }
+    return () => {
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl)
+      }
+    }
+  }, [mediaFiles, isVideo])
 
   useEffect(() => {
     return () => {
@@ -57,26 +76,18 @@ export default function PreviewPanel({
         previewTimerRef.current = null
       }
       setIsPlaying(false)
-
-      if (videoRef.current) {
-        videoRef.current.pause()
-      }
+      if (videoRef.current) videoRef.current.pause()
     } else {
       setIsPlaying(true)
-
       if (videoRef.current) {
         videoRef.current.play()
         return
       }
-
-      // Simulate playback for images
       previewTimerRef.current = window.setInterval(() => {
         let newTime = currentTime + 0.1
         if (newTime >= duration) {
-          if (previewTimerRef.current !== null) {
-            clearInterval(previewTimerRef.current)
-            previewTimerRef.current = null
-          }
+          clearInterval(previewTimerRef.current!)
+          previewTimerRef.current = null
           setIsPlaying(false)
           newTime = 0
         }
@@ -87,16 +98,11 @@ export default function PreviewPanel({
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!progressRef.current) return
-
     const rect = progressRef.current.getBoundingClientRect()
     const pos = (e.clientX - rect.left) / rect.width
     const newTime = pos * duration
-
     setCurrentTime(newTime)
-
-    if (videoRef.current) {
-      videoRef.current.currentTime = newTime
-    }
+    if (videoRef.current) videoRef.current.currentTime = newTime
   }
 
   const formatTime = (time: number): string => {
@@ -107,8 +113,7 @@ export default function PreviewPanel({
 
   const getActiveWords = () => {
     if (!isPlaying) return settings.words
-
-    return settings.words.filter((word) => currentTime >= word.start && currentTime <= word.end)
+    return settings.words.filter(w => currentTime >= w.start && currentTime <= w.end)
   }
 
   const getTextStyleClasses = () => {
@@ -123,13 +128,13 @@ export default function PreviewPanel({
     <Card className="bg-gray-900/30 backdrop-blur-md border-gray-800/50 overflow-hidden shadow-xl">
       <div className="aspect-video bg-gray-950/50 flex items-center justify-center relative">
         {mediaFiles.length > 0 ? (
-          isVideo ? (
+          isVideo && videoUrl ? (
             <video
               ref={videoRef}
               width="100%"
               height="100%"
               controls={false}
-              src={URL.createObjectURL(mediaFiles[0])}
+              src={videoUrl}
               className="max-h-full"
               onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
               onLoadedMetadata={(e) => setDuration((e.target as HTMLVideoElement).duration)}
@@ -165,7 +170,6 @@ export default function PreviewPanel({
           </div>
         )}
 
-        {/* Text overlay */}
         {(previewMode || isPlaying) && (mediaFiles.length > 0 || selectedSong) && (
           <div
             className={`absolute ${
@@ -204,15 +208,12 @@ export default function PreviewPanel({
               }}
             >
               {isPlaying
-                ? getActiveWords()
-                    .map((w) => w.text)
-                    .join(" ")
+                ? getActiveWords().map((w) => w.text).join(" ")
                 : settings.words.map((w) => w.text).join(" ")}
             </div>
           </div>
         )}
 
-        {/* Play/Pause button */}
         {(mediaFiles.length > 0 || selectedSong) && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Button
@@ -227,14 +228,12 @@ export default function PreviewPanel({
         )}
       </div>
 
-      {/* Progress bar */}
       {(mediaFiles.length > 0 || selectedSong) && (
         <div className="p-4 border-t border-gray-800/50">
           <div className="flex justify-between items-center mb-2">
             <span className="text-white/80 text-sm">{formatTime(currentTime)}</span>
             <span className="text-white/80 text-sm">{formatTime(duration)}</span>
           </div>
-
           <div
             ref={progressRef}
             className="h-1.5 bg-gray-800 rounded-full mb-4 relative cursor-pointer"
@@ -248,8 +247,7 @@ export default function PreviewPanel({
         </div>
       )}
 
-      {/* Word timeline */}
-      <WordTimeline selectedSong={selectedSong}/>
+      <WordTimeline selectedSong={selectedSong} />
     </Card>
   )
 }
