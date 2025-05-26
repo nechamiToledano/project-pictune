@@ -10,6 +10,7 @@ from moviepy import (
     ImageClip,
     TextClip,
     CompositeVideoClip,
+    concatenate_videoclips,
     ColorClip
 )
 from moviepy.video.fx import FadeOut, FadeIn, Resize
@@ -48,11 +49,9 @@ def safely_close_clip(clip):
 def create_animated_subtitle_clips(word_segments, clip_settings):
     subtitle_clips = []
     accumulated_text = ""
-    max_length = clip_settings.get("maxTextLength", 35)  # אורך מקסימלי לטקסט בכתובית
+    max_length = clip_settings.get("maxTextLength", 35)
 
-    font_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', '..', 'fonts', 'Arial.ttf')
-    )
+    font_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'fonts', 'ARIAL.ttf'))
 
     font_size = clip_settings.get("fontSize", 48)
     text_color = clip_settings.get("textColor", "white")
@@ -68,19 +67,15 @@ def create_animated_subtitle_clips(word_segments, clip_settings):
         start = segment["start"] / 1000.0
         end = segment["end"] / 1000.0
 
-        # אם זו המילה הראשונה בקליפ חדש, שומרים את זמן ההתחלה
         if clip_start is None:
             clip_start = start
 
-        # מוסיפים מילה לטקסט המצטבר
         new_text = accumulated_text + word + " "
 
-        # אם הטקסט המצטבר קצר מספיק, ממשיכים להוסיף מילים
         if len(new_text) <= max_length:
             accumulated_text = new_text
-            clip_end = end  # מעדכנים את זמן הסיום של הקליפ
+            clip_end = end
         else:
-            # יוצרים קליפ עם הטקסט המצטבר עד כה
             reshaped_text = arabic_reshaper.reshape(accumulated_text.strip())
             bidi_text = get_display(reshaped_text)
 
@@ -91,7 +86,7 @@ def create_animated_subtitle_clips(word_segments, clip_settings):
                         font=font_path,
                         font_size=font_size,
                         color=text_color,
-                        method="caption",
+                        method="label",
                         size=text_box_size,
                         text_align="right",
                     )
@@ -106,14 +101,12 @@ def create_animated_subtitle_clips(word_segments, clip_settings):
                 subtitle_clips.append(txt_clip)
 
             except Exception as e:
-                print(f"שגיאה ביצירת טקסט בשורה {i}: {e}")
+                print(f"\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05d9\u05e6\u05d9\u05e8\u05ea \u05d8\u05e7\u05e1\u05d8 \u05d1\u05e9\u05d5\u05e8\u05d4 {i}: {e}")
 
-            # מתחילים קליפ חדש עם המילה הנוכחית
             accumulated_text = word + " "
             clip_start = start
             clip_end = end
 
-    # בסיום הלולאה, יוצרים קליפ אחרון עם הטקסט שנותר
     if accumulated_text:
         reshaped_text = arabic_reshaper.reshape(accumulated_text.strip())
         bidi_text = get_display(reshaped_text)
@@ -125,7 +118,7 @@ def create_animated_subtitle_clips(word_segments, clip_settings):
                     font=font_path,
                     font_size=font_size,
                     color=text_color,
-                    method="caption",
+                    method="label",
                     size=text_box_size,
                     text_align="right",
                 )
@@ -140,11 +133,7 @@ def create_animated_subtitle_clips(word_segments, clip_settings):
             subtitle_clips.append(txt_clip)
 
         except Exception as e:
-            print(f"שגיאה ביצירת הטקסט האחרון: {e}")
-
-    return subtitle_clips
-
-   
+            print(f"\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05d9\u05e6\u05d9\u05e8\u05ea \u05d4\u05d8\u05e7\u05e1\u05d8 \u05d4\u05d0\u05d7\u05e8\u05d5\u05df: {e}")
 
     return subtitle_clips
 
@@ -159,8 +148,8 @@ def create_video_from_segments_with_settings(
     temp_folder = "temp_assets"
     os.makedirs(temp_folder, exist_ok=True)
     temp_files = []
+    temp_clips = []
     audio = None
-    background_clips = []
 
     try:
         print("Downloading audio...")
@@ -174,7 +163,7 @@ def create_video_from_segments_with_settings(
             raise ValueError("No words in segments")
 
         full_duration = word_segments[-1]["end"] / 1000.0
-        print("Preparing background clips...")
+        print("Preparing media clips...")
 
         if not media_paths:
             raise ValueError("No media files provided")
@@ -188,7 +177,7 @@ def create_video_from_segments_with_settings(
             duration = end - start
 
             try:
-                if media_path.lower().endswith((".mp4", ".mov", ".avi", ".mkv")):
+                if media_path.lower().endswith(('.mp4', '.mov', '.avi', '.mkv')):
                     clip = VideoFileClip(media_path).subclipped(0, duration).resized(height=background_height)
                 else:
                     clip = ImageClip(media_path).with_duration(duration).resized(height=background_height)
@@ -197,28 +186,26 @@ def create_video_from_segments_with_settings(
                     clip = clip.with_effects([Resize(lambda t: 1 + 0.02 * t)])
 
                 if duration > 2:
-                   clip = clip.with_effects([FadeOut(1), FadeIn(1)])
-
+                    clip = clip.with_effects([FadeOut(1), FadeIn(1)])
 
                 clip = clip.with_position("center").with_start(start)
-                background_clips.append(clip)
+
+                temp_clips.append(clip)
+
             except Exception as e:
                 print(f"Failed to process media {media_path}: {e}")
 
         print("Generating subtitle clips...")
         subtitle_clips = create_animated_subtitle_clips(word_segments, clip_settings)
 
-        print("Compositing final video clip...")
-        final_clip = CompositeVideoClip(background_clips + subtitle_clips, size=(1280, background_height))
-        final_clip = final_clip.with_audio(audio)
+        print("Compositing and rendering video...")
+        final = CompositeVideoClip(temp_clips + subtitle_clips, size=(1280, background_height)).with_audio(audio)
 
         video_quality = clip_settings.get("videoQuality", "medium")
         fps = clip_settings.get("framerate", 24)
-        prewith_map = {"low": "ultrafast", "medium": "medium", "high": "slow"}
-        preset = prewith_map.get(video_quality, "medium")
+        preset = {"low": "ultrafast", "medium": "medium", "high": "slow"}.get(video_quality, "medium")
 
-        print("Rendering video...")
-        final_clip.write_videofile(
+        final.write_videofile(
             output_path,
             fps=fps,
             codec="libx264",
@@ -226,6 +213,8 @@ def create_video_from_segments_with_settings(
             preset=preset,
             threads=4,
             logger="bar",
+            temp_audiofile=os.path.join(temp_folder, "temp-audio.m4a"),
+            remove_temp=True
         )
 
         return output_path
@@ -234,7 +223,7 @@ def create_video_from_segments_with_settings(
         print("Cleaning up temporary files...")
         if audio:
             audio.close()
-        for clip in background_clips:
+        for clip in temp_clips:
             safely_close_clip(clip)
         for file_path in temp_files:
             if os.path.exists(file_path):
