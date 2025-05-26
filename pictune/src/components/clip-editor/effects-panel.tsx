@@ -165,7 +165,7 @@ export default function EffectsPanel({ settings, updateSetting }: EffectsPanelPr
           <AccordionContent className="px-3 py-2 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="audio-fade-in" className="flex justify-between">
-                <span>פייד אין</span>
+                <span>Fade In</span>
                 <span className="text-gray-400">{settings.audioFadeIn}s</span>
               </Label>
               <Slider
@@ -181,7 +181,7 @@ export default function EffectsPanel({ settings, updateSetting }: EffectsPanelPr
 
             <div className="space-y-2">
               <Label htmlFor="audio-fade-out" className="flex justify-between">
-                <span>פייד אאוט</span>
+                <span>Fade Out</span>
                 <span className="text-gray-400">{settings.audioFadeOut}s</span>
               </Label>
               <Slider

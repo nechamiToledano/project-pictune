@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Edit2, Download } from "lucide-react"
+import { Edit2, Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PreviewPanel from "./preview-panel"
@@ -13,8 +13,8 @@ import SongSelector from "./song-selector"
 import Background from "../Background"
 import { fetchMusicFileUrl, MusicFile } from "@/store/slices/musicFilesSlice"
 import axios from "axios"
-import { useDispatch } from "react-redux"
-import { AppDispatch, store } from "@/store/store"
+import { useDispatch, useSelector } from "react-redux"
+import { AppDispatch, RootState } from "@/store/store"
 import { Word } from "@/store/slices/wordsSlice"
 
 type TextAlign = 'left' | 'center' | 'right' | undefined
@@ -87,9 +87,12 @@ export default function ClipEditor() {
   const [duration, setDuration] = useState<number>(3.0)
   const [selectedSong, setSelectedSong] = useState<MusicFile | null>(null)
   const [settings, setSettings] = useState<ClipSettings>(defaultSettings)
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const dispatch = useDispatch<AppDispatch>();
+  const words = useSelector((state: RootState) => state.words)
+
   const updateSetting = (key: string, value: any) => {
     setSettings((prev) => ({
       ...prev,
@@ -114,48 +117,78 @@ export default function ClipEditor() {
   }
 
   const createClip = async () => {
+    console.log('create clip')
     if (!selectedSong) {
       alert("Please select a song first.");
       return;
     }
-
+  
     const formData = new FormData();
-
-    // הוספת ההגדרות כ־JSON כולל המילים מהסטור
-    const state = store.getState();
-    const words = state.words; // ודא שזה הנתיב הנכון ל־slice
+  
+    const { words: _, ...restSettings } = settings;
     const fullSettings = {
-      ...settings,
+      ...restSettings,
       words,
     };
-
+  
     formData.append("settings", JSON.stringify(fullSettings));
-
-    // הוספת כתובת השיר
+  
     const url = await dispatch(fetchMusicFileUrl(selectedSong.id)).unwrap();
     formData.append("songUrl", String(url));
-
-    // הוספת קבצי מדיה
+  
     mediaFiles.forEach((file) => {
       formData.append("mediaFiles", file);
     });
-
+  
+    setIsCreating(true);
+  console.log('123');
+  
     try {
-      const response = await axios.post("http://127.0.0.1:8000/create-clip", formData, {
+      // שליחת יצירת המשימה
+      const response = await axios.post("https://pictune-python.onrender.com/create-clip", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      const fileUrl = response.data.videoUrl;
-      setVideoUrl(`http://localhost:8000${fileUrl}`);
-
-      alert("Clip created successfully: " + response.data.fileUrl);
+      console.log('1234ז');
+  
+      const taskId = response.data.task_id;
+      console.log("Task ID:", taskId);
+  
+      // Polling לבדיקה אם המשימה הסתיימה
+      const checkStatus = async (): Promise<void> => {
+        try {
+          const statusResponse = await axios.get(`https://pictune-python.onrender.com/clip-status/${taskId}`);
+          const statusData = statusResponse.data;
+  
+          if (statusData.status === "done") {
+            const fullVideoUrl = `https://pictune-python.onrender.com${statusData.video_url}`;
+            setVideoUrl(fullVideoUrl);
+            alert("Clip created successfully!");
+            setIsCreating(false);
+            
+          } else if (statusData.status === "error") {
+            alert("Error creating clip: " + statusData.message);
+            setIsCreating(false);
+          } else {
+            // עדיין לא מוכן - מחכים ושולחים שוב בקשה
+            setTimeout(checkStatus, 2000);
+          }
+        } catch (err: any) {
+          alert("Error checking status: " + (err.response?.data?.message || err.message));
+          setIsCreating(false);
+        }
+      };
+  
+      // מתחילים לבדוק סטטוס
+      await checkStatus();
+  
     } catch (error: any) {
       alert("Error: " + (error.response?.data?.message || error.message));
+      setIsCreating(false);
     }
   };
-
-
+  
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white " dir="ltr" >
@@ -181,43 +214,43 @@ export default function ClipEditor() {
               >
                 {previewMode ? "Edit" : "Preview"}
               </Button>
-              <Button
-                onClick={createClip}
-                className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white"
-                size="sm"
-              >
-                <Download className="h-4 w-4 mr-2" /> Create Clip
-              </Button>
             </div>
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Preview Panel */}
           <div className="lg:col-span-2">
-            <PreviewPanel
-              mediaFiles={mediaFiles}
-              isVideo={isVideo}
-              previewMode={previewMode}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
-              currentTime={currentTime}
-              setCurrentTime={setCurrentTime}
-              duration={duration}
-              setDuration={setDuration}
-              settings={settings}
-              updateSetting={updateSetting}
-              selectedSong={selectedSong}
-            />
+            {!videoUrl ? (
+              <PreviewPanel
+                mediaFiles={mediaFiles}
+                isVideo={isVideo}
+                previewMode={previewMode}
+                isPlaying={isPlaying}
+                setIsPlaying={setIsPlaying}
+                currentTime={currentTime}
+                setCurrentTime={setCurrentTime}
+                duration={duration}
+                setDuration={setDuration}
+                settings={settings}
+                updateSetting={updateSetting}
+                selectedSong={selectedSong}
+              />
+            ) : (
+              <div className="mt-6 bg-gray-900/30 backdrop-blur-md border-gray-800/50 rounded-xl overflow-hidden shadow-xl">
+                <div className="p-4 border-b border-gray-800/50">
+                  <h2 className="text-lg font-semibold flex items-center">
+                    <Download className="h-5 w-5 mr-2 text-green-400" />
+                    Created Clip Preview
+                  </h2>
+                </div>
+                <div className="aspect-video bg-black">
+                    <video controls src={videoUrl} className="w-full h-full" autoPlay={false} />
+                </div>
+              </div>
+            )}
           </div>
-          {videoUrl && (
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold mb-2">Clip Preview</h2>
-              <video controls src={videoUrl} className="w-full rounded-lg shadow-lg" />
-            </div>
-          )}
 
-          {/* Editor Panel */}
+
           <div className="lg:col-span-1">
             <div className="bg-gray-900/30 backdrop-blur-md border-gray-800/50 rounded-xl shadow-xl overflow-hidden">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -275,7 +308,15 @@ export default function ClipEditor() {
                   onClick={createClip}
                   className="w-full bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700"
                 >
-                  <Download className="h-4 w-4 mr-2" /> Create Clip
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating Clip...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4 mr-2" /> Create Clip
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

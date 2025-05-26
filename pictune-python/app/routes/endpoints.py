@@ -1,18 +1,21 @@
-import json
-import os
-import shutil
-from tempfile import mkdtemp
-import uuid
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List
+import uuid
+import json
+import os
+import shutil
+from tempfile import mkdtemp
+from threading import Thread
+import time
 
 from app.services.audio_service import transcribe_audio
 from app.services.playlist_service import generate_playlist_by_user_prompt
 from app.services.video_creator_service import create_video_from_segments_with_settings
 
 router = APIRouter()
+task_status = {}
 
 class Song(BaseModel):
     id: int
@@ -21,21 +24,17 @@ class Song(BaseModel):
 class TranscribeRequest(BaseModel):
     url: str
 
-class TranscribeRequest(BaseModel):
-    url: str  # קישור לקובץ MP3 ב-S3 למשל
-
 @router.post("/transcribe_song/")
 async def transcribe_song_endpoint(request: TranscribeRequest):
-    print("URL received:", request.url)
-    
     try:
         transcription = transcribe_audio(upload_url=request.url)
         return {
-            "full_text": transcription["full_text"],  # תמלול מלא ומפוסק
-            "words": transcription["words"]           # מילים עם חותמות זמן
+            "full_text": transcription["full_text"],
+            "words": transcription["words"]
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"שגיאה בתמלול: {str(e)}")
+
 @router.post("/generate_playlist_by_prompt/")
 async def generate_playlist_by_prompt_endpoint(user_prompt: str, songs: List[Song]):
     try:
@@ -43,54 +42,74 @@ async def generate_playlist_by_prompt_endpoint(user_prompt: str, songs: List[Son
         return playlist
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating playlist by prompt: {str(e)}")
+
 @router.post("/create-clip")
-async def create_clip(
-    
+async def create_clip_async(
     settings: str = Form(...),
     songUrl: str = Form(...),
     mediaFiles: List[UploadFile] = File(default=[]),
 ):
-    try:
-        parsed_settings = json.loads(settings)
-        temp_dir = mkdtemp(prefix="clip_")
-        media_paths = []
-        for media in mediaFiles:
-            filename = f"{uuid.uuid4()}_{media.filename}"
-            dest_path = os.path.join(temp_dir, filename)
-            with open(dest_path, "wb") as f:
-                f.write(await media.read())
-            media_paths.append(dest_path)
+    task_id = str(uuid.uuid4())
+    task_status[task_id] = {"status": "pending"}
 
-        segments = parsed_settings.get("words", [])
-        if not segments:
+    temp_dir = mkdtemp(prefix="clip_")
+    settings_path = os.path.join(temp_dir, "settings.json")
+    with open(settings_path, "w", encoding="utf-8") as f:
+        f.write(settings)
+
+    media_paths = []
+    for media in mediaFiles:
+        dest_path = os.path.join(temp_dir, f"{uuid.uuid4()}_{media.filename}")
+        with open(dest_path, "wb") as f:
+            f.write(await media.read())
+        media_paths.append(dest_path)
+
+    def process_task():
+        try:
+            parsed_settings = json.loads(open(settings_path, encoding="utf-8").read())
+            output_filename = f"{uuid.uuid4()}.mp4"
+            output_path = os.path.join("temp_videos", output_filename)
+            os.makedirs("temp_videos", exist_ok=True)
+            create_video_from_segments_with_settings(
+                segments=parsed_settings["words"],
+                media_paths=media_paths,
+                audio_url=songUrl,
+                clip_settings=parsed_settings,
+                output_path=output_path,
+            )
+            task_status[task_id] = {
+                "status": "done",
+                "video_url": f"/videos/{output_filename}"
+            }
+
+            # מחיקה אוטומטית של הקובץ לאחר חצי שעה
+            def delete_later(path):
+                time.sleep(1800)  # 30 דקות = 1800 שניות
+                if os.path.exists(path):
+                    os.remove(path)
+
+            Thread(target=delete_later, args=(output_path,), daemon=True).start()
+
+        except Exception as e:
+            task_status[task_id] = {"status": "error", "message": str(e)}
+        finally:
             shutil.rmtree(temp_dir)
-            return JSONResponse({"error": "Missing 'words' in settings"}, status_code=400)
-        
-        output_filename = f"{uuid.uuid4()}.mp4"
-        output_dir = "temp_videos"
-        os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, output_filename)
 
-        final_video_path = create_video_from_segments_with_settings(
-            segments=segments,
-            media_paths=media_paths,
-            audio_url=songUrl,
-            clip_settings=parsed_settings,
-            output_path=output_path,
-        )
+    Thread(target=process_task).start()
 
-        shutil.rmtree(temp_dir)
+    return {"task_id": task_id}
 
-        return JSONResponse({"fileUrl": f"/videos/{output_filename}"})
+@router.get("/clip-status/{task_id}")
+def get_clip_status(task_id: str):
+    if task_id not in task_status:
+        raise HTTPException(status_code=404, detail="Task ID not found")
+    return task_status[task_id]
 
-    except Exception as e:
-        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 @router.get("/videos/{filename}")
 async def get_video_file(filename: str):
     video_path = os.path.join("temp_videos", filename)
     if not os.path.exists(video_path):
         return JSONResponse({"error": "File not found"}, status_code=404)
-    
     return FileResponse(
         video_path,
         media_type="video/mp4",

@@ -22,7 +22,7 @@ interface PreviewPanelProps {
   settings: ClipSettings
   updateSetting: (key: string, value: any) => void
   selectedSong: MusicFile | null
-}
+  clipUrl?: string | null }
 
 export default function PreviewPanel({
   mediaFiles,
@@ -36,6 +36,7 @@ export default function PreviewPanel({
   setDuration,
   settings,
   selectedSong,
+  clipUrl, // ✅ added
 }: PreviewPanelProps) {
   const progressRef = useRef<HTMLDivElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -43,6 +44,11 @@ export default function PreviewPanel({
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
 
   useEffect(() => {
+    if (clipUrl) {
+      setVideoUrl(clipUrl)
+      return
+    }
+
     if (mediaFiles.length && isVideo) {
       const reader = new FileReader()
       reader.onload = () => {
@@ -59,7 +65,7 @@ export default function PreviewPanel({
         URL.revokeObjectURL(videoUrl)
       }
     }
-  }, [mediaFiles, isVideo])
+  }, [mediaFiles, isVideo, clipUrl]) // ✅ include clipUrl
 
   useEffect(() => {
     return () => {
@@ -127,28 +133,18 @@ export default function PreviewPanel({
   return (
     <Card className="bg-gray-900/30 backdrop-blur-md border-gray-800/50 overflow-hidden shadow-xl">
       <div className="aspect-video bg-gray-950/50 flex items-center justify-center relative">
-        {mediaFiles.length > 0 ? (
-          isVideo && videoUrl ? (
-            <video
-              ref={videoRef}
-              width="100%"
-              height="100%"
-              controls={false}
-              src={videoUrl}
-              className="max-h-full"
-              onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
-              onLoadedMetadata={(e) => setDuration((e.target as HTMLVideoElement).duration)}
-              onEnded={() => setIsPlaying(false)}
-            />
-          ) : (
-            <div className="w-full h-full relative">
-              <img
-                src={URL.createObjectURL(mediaFiles[0]) || "/placeholder.svg"}
-                alt="Preview"
-                className="w-full h-full object-contain"
-              />
-            </div>
-          )
+        {videoUrl ? (
+          <video
+            ref={videoRef}
+            width="100%"
+            height="100%"
+            controls={false}
+            src={videoUrl}
+            className="max-h-full"
+            onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
+            onLoadedMetadata={(e) => setDuration((e.target as HTMLVideoElement).duration)}
+            onEnded={() => setIsPlaying(false)}
+          />
         ) : selectedSong ? (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-900/30 via-purple-900/30 to-blue-900/30">
             <div className="text-center">
@@ -170,7 +166,7 @@ export default function PreviewPanel({
           </div>
         )}
 
-        {(previewMode || isPlaying) && (mediaFiles.length > 0 || selectedSong) && (
+        {(previewMode || isPlaying) && (mediaFiles.length > 0 || selectedSong || clipUrl) && (
           <div
             className={`absolute ${
               settings.textPosition === "top"
@@ -214,7 +210,7 @@ export default function PreviewPanel({
           </div>
         )}
 
-        {(mediaFiles.length > 0 || selectedSong) && (
+        {(mediaFiles.length > 0 || selectedSong || clipUrl) && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Button
               variant="ghost"
@@ -228,7 +224,7 @@ export default function PreviewPanel({
         )}
       </div>
 
-      {(mediaFiles.length > 0 || selectedSong) && (
+      {(mediaFiles.length > 0 || selectedSong || clipUrl) && (
         <div className="p-4 border-t border-gray-800/50">
           <div className="flex justify-between items-center mb-2">
             <span className="text-white/80 text-sm">{formatTime(currentTime)}</span>

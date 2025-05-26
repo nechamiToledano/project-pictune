@@ -3,5 +3,7 @@ requests
 openai>=1.0.0,<2.0.0
 dotenv
 uvicorn
-moviepy
+moviepy==2.2.1
 python-multipart
+arabic-reshaper
+python-bidi
