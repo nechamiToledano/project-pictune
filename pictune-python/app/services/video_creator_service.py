@@ -49,7 +49,11 @@ def create_animated_subtitle_clips(word_segments, clip_settings):
     subtitle_clips = []
     accumulated_text = ""
     max_length = clip_settings.get("maxTextLength", 35)  # אורך מקסימלי לטקסט בכתובית
-    font_path = "C:/Windows/Fonts/Arial.ttf"
+
+    font_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', 'fonts', 'Arial.ttf')
+    )
+
     font_size = clip_settings.get("fontSize", 48)
     text_color = clip_settings.get("textColor", "white")
     text_position = clip_settings.get("textPosition", ("center", "bottom"))
