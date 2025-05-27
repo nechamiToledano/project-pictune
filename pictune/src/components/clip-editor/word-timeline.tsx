@@ -23,7 +23,7 @@ export default function WordTimeline({ selectedSong }: { selectedSong: MusicFile
       if (!selectedSong?.id) return
 
       const url = await dispatch(fetchMusicFileUrl(selectedSong.id)).unwrap()
-      const res = await axios.post("http://127.0.0.1:8000/transcribe_song", {
+      const res = await axios.post("https://pictune-python.onrender.com/transcribe_song", {
         url: url,
       })
 

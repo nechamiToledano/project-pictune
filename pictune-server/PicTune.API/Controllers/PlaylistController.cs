@@ -79,10 +79,16 @@ namespace PicTune.Api.Controllers
             if (!success) return NotFound("Playlist or song not found.");
             return NoContent();
         }
-        [HttpPost("generate-playlist-by-prompt")]
-        public async Task<IActionResult> GeneratePlaylistByPrompt([FromBody] string prompt)
+        public class PromptDto
         {
-            var success = await _service.GeneratePlaylistByPromptAsync(prompt);
+            public string Prompt { get; set; }
+        }
+
+        [HttpPost("generate-playlist-by-prompt")]
+        public async Task<IActionResult> GeneratePlaylistByPrompt([FromBody] PromptDto dto)
+
+        {
+            var success = await _service.GeneratePlaylistByPromptAsync(dto.Prompt);
             if (success==null) return NotFound("Failure generating playlist.");
             return NoContent();
         }

@@ -82,17 +82,20 @@ namespace PicTune.Data.Repositories
 
             try
             {
-                var response = await httpClient.PostAsync($"{_python_api_url}/transcribe_song/", content);
+                var response = await httpClient.PostAsync($"{_python_api_url}/transcribe_song", content);
                 response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var json = JsonDocument.Parse(responseContent);
-                if (json.RootElement.TryGetProperty("transcription", out var transcriptionElement))
+
+                // ננסה להוציא את full_text
+                if (json.RootElement.TryGetProperty("full_text", out var fullTextElement))
                 {
-                    return transcriptionElement.GetString();
+                    return fullTextElement.GetString();
                 }
 
                 return null;
+
             }
             catch (Exception ex)
             {

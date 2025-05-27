@@ -23,8 +23,12 @@ class Song(BaseModel):
 
 class TranscribeRequest(BaseModel):
     url: str
+    
+class PromptRequest(BaseModel):
+    user_prompt: str
+    songs: List[Song]
 
-@router.post("/transcribe_song/")
+@router.post("/transcribe_song")
 async def transcribe_song_endpoint(request: TranscribeRequest):
     try:
         transcription = transcribe_audio(upload_url=request.url)
@@ -36,9 +40,9 @@ async def transcribe_song_endpoint(request: TranscribeRequest):
         raise HTTPException(status_code=500, detail=f"שגיאה בתמלול: {str(e)}")
 
 @router.post("/generate_playlist_by_prompt/")
-async def generate_playlist_by_prompt_endpoint(user_prompt: str, songs: List[Song]):
+async def generate_playlist_by_prompt_endpoint(request: PromptRequest):
     try:
-        playlist = generate_playlist_by_user_prompt(user_prompt, songs)
+        playlist = generate_playlist_by_user_prompt(request.user_prompt, request.songs)
         return playlist
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating playlist by prompt: {str(e)}")
