@@ -18,7 +18,14 @@ using PicTune.Service;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +42,7 @@ var awsOptions = new AWSOptions
         Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
         Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
 };
-
+builder.Host.UseSerilog();
 builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddAWSService<IAmazonS3>();
 
