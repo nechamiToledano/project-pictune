@@ -19,9 +19,7 @@ export class ApiService {
   }
 
   // User endpoints
-  getUsers(): Observable<any[]> {
-    console.log('getusers');
-    
+  getUsers(): Observable<any[]> {    
     return this.http.get<any[]>(`${this.apiUrl}/users`)
   }
 
