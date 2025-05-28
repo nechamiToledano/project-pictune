@@ -8,14 +8,41 @@ export interface UserState {
   loading: boolean;
   error: string | null;
 }
-
 const initialState: UserState = {
   userName: "",
   email: "",
-  isLoggedIn: !!localStorage.getItem("token"), 
+  isLoggedIn: false, // תקבע תמיד ל-false בהתחלה
   loading: false,
   error: null,
 };
+
+
+export const autoLogin = createAsyncThunk(
+  "user/autoLogin",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token");
+
+      const response = await api.get("/auth/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return {
+        userName: response.data.userName,
+        email: response.data.email,
+      };
+    } catch (error: any) {
+      // הטוקן לא תקף או שגיאה אחרת – מחק אותו
+      localStorage.removeItem("token");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("email");
+      return rejectWithValue("Auto login failed");
+    }
+  }
+);
 
 // Add this block below your existing actions
 export const userSignup = createAsyncThunk(
@@ -62,7 +89,7 @@ export const userLogin = createAsyncThunk(
   async ({ userName, password }: { userName: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/signin", { userName, password },
-        { headers: { 'Content-Type': 'application/json' }}
+        { headers: { 'Content-Type': 'application/json' } }
 
       );
       const { token, user } = response.data;
@@ -139,18 +166,18 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      builder
-  .addCase(userSignup.pending, (state) => {
-    state.loading = true;
-  })
-  .addCase(userSignup.fulfilled, (state) => {
-    state.loading = false;
-    state.error = null;
-  })
-  .addCase(userSignup.rejected, (state, action) => {
-    state.loading = false;
-    state.error = action.payload as string;
-  })
+    builder
+      .addCase(userSignup.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(userSignup.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(userSignup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
       .addCase(userLogout.fulfilled, (state) => {
         state.userName = "";
@@ -158,6 +185,18 @@ const userSlice = createSlice({
         state.isLoggedIn = false;
         state.loading = false;
         state.error = null;
+      })
+      .addCase(autoLogin.fulfilled, (state, action) => {
+        state.email = action.payload.email;
+        state.userName = action.payload.userName;
+        state.isLoggedIn = true;
+        state.loading = false;
+      })
+      .addCase(autoLogin.rejected, (state) => {
+        state.isLoggedIn = false;
+        state.userName = "";
+        state.email = "";
+        state.loading = false;
       });
   },
 });

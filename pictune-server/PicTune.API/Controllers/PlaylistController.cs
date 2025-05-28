@@ -12,7 +12,7 @@ namespace PicTune.Api.Controllers
 {
     [Route("api/playlists")]
     [ApiController]
-    [Authorize()]
+    //[Authorize()]
 
     public class PlaylistController : ControllerBase
     {

@@ -2,12 +2,16 @@ import json
 import os
 import time
 import requests
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
 ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 base_url = "https://api.assemblyai.com"
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def transcribe_audio(upload_url: str) -> dict:
     print(f"[INFO] Sending audio to AssemblyAI: {upload_url}")
@@ -20,7 +24,7 @@ def transcribe_audio(upload_url: str) -> dict:
     json_data = {
         "audio_url": upload_url,
         "speech_model": "nano",
-        "language_code": "he",  
+        "language_code": "he",
         "punctuate": True,
         "format_text": True
     }
@@ -70,4 +74,28 @@ def format_transcription_result(paragraphs_result):
 
     return result
 
+def correct_text_with_gpt(full_text: str) -> str:
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that formats and corrects Hebrew transcripts."},
+            {"role": "user", "content": f"""הטקסט הבא הוא תמלול גולמי של שיר, המכיל שגיאות הקלדה, חוסר ניקוד, חזרות וטעויות בהברות.
 
+המשימה שלך: לתקן את המילים כך שיהיו תקניות וקימות בשפה העברית , לשמר את המקצב והמוזיקליות המקורית ככל האפשר, ולחלק את השיר למקטעים לפי מבנה שירי ברור (פזמון, בתים, מעבר). אין להוסיף הקדמה, הסבר או טקסט שאינו חלק מהשיר.
+
+
+החזר אותו כתמלול לשיר 
+הטקסט:
+{full_text}""" }
+        ],
+        temperature=0.2
+    )
+    return response.choices[0].message.content.strip()
+
+
+
+print(correct_text_with_gpt("""
+                 איזה סנרי מאופור קומי, להבשי בגדי ספר תחמי, עליה בנישי בהיסלח מי, כובור אל נו שיגאי הולו.
+איזה סנרי מאופור קומי, להבשי בגדי ספר תחמי, עליה בנישי בהיסלח מי, כובור אל נו שיגאי הולו.
+An Gentely memory איזה סנרי מאופור קומי, כובור אל קומי, הורי היו רי, הורי הורי, הורי שיר דברי גבוהי דשם עולה היכנג לא כאיזה עירי כאיזה עירי כאיזה עירי כאיזה עירי כאו מי או עירי הורי, הורי הורי, הורי שיר דברי גבוהי דשם עולה היכנג לא חודור קסקה, קסקה קוראים, קוראים בשול, קוראים בשול, היום התל אצל הסבלו גם מרינו הוא בצולו הוא בצולו דוי חמונה, דוי חמונה המסגולו בואי חלו, בואי חלו
+ """))
