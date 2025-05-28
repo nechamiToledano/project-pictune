@@ -13,7 +13,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 base_url = "https://api.assemblyai.com"
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def transcribe_audio(upload_url: str) -> dict:
+def transcribe_audio(upload_url: str) -> str:
     print(f"[INFO] Sending audio to AssemblyAI: {upload_url}")
 
     headers = {
@@ -41,7 +41,7 @@ def transcribe_audio(upload_url: str) -> dict:
         if result['status'] == 'completed':
             paragraphs_url = f"{base_url}/v2/transcript/{transcript_id}/paragraphs"
             paragraphs = requests.get(paragraphs_url, headers=headers).json()
-            return format_transcription_result(paragraphs)
+            return extract_full_text(paragraphs)
 
         elif result['status'] == 'failed':
             print(f"[ERROR] Transcription failed: {result}")
@@ -54,25 +54,8 @@ def transcribe_audio(upload_url: str) -> dict:
             print(f"[INFO] Waiting... Status: {result['status']}")
             time.sleep(3)
 
-def format_transcription_result(paragraphs_result):
-    result = {
-        "full_text": "",
-        "words": []
-    }
-
-    for paragraph in paragraphs_result.get('paragraphs', []):
-        paragraph_text = paragraph.get('text', '')
-        result["full_text"] += paragraph_text + "\n\n"
-
-        for word in paragraph.get('words', []):
-            word_data = {
-                "text": word.get('text', ''),
-                "start": word.get('start'),
-                "end": word.get('end'),
-            }
-            result["words"].append(word_data)
-
-    return result
+def extract_full_text(paragraphs_result) -> str:
+    return "\n\n".join([p.get('text', '') for p in paragraphs_result.get('paragraphs', [])])
 
 def correct_text_with_gpt(full_text: str) -> str:
     response = client.chat.completions.create(
@@ -81,14 +64,11 @@ def correct_text_with_gpt(full_text: str) -> str:
             {"role": "system", "content": "You are a helpful assistant that formats and corrects Hebrew transcripts."},
             {"role": "user", "content": f"""הטקסט הבא הוא תמלול גולמי של שיר, המכיל שגיאות הקלדה, חוסר ניקוד, חזרות וטעויות בהברות.
 
-המשימה שלך: לתקן את המילים כך שיהיו תקניות וקימות בשפה העברית , לשמר את המקצב והמוזיקליות המקורית ככל האפשר, ולחלק את השיר למקטעים לפי מבנה שירי ברור (פזמון, בתים, מעבר). אין להוסיף הקדמה, הסבר או טקסט שאינו חלק מהשיר.
+המשימה שלך: לתקן את המילים כך שיהיו תקניות וקיימות בשפה העברית, לשמר את המקצב והמוזיקליות המקורית ככל האפשר, ולחלק את השיר למקטעים לפי מבנה שירי ברור (פזמון, בתים, מעבר). אין להוסיף הקדמה, הסבר או טקסט שאינו חלק מהשיר.
 
-
-החזר אותו כתמלול לשיר 
-הטקסט:
-{full_text}""" }
+החזר אותו כתמלול לשיר:
+{full_text}"""}
         ],
         temperature=0.2
     )
     return response.choices[0].message.content.strip()
-
