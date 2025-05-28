@@ -40,7 +40,7 @@ def generate_playlist_by_user_prompt(user_prompt: str, songs: List[Song]) -> Dic
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",  # או gpt-4, gpt-3.5-turbo וכו'
+            model="gpt-4o-mini", 
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5
         )
