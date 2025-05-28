@@ -108,10 +108,9 @@ namespace PicTune.Data.Repositories
                 user_prompt = userPrompt,
                 songs = songs
             };
-            Console.WriteLine("payload: ",payload);
+
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            Console.WriteLine("json: ", json);
 
             var response = await _httpClient.PostAsync("https://pictune-python.onrender.com/generate_playlist_by_prompt/", content);
             response.EnsureSuccessStatusCode();
