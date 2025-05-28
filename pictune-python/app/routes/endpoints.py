@@ -27,7 +27,10 @@ class TranscribeRequest(BaseModel):
 class PromptRequest(BaseModel):
     user_prompt: str
     songs: List[Song]
-
+    
+    class Config:
+        alias_generator = str.lower
+        allow_population_by_field_name = True
 @router.post("/transcribe_song")
 async def transcribe_song_endpoint(request: TranscribeRequest):
     try:
