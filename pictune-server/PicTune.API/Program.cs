@@ -20,6 +20,7 @@ using Amazon.Runtime;
 using Amazon;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using PicTune.Data.Repositories;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -94,6 +95,11 @@ builder.Services.AddAuthorization(options =>
 
 // Register IHttpClientFactory 
 builder.Services.AddHttpClient();  // Register IHttpClientFactory
+builder.Services.AddHttpClient<PlaylistRepository>()
+    .ConfigureHttpClient(client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(5); // או כל ערך שמתאים לשירות שלך
+    });
 
 
 builder.Services.ServiceDependencyInjector();
