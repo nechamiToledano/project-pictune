@@ -3,16 +3,21 @@ import os
 import re
 from typing import Dict, List
 from dotenv import load_dotenv
-import openai
-from pydantic import BaseModel  # ודא שזה מיובא למעלה
+from openai import OpenAI
+from pydantic import BaseModel
+
 class Song(BaseModel):
     id: int
     transcript: str
-    
+
+# Load API key
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
-def  generate_playlist_by_user_prompt(user_prompt: str, songs: List[Song]) -> Dict:
+
+# Create OpenAI client
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+def generate_playlist_by_user_prompt(user_prompt: str, songs: List[Song]) -> Dict:
     song_descriptions = "\n".join([f"{song.id}: {song.transcript}" for song in songs])
 
     prompt = f"""
@@ -34,12 +39,12 @@ def  generate_playlist_by_user_prompt(user_prompt: str, songs: List[Song]) -> Di
 """
 
     try:
-        response =openai.ChatCompletion.create(
-            model="gpt-4o-mini",
+        response = client.chat.completions.create(
+            model="gpt-4o",  # או gpt-4, gpt-3.5-turbo וכו'
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5
         )
-        json_text = response["choices"][0]["message"]["content"]
+        json_text = response.choices[0].message.content
         json_text = re.sub(r"```json\s*|\s*```", "", json_text).strip()
         return json.loads(json_text)
     except Exception as e:

@@ -106,7 +106,7 @@ namespace PicTune.Data.Repositories
             var payload = new
             {
                 user_prompt = userPrompt,
-                songs = songs
+                songs 
             };
 
             var json = JsonSerializer.Serialize(payload);
