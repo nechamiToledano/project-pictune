@@ -1,5 +1,4 @@
-from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
-from fastapi.exceptions import RequestValidationError
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List
@@ -11,7 +10,6 @@ from tempfile import mkdtemp
 from threading import Thread
 import time
 
-import app
 from app.services.audio_service import transcribe_audio
 from app.services.playlist_service import generate_playlist_by_user_prompt
 from app.services.video_creator_service import create_video_from_segments_with_settings
@@ -34,12 +32,6 @@ class PromptRequest(BaseModel):
     user_prompt: str
     songs: List[Song]
     
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={"detail": exc.errors(), "body": exc.body},
-    )
      
 @router.post("/transcribe_song")
 async def transcribe_song_endpoint(request: TranscribeRequest):
