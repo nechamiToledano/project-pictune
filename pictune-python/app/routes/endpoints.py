@@ -21,6 +21,10 @@ class Song(BaseModel):
     id: int
     transcript: str
 
+    class Config:
+        allow_population_by_field_name = True
+        alias_generator = str.lower  
+
 class TranscribeRequest(BaseModel):
     url: str
     
@@ -28,9 +32,6 @@ class PromptRequest(BaseModel):
     user_prompt: str
     songs: List[Song]
     
-    class Config:
-        alias_generator = str.lower
-        allow_population_by_field_name = True
 @router.post("/transcribe_song")
 async def transcribe_song_endpoint(request: TranscribeRequest):
     try:
@@ -39,7 +40,7 @@ async def transcribe_song_endpoint(request: TranscribeRequest):
             "full_text": transcription["full_text"],
             "words": transcription["words"]
         }
-    except Exception as e:
+    except Exception     as e:
         raise HTTPException(status_code=500, detail=f"שגיאה בתמלול: {str(e)}")
 
 @router.post("/generate_playlist_by_prompt/")
