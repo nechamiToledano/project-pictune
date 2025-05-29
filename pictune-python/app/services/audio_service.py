@@ -102,4 +102,3 @@ def transcribe_audio(upload_url: str):
             time.sleep(3)
 
 
-print(transcribe_audio("https://pictune-files-testpnoren.s3.amazonaws.com/b8d5736f-babc-45ea-adbd-845d73239e5f.mp3?AWSAccessKeyId=AKIA54WIFXOGIK3FS4C4&Expires=1748474573&Signature=zHEfzHtDCO0A9Rq88mu8apBNbA0%3D"))
