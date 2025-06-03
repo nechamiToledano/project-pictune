@@ -81,57 +81,83 @@ namespace PicTune.API.Controllers
             return Ok(new { url });
         }
 
-
-        [HttpGet("extract-image")]
+        [HttpPost("{id}/like")] // שינוי ל-POST
         [Authorize]
-
-        public async Task<IActionResult> ExtractImage( [FromQuery] string fileKey)
+        public async Task<IActionResult> ToggleLike(int id)
         {
-            if ( string.IsNullOrWhiteSpace(fileKey))
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString))
             {
-                return BadRequest(" file key is required.");
+                return Unauthorized("User ID not found in claims.");
             }
 
-            try
-            {
-                // Fetch the MP3 file from S3
-                var request = new GetObjectRequest
-                {
-                    BucketName = _bucketName,
-                    Key = fileKey
-                };
+        
 
-                using var response = await _s3Client.GetObjectAsync(request);
-                using var memoryStream = new MemoryStream();
-                await response.ResponseStream.CopyToAsync(memoryStream);
-
-                // Reset stream position for reading
-                memoryStream.Seek(0, SeekOrigin.Begin);
-
-                // Extract image using TagLib
-                var tagFile = TagLib.File.Create(new TagLib.StreamFileAbstraction(fileKey, memoryStream, memoryStream));
-
-                if (tagFile.Tag.Pictures.Length == 0)
-                {
-                    return NotFound("No embedded image found in the MP3 file.");
-                }
-
-                var picture = tagFile.Tag.Pictures[0];
-                var imageBytes = picture.Data.Data;
-
-                // Return the image as a file
-                return File(imageBytes, "image/jpeg");
-            }
-            catch (AmazonS3Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, $"S3 Error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, $"Error: {ex.Message}");
-            }
+            // קריאה לשירות לביצוע פעולת ה-ToggleLike
+            await _musicFileService.ToggleLikeAsync(id, userIdString);
+            return NoContent();
         }
-        [HttpPost("{id}/transcribe")]
+
+      
+
+[HttpGet("extract-image")]
+    [Authorize]
+    public async Task<IActionResult> ExtractImage([FromQuery] string fileKey)
+    {
+        if (string.IsNullOrWhiteSpace(fileKey))
+        {
+            return BadRequest("File key is required.");
+        }
+
+        try
+        {
+            // Fetch the MP3 file from S3
+            var request = new GetObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = fileKey
+            };
+
+            using var response = await _s3Client.GetObjectAsync(request);
+            using var memoryStream = new MemoryStream();
+            await response.ResponseStream.CopyToAsync(memoryStream);
+
+            // Reset stream position for reading
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            // Extract image using TagLib
+            // השתמש ב-memoryStream ישירות במקום ליצור StreamFileAbstraction חדש עם fileKey
+            // שכן TagLib.File.Create יכול לקבל Stream.
+            var tagFile = TagLib.File.Create(new TagLib.StreamFileAbstraction(fileKey, memoryStream, memoryStream));
+
+
+            if (tagFile.Tag.Pictures.Length == 0)
+            {
+                // *** השינוי המרכזי כאן: החזר NoContent במקום NotFound ***
+                return NoContent(); // HTTP 204 - Success, but no content
+            }
+
+            var picture = tagFile.Tag.Pictures[0];
+            var imageBytes = picture.Data.Data;
+
+            // Return the image as a file
+            return File(imageBytes, "image/jpeg"); // או image/png, image/gif בהתאם ל-MimeType של התמונה אם ידוע
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return NoContent(); 
+        }
+        catch (AmazonS3Exception ex)
+        {
+            return StatusCode((int)HttpStatusCode.InternalServerError, $"S3 Error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode((int)HttpStatusCode.InternalServerError, $"Error extracting image: {ex.Message}");
+        }
+    }
+    [HttpPost("{id}/transcribe")]
         [Authorize]
         public async Task<IActionResult> Transcribe(int id)
         {
