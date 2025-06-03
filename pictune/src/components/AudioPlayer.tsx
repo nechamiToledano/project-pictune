@@ -53,8 +53,6 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
         })
         .catch((error) => {
           console.error("Error playing audio after loadedmetadata (autoplay blocked?):", error);
-          // This catch block handles cases where autoplay is prevented (e.g., by browser policies).
-          // The user will need to manually click play.
           setIsPlaying(false);
         });
     }

@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { InfoIcon, PlayCircle, PauseCircle, Music4, Play, Pause } from "lucide-react" 
+import { InfoIcon, PlayCircle, PauseCircle, Music4, Play, Pause, Heart } from "lucide-react" 
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { fetchImage, type MusicFile } from "@/store/slices/musicFilesSlice"
@@ -62,6 +62,8 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause, isCompa
           {/* תמונה ממוזערת / אייקון */}
           <div className="flex-shrink-0 h-8 w-8 rounded-md overflow-hidden bg-gray-900/50 flex items-center justify-center">
             {imageUrl ? (
+              
+              
               <img
                 src={imageUrl}
                 alt="Album Art"
@@ -83,9 +85,9 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause, isCompa
           {/* כפתורי פעולה נוספים (לייק, פרטים) */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* לדוגמה: כפתור לייק */}
-            {/* <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-red-500 hover:bg-white/10">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-red-500 hover:bg-white/10">
               <Heart className="h-4 w-4" />
-            </Button> */}
+            </Button>
             {/* כפתור פרטים */}
             <Button
                 asChild

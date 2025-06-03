@@ -103,14 +103,18 @@ namespace PicTune.Data.Repositories
                 return null;
             }
         }
-        public string GeneratePreSignedUrl(string s3Key)
+        public string GeneratePreSignedUrl(MusicFile file)
         {
             var request = new GetPreSignedUrlRequest
             {
                 BucketName = _bucketName,
-                Key = s3Key,
-                Expires = DateTime.UtcNow.AddHours(1),
-                Verb = HttpVerb.GET
+                Key = file.S3Key,
+                Expires = DateTime.UtcNow.AddHours(2),
+                Verb = HttpVerb.GET,
+                ResponseHeaderOverrides = new ResponseHeaderOverrides
+                {
+                    ContentDisposition = $"attachment; filename=\"{file.FileName}\""
+                }
             };
 
             return _s3Client.GetPreSignedURL(request);

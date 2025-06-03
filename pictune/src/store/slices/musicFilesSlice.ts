@@ -15,7 +15,7 @@ export interface MusicFile {
   isLiked: boolean
   createdAt: string
   uploadedAt: string
-  extractedImageUrl?: string
+  extractedImageUrl?: string | null
   transcript: string | null
 }
 
@@ -48,20 +48,30 @@ const initialState: MusicFileState = {
 export const fetchImage = createAsyncThunk(
   "musicFiles/fetchImage",
   async (fileUrl: string, { getState, rejectWithValue }) => {
-    const state = getState() as { musicFiles: MusicFileState }
+    const state = getState() as { musicFiles: MusicFileState };
     if (state.musicFiles.images[fileUrl]) {
-      return { fileUrl, imageUrl: state.musicFiles.images[fileUrl] }
+      return { fileUrl, imageUrl: state.musicFiles.images[fileUrl] };
     }
     try {
-      const response = await api.get(`/files/extract-image?fileKey=${fileUrl}`, { responseType: 'blob' })
-      const imageUrl = URL.createObjectURL(response.data)
-      return { fileUrl, imageUrl }
+      const response = await api.get(`/files/extract-image?fileKey=${fileUrl}`, { responseType: 'blob' });
+
+      // בדוק את סטטוס התגובה או את גודל ה-Blob
+      if (response.status === 204 || (response.data && response.data.size === 0)) {
+        // אם אין תוכן או שה-Blob ריק, החזר null עבור imageUrl
+        return { fileUrl, imageUrl: null };
+      }
+
+      const imageUrl = URL.createObjectURL(response.data);
+      return { fileUrl, imageUrl };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch image")
+      // יש לטפל גם בשגיאות 404 או שגיאות אחרות מהשרת
+      if (error.response && error.response.status === 404) {
+        return { fileUrl, imageUrl: null }; // או לטפל בזה כ-rejectWithValue אם זו שגיאה
+      }
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch image");
     }
   }
-)
-
+);
 export const fetchMusicFiles = createAsyncThunk(
   "musicFiles/fetchAll",
   async (filters: { owner?: boolean; favorites?: boolean } = {}, { rejectWithValue }) => {
@@ -178,11 +188,6 @@ const musicFilesSlice = createSlice({
       .addCase(transcribeMusicFile.rejected, (state, action) => {
         state.lyricsLoading = false
         state.lyricsError = action.payload as string
-      })
-      .addCase(fetchImage.fulfilled, (state, action: PayloadAction<{ fileUrl: string, imageUrl: string }>) => {
-        if (!state.images[action.payload.fileUrl]) {
-          state.images[action.payload.fileUrl] = action.payload.imageUrl
-        }
       })
       .addCase(fetchMusicFileUrl.fulfilled, (state, action: PayloadAction<string>) => {
         if (state.selectedFile) {

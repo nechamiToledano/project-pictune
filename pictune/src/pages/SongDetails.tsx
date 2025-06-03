@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Download, Play, Pause, AlertTriangle, Music4 } from "lucide-react"
+import {  Play, Pause, AlertTriangle, Music4 } from "lucide-react"
 import { fetchImage, fetchMusicFileById, fetchMusicFileUrl } from "@/store/slices/musicFilesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
 import Background from "../components/Background"
@@ -104,19 +104,6 @@ export default function SongDetails() {
     setIsPlaying(!isPlaying)
   }
 
-  const downloadSong = () => {
-    if (!song) return
-
-    // Create a temporary anchor element
-    const a = document.createElement("a")
-    a.href = song.s3Key
-    a.download = song.fileName
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-  }
-
-  // Get image URL from Redux store
   const imageUrl = useSelector((state: RootState) => state.musicFiles.images[song?.s3Key || ""])
 
   useEffect(() => {
@@ -385,13 +372,7 @@ export default function SongDetails() {
                 <SongLyrics songId={song.id} currentTime={currentTime} isPlaying={isPlaying} duration={duration} />
               </div>
 
-              <Button
-                className="w-full bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white backdrop-blur-sm"
-                size="lg"
-                onClick={downloadSong}
-              >
-                <Download className="mr-2 h-5 w-5" /> Download Song
-              </Button>
+           
             </div>
           </div>
         </motion.div>

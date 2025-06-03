@@ -54,8 +54,6 @@ const SongActions = ({ song }: { song: MusicFile }) => {
   }
 
   const downloadSong = () => {
-    const { songUrl } = useSelector((state: RootState) => state.musicFiles);
-  
     if (!song || !songUrl) { // ודא שגם songUrl קיים
       console.error("No song or song URL available for download.");
       toast.error("Download failed", { description: "Song not available for download." });
@@ -69,13 +67,11 @@ const SongActions = ({ song }: { song: MusicFile }) => {
     });
   
     const a = document.createElement("a");
-    // השתמש ב-songUrl המלא שאתה מקבל מהשרת האחורי
-    a.href = songUrl; // זה התיקון המרכזי
-    a.download = song.fileName; // שם הקובץ שיוצג למשתמש
+    a.href = songUrl;
+    a.download = song.fileName; 
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  
   };
   
   // Set up audio when song URL is available

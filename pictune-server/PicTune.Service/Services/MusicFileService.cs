@@ -96,7 +96,7 @@ namespace PicTune.Service
             var file = await _repository.GetByIdAsync(fileId);
             if (file == null) return null;
 
-            return _repository.GeneratePreSignedUrl(file.S3Key);
+            return _repository.GeneratePreSignedUrl(file);
         }
 
         public async Task<string?> TranscribeMusicFileAsync(int fileId)
