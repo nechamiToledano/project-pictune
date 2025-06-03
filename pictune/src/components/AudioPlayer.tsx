@@ -1,128 +1,181 @@
-"use client"
-
-import { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Play, Pause, SkipBack, SkipForward, Volume2, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { cn } from "@/lib/utils"
-import { fetchImage, fetchMusicFileUrl, type MusicFile } from "@/store/slices/musicFilesSlice"
-import { useDispatch, useSelector } from "react-redux"
-import { AppDispatch, RootState } from "@/store/store"
+// AudioPlayer.tsx
+"use client";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, Pause, SkipBack, SkipForward, Volume2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
+import { fetchImage, fetchMusicFileUrl, type MusicFile } from "@/store/slices/musicFilesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
 
 interface AudioPlayerProps {
-  song: MusicFile | null
-  onClose: () => void
-  onNext?: () => void
-  onPrevious?: () => void
+  song: MusicFile | null;
+  onClose: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
 }
 
 export default function AudioPlayer({ song, onClose, onNext, onPrevious }: AudioPlayerProps) {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(0.8)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const dispatch = useDispatch<AppDispatch>()
-  const {   songUrl,  } = useSelector((state: RootState) => state.musicFiles)
-  const imageUrl = useSelector((state: RootState) => state.musicFiles.images[song?.s3Key||0])
-  
-  useEffect(() => {
-    if (song?.s3Key && !imageUrl) { // Avoid redundant requests
-      dispatch(fetchImage(song.s3Key))
-    }
-  }, [dispatch, song?.s3Key, imageUrl])
-  useEffect(() => {
-    if (song?.id) {
-      dispatch(fetchMusicFileUrl(Number(song.id))) // Fetch S3 pre-signed URL
-    }
-  }, [song?.id, dispatch])
-  useEffect(() => {
-    if (song) {
-      const audio = new Audio(song.s3Key)
-      audioRef.current = audio
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.8);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false); // New state to track if audio element is ready
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const { songUrl } = useSelector((state: RootState) => state.musicFiles);
+  const imageUrl = useSelector((state: RootState) => state.musicFiles.images[song?.s3Key || '']);
 
-      audio.addEventListener("timeupdate", updateProgress)
-      audio.addEventListener("loadedmetadata", () => {
-        setDuration(audio.duration)
-      })
-      audio.addEventListener("ended", () => {
-        setIsPlaying(false)
-        setCurrentTime(0)
-        if (onNext) onNext()
-      })
+  // Effect to fetch image for the song thumbnail
+  useEffect(() => {
+    if (song?.s3Key && !imageUrl) {
+      dispatch(fetchImage(song.s3Key));
+    }
+  }, [dispatch, song?.s3Key, imageUrl]);
 
-      audio.volume = volume
-      audio
-        .play()
+  // Define stable event handlers using useCallback
+  const updateProgress = useCallback(() => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  }, []);
+
+  const handleLoadedMetadata = useCallback(() => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+      setIsAudioLoaded(true); // Mark audio as loaded
+      // Try to play only after metadata is loaded
+      audioRef.current.play()
         .then(() => {
-          setIsPlaying(true)
+          setIsPlaying(true);
         })
         .catch((error) => {
-          console.error("Error playing audio:", error)
-        })
+          console.error("Error playing audio after loadedmetadata (autoplay blocked?):", error);
+          // This catch block handles cases where autoplay is prevented (e.g., by browser policies).
+          // The user will need to manually click play.
+          setIsPlaying(false);
+        });
+    }
+  }, []);
 
-      return () => {
-        audio.pause()
-        audio.removeEventListener("timeupdate", updateProgress)
-        audio.removeEventListener("loadedmetadata", () => {})
-        audio.removeEventListener("ended", () => {})
+  const handleEnded = useCallback(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    if (onNext) {
+      onNext(); // Call the onNext prop directly
+    }
+  }, [onNext]); // Dependency: onNext
+
+  // Effect to fetch music file URL and manage audio element lifecycle
+  useEffect(() => {
+    // Cleanup function for previous audio instance if song changes or component unmounts
+    const cleanupAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = ""; // Clear the source
+        audioRef.current.removeEventListener("timeupdate", updateProgress);
+        audioRef.current.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        audioRef.current.removeEventListener("ended", handleEnded);
+        audioRef.current = null;
       }
-    }
-  }, [song, onNext, volume])
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setDuration(0);
+      setIsAudioLoaded(false); // Reset loaded state
+    };
 
-  const updateProgress = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime)
+    if (!song?.id) {
+      cleanupAudio();
+      return;
     }
-  }
+
+    // Dispatch fetching of music file URL
+    dispatch(fetchMusicFileUrl(Number(song.id)));
+
+    return cleanupAudio; // Return cleanup function
+  }, [song?.id, dispatch, updateProgress, handleLoadedMetadata, handleEnded]); // Include stable callbacks here
+
+  // Effect to create and manage the audio element when songUrl is available
+  useEffect(() => {
+    if (songUrl) {
+      // Clean up previous audio instance before creating a new one
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener("timeupdate", updateProgress);
+        audioRef.current.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        audioRef.current.removeEventListener("ended", handleEnded);
+        audioRef.current = null;
+      }
+
+      console.log("Creating new Audio element for:", songUrl); // Debug log
+      const audio = new Audio(songUrl);
+      audioRef.current = audio;
+
+      // Attach event listeners
+      audio.addEventListener("timeupdate", updateProgress);
+      audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.addEventListener("ended", handleEnded);
+
+      audio.volume = volume;
+      audio.load(); // Ensure the audio element loads the new source
+    }
+  }, [songUrl, volume, updateProgress, handleLoadedMetadata, handleEnded]); // Dependencies: songUrl, volume, and stable callbacks
 
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00"
-
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`
-  }
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
 
   const handleSeek = (value: number[]) => {
     if (audioRef.current) {
-      const newTime = value[0]
-      audioRef.current.currentTime = newTime
-      setCurrentTime(newTime)
-    }
-  }
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0]
-    setVolume(newVolume)
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume
-    }
-  }
-
-  const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        // Ensure the audio source is valid before playing
-        const audio = audioRef.current;
-        audio.src = songUrl||''; // Set the correct source URL here
-
-        // Wait for metadata to load before playing
-        audio.load();
-        audio.play().catch((error) => {
-          console.log("Error playing audio: " + error.message);
-        });
-      }
-
-      setIsPlaying(!isPlaying);
+      const newTime = value[0];
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
     }
   };
 
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
 
-  if (!song) return null
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) {
+      console.log("Audio element not ready. Cannot toggle play. (Ref is null)"); // More specific message
+      // Potentially disable the button until `isAudioLoaded` is true
+      return;
+    }
+
+    // If the audio element is present but not yet loaded metadata, warn
+    if (!isAudioLoaded) {
+      console.log("Audio element exists but metadata not loaded yet. Cannot toggle play."); // More specific message
+      return;
+    }
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((error) => {
+          console.error("Error playing audio on toggle:", error);
+          setIsPlaying(false);
+        });
+    }
+  };
+
+  if (!song) return null;
 
   return (
     <AnimatePresence>
@@ -139,7 +192,7 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="relative h-14 w-14 rounded-md overflow-hidden flex-shrink-0 bg-black/50">
                 <img
-                  src={`${imageUrl}?height=56&width=56&text=🎵`}
+                  src={imageUrl || "/logo.png"}
                   alt={song.fileName}
                   className="h-full w-full object-cover"
                 />
@@ -153,7 +206,6 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
               </div>
             </div>
 
-       
             {/* Desktop controls */}
             <div className="hidden md:flex flex-col items-center gap-1 flex-1">
               <div className="flex items-center gap-3">
@@ -162,7 +214,7 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
                   size="icon"
                   className="h-9 w-9 rounded-full text-white hover:bg-white/10"
                   onClick={onPrevious}
-                  disabled={!onPrevious}
+                  disabled={!onPrevious || !isAudioLoaded} // Disable if not loaded
                 >
                   <SkipBack className="h-5 w-5" />
                 </Button>
@@ -176,6 +228,7 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
                       : "text-white hover:bg-white/10",
                   )}
                   onClick={togglePlay}
+                  disabled={!isAudioLoaded} // Disable until audio is loaded
                 >
                   {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
                 </Button>
@@ -184,7 +237,7 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
                   size="icon"
                   className="h-9 w-9 rounded-full text-white hover:bg-white/10"
                   onClick={onNext}
-                  disabled={!onNext}
+                  disabled={!onNext || !isAudioLoaded} // Disable if not loaded
                 >
                   <SkipForward className="h-5 w-5" />
                 </Button>
@@ -199,6 +252,7 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
                   step={0.1}
                   onValueChange={handleSeek}
                   className="flex-1"
+                  disabled={!isAudioLoaded} // Disable slider if not loaded
                 />
                 <span className="text-xs text-gray-400 w-10">{formatTime(duration)}</span>
               </div>
@@ -208,7 +262,7 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
             <div className="hidden md:flex items-center gap-3 flex-1 justify-end">
               <div className="flex items-center gap-2 w-32">
                 <Volume2 className="h-4 w-4 text-gray-400" />
-                <Slider value={[volume]} min={0} max={1} step={0.01} onValueChange={handleVolumeChange} />
+                <Slider value={[volume]} min={0} max={1} step={0.01} onValueChange={handleVolumeChange} disabled={!isAudioLoaded} />
               </div>
               <Button
                 variant="ghost"
@@ -220,17 +274,15 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
               </Button>
             </div>
           </div>
-
         </div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
 
 // Helper function to format file size
 function formatFileSize(bytes: number) {
-  if (bytes < 1024) return bytes + " B"
-  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB"
-  else return (bytes / 1048576).toFixed(1) + " MB"
+  if (bytes < 1024) return bytes + " B";
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+  else return (bytes / 1048576).toFixed(1) + " MB";
 }
-

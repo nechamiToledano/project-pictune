@@ -1,3 +1,4 @@
+import Background from "@/components/Background"
 import { Button } from "@/components/ui/button"
 
 interface ErrorScreenProps {
@@ -7,8 +8,14 @@ interface ErrorScreenProps {
 
 export default function ErrorScreen({ error, navigate }: ErrorScreenProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="bg-black/40 backdrop-blur-sm p-8 rounded-xl max-w-md text-center border border-gray-800">
+    <div className="relative min-h-screen flex items-center justify-center bg-black overflow-hidden">
+      {/* Ensure Background renders properly underneath */}
+      <div className="absolute inset-0 z-0">
+        <Background />
+      </div>
+
+      {/* Foreground content */}
+      <div className="relative z-10 bg-black/40 backdrop-blur-sm p-8 rounded-xl max-w-md text-center border border-gray-800">
         <div className="text-red-400 mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" viewBox="0 0 20 20" fill="currentColor">
             <path

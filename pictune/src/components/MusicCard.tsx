@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { InfoIcon, PlayCircle, PauseCircle, Music } from "lucide-react"
+import { InfoIcon, PlayCircle, PauseCircle, Music4, Play, Pause } from "lucide-react" 
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { fetchImage, type MusicFile } from "@/store/slices/musicFilesSlice"
@@ -17,9 +17,10 @@ interface MusicCardProps {
   index: number
   isPlaying: boolean
   onPlayPause: () => void
+  isCompact?: boolean // הוספת הפרופ החדש
 }
 
-export default function MusicCard({ song, index, isPlaying, onPlayPause }: MusicCardProps) {
+export default function MusicCard({ song, index, isPlaying, onPlayPause, isCompact }: MusicCardProps) {
   const dispatch = useDispatch<AppDispatch>()
   const imageUrl = useSelector((state: RootState) => state.musicFiles.images[song.s3Key])
 
@@ -30,6 +31,79 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause }: Music
     }
   }, [dispatch, song.s3Key, imageUrl])
 
+  // Helper function to format file size
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B"
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB"
+    else return (bytes / 1048576).toFixed(1) + " MB"
+  }
+
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+  }
+
+  // --- תצוגת COMPACT ---
+  if (isCompact) {
+    return (
+      <Card className="bg-black/30 border border-gray-800 text-white rounded-lg hover:bg-black/50 transition-colors duration-200">
+        <CardContent className="p-3 flex items-center gap-3">
+          {/* כפתור הפעלה/השהיה */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full flex-shrink-0 text-white hover:bg-white/10"
+            onClick={onPlayPause}
+          >
+            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </Button>
+
+          {/* תמונה ממוזערת / אייקון */}
+          <div className="flex-shrink-0 h-8 w-8 rounded-md overflow-hidden bg-gray-900/50 flex items-center justify-center">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt="Album Art"
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <Music4 className="h-4 w-4 text-white/20" /> 
+            )}
+          </div>
+
+          {/* מידע על השיר */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-medium truncate text-white">{song.fileName}</h3>
+            <p className="text-xs text-gray-400 truncate">
+              {formatFileSize(song.size)} • {formatDate(song.uploadedAt)}
+            </p>
+          </div>
+
+          {/* כפתורי פעולה נוספים (לייק, פרטים) */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* לדוגמה: כפתור לייק */}
+            {/* <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-red-500 hover:bg-white/10">
+              <Heart className="h-4 w-4" />
+            </Button> */}
+            {/* כפתור פרטים */}
+            <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="bg-transparent hover:bg-white/10 text-white transition-all duration-300 h-7 px-2"
+              >
+                <Link to={`/music/${song.id}`} className="flex items-center justify-center gap-1">
+                  <InfoIcon className="h-3 w-3" />
+                </Link>
+              </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // --- תצוגת GRID (התצוגה המקורית) ---
   return (
     <motion.div
       className="relative rounded-xl overflow-hidden group"
@@ -54,16 +128,15 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause }: Music
           <div className="aspect-square relative mb-3 rounded-lg overflow-hidden bg-gray-900/50 backdrop-blur-md shadow-md group-hover:shadow-lg transition-all duration-300">
             {imageUrl ? (
               <img
-                src={imageUrl || "/placeholder.svg"}
+                src={imageUrl}
                 alt={song.fileName}
                 className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-900/30 via-purple-900/30 to-blue-900/30">
-                <Music className="h-12 w-12 text-white/20" />
+                <Music4 className="h-40 w-30 text-white/30" />
               </div>
             )}
-
             {/* Overlay gradient */}
             <div
               className={cn(
@@ -124,17 +197,4 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause }: Music
       </Card>
     </motion.div>
   )
-}
-
-// Helper function to format file size
-function formatFileSize(bytes: number) {
-  if (bytes < 1024) return bytes + " B"
-  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB"
-  else return (bytes / 1048576).toFixed(1) + " MB"
-}
-
-// Helper function to format date
-function formatDate(dateString: string) {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }

@@ -1,3 +1,4 @@
+import Background from "@/components/Background";
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom";
 
@@ -5,7 +6,11 @@ import { useNavigate } from "react-router-dom";
 export default function NotFoundScreen() {
    const navigate=useNavigate();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
+    <div className="relative min-h-screen flex items-center justify-center bg-black overflow-hidden">
+    {/* Ensure Background renders properly underneath */}
+    <div className="absolute inset-0 z-0">
+      <Background />
+    </div>
       <div className="bg-black/40 backdrop-blur-sm p-8 rounded-xl max-w-md text-center border border-gray-800">
         <div className="text-yellow-400 mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" viewBox="0 0 20 20" fill="currentColor">

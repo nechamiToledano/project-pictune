@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Download, Play, Pause, AlertTriangle, Music } from "lucide-react"
+import { Download, Play, Pause, AlertTriangle, Music4 } from "lucide-react"
 import { fetchImage, fetchMusicFileById, fetchMusicFileUrl } from "@/store/slices/musicFilesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
 import Background from "../components/Background"
@@ -253,7 +253,7 @@ export default function SongDetails() {
             className="bg-gray-900/50 backdrop-blur-lg p-8 rounded-2xl max-w-md text-center border border-gray-800/50 shadow-xl"
           >
             <div className="bg-yellow-500/10 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-              <Music className="h-10 w-10 text-yellow-400" />
+              <Music4 className="h-10 w-10 text-yellow-400" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-3">Song Not Found</h2>
             <p className="text-gray-400 mb-6">The song you're looking for could not be found.</p>
@@ -304,17 +304,17 @@ export default function SongDetails() {
             {/* Left Column - Artwork and Controls */}
             <div className="w-full md:w-1/2 max-w-md">
               <div className="relative aspect-square bg-gray-900/30 backdrop-blur-md rounded-xl overflow-hidden mb-6 border border-gray-800">
-                {imageUrl ? (
-                  <img
-                    src={imageUrl || "/placeholder.svg"}
-                    alt={song.fileName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-900/30 via-purple-900/30 to-blue-900/30">
-                    <span className="text-6xl font-bold text-white/20">{song.fileName.charAt(0).toUpperCase()}</span>
-                  </div>
-                )}
+              {imageUrl ? (
+              <img
+                src={imageUrl }
+                alt={song.fileName}
+                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-900/30 via-purple-900/30 to-blue-900/30">
+                <Music4 className="h-40 w-30 text-white/30" />
+              </div>
+            )}
 
                 {/* Play/Pause Button Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">

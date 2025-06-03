@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
 import { Music, Search, Loader2, RefreshCw } from "lucide-react"
@@ -11,7 +11,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { fetchMusicFiles, type MusicFile } from "@/store/slices/musicFilesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
 import AudioPlayer from "@/components/AudioPlayer"
@@ -33,9 +33,11 @@ export default function AllMusic() {
   const songsPerPage = view === "grid" ? 8 : 12
 
   // Extract tab or query params (e.g., 'favorites' or 'userName')
-  const queryParams = new URLSearchParams(location.search)
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
   const isFavorites = queryParams.get("favorites") === "true"
   const owner = queryParams.get("owner") === "true"
+  // const isInitialLoad = !loading && songs.length === 0 && !error;
 
   // Fetch music files based on the query params (favorites or userName)
   useEffect(() => {
@@ -65,50 +67,58 @@ export default function AllMusic() {
     )
   }
 
-  const filteredSongs = songs.filter((song: MusicFile) =>
-    song.fileName.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
 
-  const totalPages = Math.ceil(filteredSongs.length / songsPerPage)
-  const indexOfLastSong = currentPage * songsPerPage
-  const indexOfFirstSong = indexOfLastSong - songsPerPage
-  const currentSongs = filteredSongs.slice(indexOfFirstSong, indexOfLastSong)
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    setCurrentPage(1) // Reset to first page on search
-  }
-
-  const handlePlayPause = (song: MusicFile) => {
-    if (playingSong && playingSong.id === song.id) {
-      setPlayingSong(null)
-    } else {
-      setPlayingSong(song)
-    }
-  }
-
-  const handleNextSong = () => {
-    if (!playingSong) return
-
-    const currentIndex = filteredSongs.findIndex((song) => song.id === playingSong.id)
-    if (currentIndex < filteredSongs.length - 1) {
-      setPlayingSong(filteredSongs[currentIndex + 1])
-    }
-  }
-
-  const handlePreviousSong = () => {
-    if (!playingSong) return
-
-    const currentIndex = filteredSongs.findIndex((song) => song.id === playingSong.id)
-    if (currentIndex > 0) {
-      setPlayingSong(filteredSongs[currentIndex - 1])
-    }
-  }
-
+  
+    // פילטור שירים לפי שאילתת חיפוש
+    const filteredSongs = useMemo(() => {
+      return songs.filter((song: MusicFile) =>
+        song.fileName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }, [songs, searchQuery]);
+  
+    // חישוב עמודים וחלוקה לעמוד הנוכחי
+    const totalPages = Math.ceil(filteredSongs.length / songsPerPage);
+    const indexOfLastSong = currentPage * songsPerPage;
+    const indexOfFirstSong = indexOfLastSong - songsPerPage;
+    const currentSongs = filteredSongs.slice(indexOfFirstSong, indexOfLastSong);
+  
+    // פונקציות Callback יציבות
+    const handlePageChange = useCallback((page: number) => {
+      setCurrentPage(page);
+    }, []);
+  
+    const handleSearch = useCallback((query: string) => {
+      setSearchQuery(query);
+      setCurrentPage(1); // אפס עמוד לראשון בחיפוש חדש
+    }, []);
+  
+    const handlePlayPause = useCallback((song: MusicFile) => {
+      if (playingSong?.id === song.id) {
+        setPlayingSong(null); // עוצר ומפסיק את השיר
+      } else {
+        setPlayingSong(song); // מנגן שיר חדש
+      }
+    }, [playingSong]); // תלוי ב-playingSong
+  
+    const handleNextSong = useCallback(() => {
+      if (!playingSong) return;
+      const currentIndex = filteredSongs.findIndex((song:MusicFile) => song.id === playingSong.id);
+      if (currentIndex < filteredSongs.length - 1) {
+        setPlayingSong(filteredSongs[currentIndex + 1]);
+      } else {
+        setPlayingSong(filteredSongs[0]); // חזור לשיר הראשון אם הגענו לסוף
+      }
+    }, [playingSong, filteredSongs]); // תלוי ב-playingSong וב-filteredSongs
+  
+    const handlePreviousSong = useCallback(() => {
+      if (!playingSong) return;
+      const currentIndex = filteredSongs.findIndex((song:MusicFile) => song.id === playingSong.id);
+      if (currentIndex > 0) {
+        setPlayingSong(filteredSongs[currentIndex - 1]);
+      } else {
+        setPlayingSong(filteredSongs[filteredSongs.length - 1]); // חזור לשיר האחרון אם הגענו להתחלה
+      }
+    }, [playingSong, filteredSongs]); // תלוי ב-playingSong וב-filteredSongs
   return (
     <section className="relative min-h-screen overflow-hidden pt-20 pb-20">
       <Background />
@@ -208,18 +218,25 @@ export default function AllMusic() {
               <div
                 className={
                   view === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-                    : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  : "flex flex-col gap-2"
                 }
               >
                 {currentSongs.map((song: MusicFile, index) => (
-                  <MusicCard
-                    key={song.id}
-                    song={song}
-                    index={index}
-                    isPlaying={playingSong?.id === song.id}
-                    onPlayPause={() => handlePlayPause(song)}
-                  />
+                 <motion.div
+                 key={song.id}
+                 initial={{ opacity: 0, y: 10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: index * 0.05 }}
+               >
+                 <MusicCard
+                   song={song}
+                   index={index}
+                   isPlaying={playingSong?.id === song.id}
+                   onPlayPause={() => handlePlayPause(song)}
+                   isCompact={view === "compact"}
+                 />
+               </motion.div>
                 ))}
               </div>
 
