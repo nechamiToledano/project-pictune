@@ -72,7 +72,7 @@ namespace PicTune.Service
             if (user == null || !(await _userManager.IsInRoleAsync(user, "Editor") || await _userManager.IsInRoleAsync(user, "Admin")))
                 return false;
 
-            file.FileName = newFileName;
+            file.DisplayName = newFileName;
             await _repository.UpdateAsync(file);
             return true;
         }
