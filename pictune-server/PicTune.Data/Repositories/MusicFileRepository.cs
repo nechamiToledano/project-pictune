@@ -105,6 +105,8 @@ namespace PicTune.Data.Repositories
         }
         public string GeneratePreSignedUrl(MusicFile file)
         {
+            var encodedFileName = Uri.EscapeDataString(file.FileName); // קידוד UTF-8
+
             var request = new GetPreSignedUrlRequest
             {
                 BucketName = _bucketName,
@@ -113,13 +115,13 @@ namespace PicTune.Data.Repositories
                 Verb = HttpVerb.GET,
                 ResponseHeaderOverrides = new ResponseHeaderOverrides
                 {
-                    ContentDisposition = $"attachment; filename=\"{file.FileName}\""
+                    ContentDisposition = $"attachment; filename*=UTF-8''{encodedFileName}"
                 }
             };
 
             return _s3Client.GetPreSignedURL(request);
         }
-      
+
         public async Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange)
         {
             DateTime fromDate = timeRange switch
