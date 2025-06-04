@@ -165,8 +165,13 @@ namespace PicTune.API.Controllers
             return transcript!=null ? Ok(transcript) : StatusCode(500, "Transcription failed");
         }
 
-
-
+        [Authorize(Roles = "Admin")]
+        [HttpPost("sync-from-s3")]
+        public async Task<IActionResult> SyncFromS3()
+        {
+            await _musicFileService.SyncMissingMusicFilesFromS3Async();
+            return Ok("Sync completed successfully.");
+        }
 
     }
 }

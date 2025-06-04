@@ -156,5 +156,58 @@ namespace PicTune.Data.Repositories
                 .ToListAsync();
         }
 
+
+        public async Task SyncMissingMusicFilesFromS3Async()
+        {
+            var s3Files = new List<S3Object>();
+            string continuationToken = null;
+
+            do
+            {
+                var request = new ListObjectsV2Request
+                {
+                    BucketName = _bucketName,
+                    ContinuationToken = continuationToken
+                };
+
+                var response = await _s3Client.ListObjectsV2Async(request);
+                s3Files.AddRange(response.S3Objects);
+                continuationToken = response.NextContinuationToken;
+
+            } while (continuationToken != null);
+
+            var existingKeys = await _context.MusicFiles
+                .Select(f => f.S3Key)
+                .ToListAsync();
+
+            var missingFiles = s3Files
+                .Where(s3 => !existingKeys.Contains(s3.Key))
+                .Select(s3 => new MusicFile
+                {
+                    FileName = Path.GetFileName(s3.Key),
+                    FileType = Path.GetExtension(s3.Key)?.TrimStart('.'),
+                    S3Key = s3.Key,
+                    Size = s3.Size,
+                    UploadedAt = s3.LastModified.ToUniversalTime(),
+                    IsLiked = false,
+                    OwnerId = "", // אפשר לשים null או OwnerId ברירת מחדל אם צריך
+                    FolderId = null,
+                    Transcript = null,
+                    IsDeleted = false
+                })
+                .ToList();
+
+            if (missingFiles.Any())
+            {
+                _context.MusicFiles.AddRange(missingFiles);
+                await _context.SaveChangesAsync();
+                Console.WriteLine($"{missingFiles.Count} קבצים נוספו למסד הנתונים.");
+            }
+            else
+            {
+                Console.WriteLine("אין קבצים חסרים - הכל מסונכרן.");
+            }
+        }
+
     }
 }

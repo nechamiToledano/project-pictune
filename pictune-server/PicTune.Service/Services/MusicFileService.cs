@@ -150,6 +150,12 @@ namespace PicTune.Service
         {
             return _repository.GetUploadStatsByHourAsync();
         }
+        public async Task SyncMissingMusicFilesFromS3Async()
+        {
+            await _repository.SyncMissingMusicFilesFromS3Async();
+
+        }
+
 
     }
 }

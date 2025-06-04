@@ -1,4 +1,5 @@
-﻿using PicTune.Core.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using PicTune.Core.DTOs;
 using PicTune.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -19,5 +20,8 @@ namespace PicTune.Core.IRepositories
         string GeneratePreSignedUrl(MusicFile file);
         Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange);
         Task<List<HourlyStatDto>> GetUploadStatsByHourAsync();
+        Task SyncMissingMusicFilesFromS3Async();
+
+
     }
 }
