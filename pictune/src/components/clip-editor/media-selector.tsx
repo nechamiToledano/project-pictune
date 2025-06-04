@@ -67,7 +67,7 @@ export default function MediaSelector({
                 <Music className="w-5 h-5 text-white/60" />
               </div>
               <div>
-                <h3 className="font-medium text-white">{selectedSong.fileName}</h3>
+                <h3 className="font-medium text-white">{selectedSong.displayName}</h3>
                 <p className="text-xs text-gray-400">שיר נבחר</p>
               </div>
             </div>

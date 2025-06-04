@@ -45,7 +45,7 @@ export default function SongArtwork({ song, isPlaying, setIsPlaying, songUrl }: 
       {imageUrl ? (
         <img
         src={`${imageUrl?imageUrl:'height=56&width=56&text=🎵'}`}
-        alt={song.fileName}
+        alt={song.displayName}
           width={600}
           height={600}
           className="object-cover transition-transform duration-500 group-hover:scale-110"

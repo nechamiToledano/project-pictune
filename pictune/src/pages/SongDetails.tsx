@@ -295,7 +295,7 @@ export default function SongDetails() {
               {imageUrl ? (
               <img
                 src={imageUrl }
-                alt={song.fileName}
+                alt={song.displayName}
                 className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
@@ -364,7 +364,7 @@ export default function SongDetails() {
             {/* Right Column - Details and Lyrics */}
             <div className="w-full md:w-1/2 text-white">
               <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                {song.fileName}
+                {song.displayName}
               </h1>
               <p className="text-white/70 mb-6">Enjoy your music with our enhanced audio player</p>
 

@@ -76,7 +76,7 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause, isCompa
 
           {/* מידע על השיר */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium truncate text-white">{song.fileName}</h3>
+            <h3 className="text-sm font-medium truncate text-white">{song.displayName}</h3>
             <p className="text-xs text-gray-400 truncate">
               {formatFileSize(song.size)} • {formatDate(song.uploadedAt)}
             </p>
@@ -131,7 +131,7 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause, isCompa
             {imageUrl ? (
               <img
                 src={imageUrl}
-                alt={song.fileName}
+                alt={song.displayName}
                 className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
@@ -173,7 +173,7 @@ export default function MusicCard({ song, index, isPlaying, onPlayPause, isCompa
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="font-medium text-sm text-white line-clamp-1">{song.fileName}</h3>
+            <h3 className="font-medium text-sm text-white line-clamp-1">{song.displayName}</h3>
 
             <div className="flex justify-between items-center text-xs text-gray-400">
               <Badge variant="outline" className="text-xs bg-gray-800/50 text-gray-300 border-gray-700">

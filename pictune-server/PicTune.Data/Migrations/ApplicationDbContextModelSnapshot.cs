@@ -157,6 +157,9 @@ namespace PicTune.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("longtext");

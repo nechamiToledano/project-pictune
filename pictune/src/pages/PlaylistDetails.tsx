@@ -438,7 +438,7 @@ const PlaylistDetails: React.FC = () => {
                       <SelectContent className="bg-black/90 border-gray-700 text-white">
                         {availableSongs.map((song) => (
                           <SelectItem key={song.id} value={song.id.toString()}>
-                            {song.fileName}
+                            {song.displayName}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -477,7 +477,7 @@ const PlaylistDetails: React.FC = () => {
                                 <Music className="h-5 w-5 text-white" />
                               </div>
                               <div>
-                                <p className="text-white font-medium">{song.fileName}</p>
+                                <p className="text-white font-medium">{song.displayName}</p>
                                 <p className="text-gray-500 text-sm">{formatFileSize(song.size || 0)}</p>
                               </div>
                             </div>

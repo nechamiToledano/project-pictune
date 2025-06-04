@@ -9,8 +9,8 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>File Name</mat-label>
-            <input matInput formControlName="fileName" placeholder="Enter file name">
-            @if(musicFileForm.get('fileName')?.hasError('required')){ 
+            <input matInput formControlName="displayName" placeholder="Enter file name">
+            @if(musicFileForm.get('displayName')?.hasError('required')){ 
             <mat-error>
               File name is required
             </mat-error>}

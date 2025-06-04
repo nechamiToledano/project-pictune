@@ -2,6 +2,7 @@ import api from "@/components/Api"
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit"
 
 export interface MusicFile {
+  displayName: string
   duration: number
   artist: any
   id: number

@@ -62,13 +62,13 @@ const SongActions = ({ song }: { song: MusicFile }) => {
   
     // הצג הודעת הורדה
     toast.success("Download started", {
-      description: song.fileName,
+      description: song.displayName,
       icon: <Download className="h-4 w-4" />,
     });
   
     const a = document.createElement("a");
     a.href = songUrl;
-    a.download = song.fileName; 
+    a.download = song.displayName; 
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -218,7 +218,7 @@ const SongActions = ({ song }: { song: MusicFile }) => {
               </Button>
             </div>
             <DialogDescription className="text-gray-400 mt-2">
-              Send "{song.fileName}" to an email address
+              Send "{song.displayName}" to an email address
             </DialogDescription>
           </DialogHeader>
 
@@ -239,7 +239,7 @@ const SongActions = ({ song }: { song: MusicFile }) => {
                   <Volume2 className="h-5 w-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate text-white">{song.fileName}</p>
+                  <p className="text-sm font-medium truncate text-white">{song.displayName}</p>
                   <p className="text-xs text-gray-400">{formatFileSize(song.size)}</p>
                 </div>
               </div>

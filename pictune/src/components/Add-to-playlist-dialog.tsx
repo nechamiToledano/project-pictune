@@ -72,7 +72,7 @@ export default function AddToPlaylistDialog({ song, trigger }: AddToPlaylistDial
         <DialogHeader>
           <DialogTitle>Add to Playlist</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Choose a playlist to add "{song.fileName}" to.
+            Choose a playlist to add "{song.displayName}" to.
           </DialogDescription>
         </DialogHeader>
 

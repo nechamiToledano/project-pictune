@@ -8,4 +8,8 @@
         public string S3Key { get; set; } = string.Empty;
         public int FolderId { get; set; }
     }
+    public class MusicFileUpdateDto
+    {
+        public string DisplayName { get; set; } = string.Empty;
+    }
 }

@@ -29,7 +29,7 @@ namespace PicTune.API.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetAllMusicFiles([FromQuery] bool? owner, [FromQuery] bool? favorites, [FromServices] IServiceScopeFactory scopeFactory)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -56,10 +56,10 @@ namespace PicTune.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize()]
-        public async Task<IActionResult> UpdateMusicFile(int id, [FromBody] MusicFileUploadDto dto)
+        public async Task<IActionResult> UpdateMusicFile(int id, [FromBody] MusicFileUpdateDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var success = await _musicFileService.UpdateMusicFileAsync(id, dto.FileName, userId);
+            var success = await _musicFileService.UpdateMusicFileAsync(id, dto.DisplayName, userId);
             return success ? Ok("File updated") : Forbid();
         }
 

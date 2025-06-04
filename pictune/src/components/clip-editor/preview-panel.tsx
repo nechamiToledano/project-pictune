@@ -151,7 +151,7 @@ export default function PreviewPanel({
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500/20 to-blue-500/20 flex items-center justify-center">
                 <Music className="w-8 h-8 text-white/40" />
               </div>
-              <h3 className="text-xl font-medium text-white">{selectedSong.fileName}</h3>
+              <h3 className="text-xl font-medium text-white">{selectedSong.displayName}</h3>
               <p className="text-sm text-gray-400">Audio track selected</p>
             </div>
           </div>

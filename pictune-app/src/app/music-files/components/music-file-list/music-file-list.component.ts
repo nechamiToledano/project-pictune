@@ -43,7 +43,7 @@ import { AppState } from "../../../store/app.state"
 })
 export class MusicFileListComponent implements OnInit, AfterViewInit {
   
-  displayedColumns: string[] = ["id", "fileName", "uploadDate", "actions"]
+  displayedColumns: string[] = ["id", "displayName", "uploadDate", "actions"]
   dataSource = new MatTableDataSource<MusicFile>([])
   loading$: Observable<boolean>
 

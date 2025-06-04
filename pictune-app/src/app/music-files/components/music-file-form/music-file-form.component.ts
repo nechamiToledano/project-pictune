@@ -57,7 +57,7 @@ export class MusicFileFormComponent implements OnInit {
       this.selectedMusicFile$.subscribe((musicFile) => {
         if (musicFile) {
           this.musicFileForm.patchValue({
-            fileName: musicFile.fileName,
+            displayName: musicFile.displayName,
           })
         }
       })
@@ -66,7 +66,7 @@ export class MusicFileFormComponent implements OnInit {
 
   initForm(): void {
     this.musicFileForm = this.formBuilder.group({
-      fileName: ["", [Validators.required]],
+      displayName: ["", [Validators.required]],
     })
   }
 
@@ -80,7 +80,7 @@ export class MusicFileFormComponent implements OnInit {
         MusicFileActions.updateMusicFile({
           id: this.musicFileId,
           musicFile: {
-            fileName: this.musicFileForm.value.fileName,
+            displayName: this.musicFileForm.value.displayName
           },
         }),
       )

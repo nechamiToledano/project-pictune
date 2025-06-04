@@ -72,7 +72,7 @@ export default function AllMusic() {
     // פילטור שירים לפי שאילתת חיפוש
     const filteredSongs = useMemo(() => {
       return songs.filter((song: MusicFile) =>
-        song.fileName.toLowerCase().includes(searchQuery.toLowerCase())
+        song.displayName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }, [songs, searchQuery]);
   

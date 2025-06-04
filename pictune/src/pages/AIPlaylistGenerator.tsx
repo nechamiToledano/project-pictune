@@ -300,7 +300,7 @@ export default function AIPlaylistGenerator() {
                               <Music className="h-4 w-4 text-white" />
                             </div>
                             <div>
-                              <p className="text-white">{song.fileName}</p>
+                              <p className="text-white">{song.displayName}</p>
                             </div>
                           </div>
                           <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">

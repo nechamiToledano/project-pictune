@@ -195,13 +195,13 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
               <div className="relative h-14 w-14 rounded-md overflow-hidden flex-shrink-0 bg-black/50">
                 <img
                   src={imageUrl || "/logo.png"}
-                  alt={song.fileName}
+                  alt={song.displayName}
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-blue-500/20" />
               </div>
               <div className="min-w-0">
-                <h4 className="text-white font-medium truncate">{song.fileName}</h4>
+                <h4 className="text-white font-medium truncate">{song.displayName}</h4>
                 <p className="text-gray-400 text-sm truncate">
                   {formatFileSize(song.size)} • {new Date(song.uploadedAt).toLocaleDateString()}
                 </p>

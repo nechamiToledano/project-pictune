@@ -22,7 +22,7 @@ export default function SongSelector({ onSelectSong, selectedSong }: SongSelecto
 
   const filteredSongs = files.filter(
     (song) =>
-      song.fileName.toLowerCase().includes(searchTerm.toLowerCase()) 
+      song.displayName.toLowerCase().includes(searchTerm.toLowerCase()) 
   )
 
   const formatFileSize = (bytes: number): string => {
@@ -75,7 +75,7 @@ export default function SongSelector({ onSelectSong, selectedSong }: SongSelecto
                     <Music className="w-5 h-5 text-white/60" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-white truncate">{song.fileName}</h4>
+                    <h4 className="font-medium text-white truncate">{song.displayName}</h4>
                     <div className="flex items-center text-xs text-gray-400 gap-2">
                      
                       <span>{formatFileSize(song.size)}</span>
