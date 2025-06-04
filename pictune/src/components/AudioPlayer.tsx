@@ -97,7 +97,10 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
 
   // Effect to create and manage the audio element when songUrl is available
   useEffect(() => {
+    console.log("Attempting to load audio from 1:", songUrl); // הוסף את זה
+
     if (songUrl) {
+
       // Clean up previous audio instance before creating a new one
       if (audioRef.current) {
         audioRef.current.pause();
@@ -106,6 +109,7 @@ export default function AudioPlayer({ song, onClose, onNext, onPrevious }: Audio
         audioRef.current.removeEventListener("ended", handleEnded);
         audioRef.current = null;
       }
+      console.log("Attempting to load audio from:", songUrl); // הוסף את זה
 
       console.log("Creating new Audio element for:", songUrl); // Debug log
       const audio = new Audio(songUrl);

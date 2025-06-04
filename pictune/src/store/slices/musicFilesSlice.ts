@@ -47,26 +47,32 @@ const initialState: MusicFileState = {
 
 export const fetchImage = createAsyncThunk(
   "musicFiles/fetchImage",
-  async (fileUrl: string, { getState, rejectWithValue }) => {
+  async (s3Key: string, { getState, rejectWithValue }) => {
     const state = getState() as { musicFiles: MusicFileState };
-    if (state.musicFiles.images[fileUrl]) {
-      return { fileUrl, imageUrl: state.musicFiles.images[fileUrl] };
+    if (state.musicFiles.images[s3Key]) {
+      return { s3Key, imageUrl: state.musicFiles.images[s3Key] };
     }
     try {
-      const response = await api.get(`/files/extract-image?fileKey=${fileUrl}`, { responseType: 'blob' });
+      const response = await api.get(`/files/extract-image?fileKey=${s3Key}`, { responseType: 'blob' });
+console.log(response);
 
       // בדוק את סטטוס התגובה או את גודל ה-Blob
-      if (response.status === 204 || (response.data && response.data.size === 0)) {
-        // אם אין תוכן או שה-Blob ריק, החזר null עבור imageUrl
-        return { fileUrl, imageUrl: null };
+      if (
+        response.status === 204 ||
+        !response.data ||
+        !(response.data instanceof Blob) ||
+        response.data.size === 0
+      ) {
+        return { s3Key, imageUrl: null };
       }
+      
 
       const imageUrl = URL.createObjectURL(response.data);
-      return { fileUrl, imageUrl };
+      return { s3Key, imageUrl };
     } catch (error: any) {
       // יש לטפל גם בשגיאות 404 או שגיאות אחרות מהשרת
       if (error.response && error.response.status === 404) {
-        return { fileUrl, imageUrl: null }; // או לטפל בזה כ-rejectWithValue אם זו שגיאה
+        return { s3Key, imageUrl: null }; // או לטפל בזה כ-rejectWithValue אם זו שגיאה
       }
       return rejectWithValue(error.response?.data?.message || "Failed to fetch image");
     }
@@ -195,6 +201,13 @@ const musicFilesSlice = createSlice({
           state.songUrls[state.selectedFile.id] = action.payload
         }
       })
+      .addCase(fetchImage.fulfilled, (state, action: PayloadAction<{ s3Key: string; imageUrl: string | null }>) => {
+        state.images[action.payload.s3Key] = action.payload.imageUrl ?? '';
+      })
+      .addCase(fetchImage.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+            
   },
 })
 

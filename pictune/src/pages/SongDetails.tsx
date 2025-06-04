@@ -107,6 +107,7 @@ export default function SongDetails() {
   const imageUrl = useSelector((state: RootState) => state.musicFiles.images[song?.s3Key || ""])
 
   useEffect(() => {
+    console.log(imageUrl)
     if (song?.s3Key && !imageUrl) {
       dispatch(fetchImage(song.s3Key))
     }
