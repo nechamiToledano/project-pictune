@@ -8,7 +8,7 @@ import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatInputModule } from "@angular/material/input"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import  { Store } from "@ngrx/store"
-import type { Observable } from "rxjs"
+import type { Observable, Subscription } from "rxjs"
 import * as PlaylistActions from "../../store/playlist.actions"
 import { selectSelectedPlaylist, selectPlaylistLoading } from "../../store/playlist.selectors"
 import { Playlist } from "../../models/playlist/playlist.model"
@@ -35,6 +35,7 @@ export class PlaylistFormComponent implements OnInit {
   isEditMode = false
   loading$: Observable<boolean>
   selectedPlaylist$: Observable<Playlist | null>
+  private playlistSub!: Subscription
 
   constructor(
     private formBuilder: FormBuilder,
@@ -56,8 +57,8 @@ export class PlaylistFormComponent implements OnInit {
 
       this.store.dispatch(PlaylistActions.loadPlaylist({ id: this.playlistId }))
 
-      this.selectedPlaylist$.subscribe((playlist: Playlist | null) => {
-        if (playlist) {
+      this.playlistSub = this.selectedPlaylist$.subscribe((playlist: Playlist | null) => {
+        if (playlist && playlist.id === this.playlistId) {
           this.playlistForm.patchValue({
             name: playlist.name,
             description: playlist.description,
@@ -70,7 +71,7 @@ export class PlaylistFormComponent implements OnInit {
   initForm(): void {
     this.playlistForm = this.formBuilder.group({
       name: ["", [Validators.required]],
-      description: ["", [Validators.required]],
+      description: [""],
     })
   }
 
@@ -87,7 +88,7 @@ export class PlaylistFormComponent implements OnInit {
             name: this.playlistForm.value.name as string,
             description: this.playlistForm.value.description as string,
           },
-        }),
+        })
       )
     } else {
       this.store.dispatch(
@@ -96,7 +97,7 @@ export class PlaylistFormComponent implements OnInit {
             name: this.playlistForm.value.name as string,
             description: this.playlistForm.value.description as string,
           },
-        }),
+        })
       )
     }
   }
@@ -104,5 +105,10 @@ export class PlaylistFormComponent implements OnInit {
   onCancel(): void {
     this.router.navigate(["/playlists"])
   }
-}
 
+  ngOnDestroy(): void {
+    if (this.playlistSub) {
+      this.playlistSub.unsubscribe()
+    }
+  }
+}

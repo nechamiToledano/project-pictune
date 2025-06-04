@@ -3,7 +3,7 @@ import { AsyncPipe } from "@angular/common"
 import { RouterLink } from "@angular/router"
 import { MatButtonModule } from "@angular/material/button"
 import { MatCardModule } from "@angular/material/card"
-import {  MatDialog, MatDialogModule } from "@angular/material/dialog"
+import { MatDialog, MatDialogModule } from "@angular/material/dialog"
 import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatIconModule } from "@angular/material/icon"
 import { MatInputModule } from "@angular/material/input"
@@ -11,7 +11,7 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import { MatSort, MatSortModule } from "@angular/material/sort"
 import { MatTableDataSource, MatTableModule } from "@angular/material/table"
-import  { Store } from "@ngrx/store"
+import { Store } from "@ngrx/store"
 import { tap, type Observable } from "rxjs"
 import type { User } from "../../models/user.model"
 import * as UserActions from "../../store/user.actions"
@@ -25,7 +25,6 @@ import { AppState } from "../../../store/app.state"
   selector: "app-user-list",
   standalone: true,
   imports: [
-   
     AsyncPipe,
     RouterLink,
     MatTableModule,
@@ -39,7 +38,6 @@ import { AppState } from "../../../store/app.state"
     MatCardModule,
     MatDialogModule,
     MatTooltipModule,
-
   ],
   templateUrl: "./user-list.component.html",
   styleUrls: ["./user-list.component.scss"],
@@ -60,20 +58,21 @@ export class UserListComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    
     this.store.dispatch(UserActions.loadUsers())
 
     this.store.select(selectAllUsers).pipe(
-
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((users: User[]) => {
       this.dataSource.data = users
+      // Important: assign paginator and sort after data is set
+      this.dataSource.paginator = this.paginator
+      this.dataSource.sort = this.sort
     })
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator
-    this.dataSource.sort = this.sort
+    // If data is assigned after view init, these might not take effect.
+    // It's better to assign them after data is set in the subscription.
   }
 
   applyFilter(event: Event) {
@@ -102,6 +101,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
       }
     })
   }
+
   getUserInitials(userName: string): string {
     if (!userName) return ""
     return userName
@@ -111,4 +111,3 @@ export class UserListComponent implements OnInit, AfterViewInit {
       .toUpperCase()
   }
 }
-

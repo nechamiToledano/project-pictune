@@ -4,6 +4,7 @@ import { environment } from "../../../enviroments/enviroment"
 import { HttpClient } from "@angular/common/http"
 import { StatPointUpload } from "../../report/store/report.actions"
 import { log } from "node:console"
+import { MusicFile } from "../../music-files/models/music-file.model"
 @Injectable({
   providedIn: 'root'
 })
@@ -69,7 +70,7 @@ export class ApiService {
     return this.http.get<any>(`${this.apiUrl}/files/${id}`)
   }
 
-  updateMusicFile(id: number, file: any): Observable<any> {
+  updateMusicFile(id: number, file: MusicFile): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/files/${id}`, file)
   }
 

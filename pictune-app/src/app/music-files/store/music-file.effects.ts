@@ -58,7 +58,7 @@ export class MusicFileEffects {
     return this.actions$.pipe(
       ofType(MusicFileActions.updateMusicFile),
       mergeMap((action) =>
-        this.apiService.updateMusicFile(action.id, action.musicFile).pipe(
+        this.apiService.updateMusicFile(action.id, action.musicFile as MusicFile).pipe(
           map(() => {
             this.snackBar.open("Music file updated successfully", "Close", { duration: 3000 })
             this.router.navigate(["/music-files"])
