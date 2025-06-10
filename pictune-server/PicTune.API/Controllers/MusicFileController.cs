@@ -109,15 +109,23 @@ namespace PicTune.API.Controllers
                 await response.ResponseStream.CopyToAsync(memoryStream);
                 memoryStream.Seek(0, SeekOrigin.Begin);
 
-                var tagFile = TagLib.File.Create(new TagLib.StreamFileAbstraction(fileKey, memoryStream, memoryStream));
+                try
+                {
+                    var tagFile = TagLib.File.Create(new TagLib.StreamFileAbstraction(fileKey, memoryStream, memoryStream));
 
-                if (tagFile.Tag.Pictures.Length == 0)
-                    return NoContent();
+                    if (tagFile.Tag.Pictures.Length == 0)
+                        return NoContent();
 
-                var picture = tagFile.Tag.Pictures[0];
-                var imageBytes = picture.Data.Data;
+                    var picture = tagFile.Tag.Pictures[0];
+                    var imageBytes = picture.Data.Data;
 
-                return File(imageBytes, "image/jpeg");
+                    return File(imageBytes, "image/jpeg");
+                }
+                catch (TagLib.CorruptFileException ex)
+                {
+                    return NoContent(); // או שגיאה מותאמת אישית אם תרצי
+                }
+
             }
             catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {

@@ -1,41 +1,88 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SendGrid.Helpers.Mail;
-using SendGrid;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PicTune.Core.DTOs;
 using PicTune.Core.IServices;
 using DotNetEnv;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 
 namespace PicTune.Service.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly string _sendGridApiKey;
-        private readonly string _emailAddress;
+        private readonly string _gmailUsername;
+        private readonly string _gmailAppPassword;
 
         public EmailService()
         {
-            _emailAddress = Env.GetString("EMAIL_ADDRESS");
-            _sendGridApiKey = Env.GetString("SEND_GRID_API_KEY");
+            _gmailUsername = Env.GetString("GMAIL_USERNAME");
+            _gmailAppPassword = Env.GetString("GMAIL_APP_PASSWORD");
         }
-
         public async Task<EmailResponseDto> SendEmailAsync(string toEmail, string subject, string htmlBody)
         {
-            var client = new SendGridClient(_sendGridApiKey);
-            var from = new EmailAddress(_emailAddress, "PicTune");
-            var to = new EmailAddress(toEmail);
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, "View this email in HTML format", htmlBody);
-            var response = await client.SendEmailAsync(msg);
-
-            return new EmailResponseDto
+            try
             {
-                Success = response.IsSuccessStatusCode,
-                Message = response.IsSuccessStatusCode ? "Email sent successfully." : "Failed to send email."
-            };
-        }
+                var email = new MimeMessage();
+                // הגדרת השולח: חשוב שהכתובת תהיה חשבון הג'ימייל שלך (_gmailUsername)
+                email.From.Add(new MailboxAddress("PicTune", _gmailUsername));
+                // הגדרת הנמען
+                email.To.Add(new MailboxAddress("", toEmail));
+                email.Subject = subject;
 
+                // יצירת גוף המייל בפורמט HTML
+                var bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = htmlBody,
+                    TextBody = "View this email in HTML format" // גרסת טקסט פשוטה כגיבוי למקרה ש-HTML לא נתמך
+                };
+
+                email.Body = bodyBuilder.ToMessageBody();
+
+                using (var client = new SmtpClient())
+                {
+                    // חיבור לשרת ה-SMTP של גוגל
+                    // פורט 587 עם StartTls הוא התצורה הסטנדרטית והמומלצת
+                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+
+                    // אימות מול חשבון הגוגל באמצעות סיסמת היישום
+                    await client.AuthenticateAsync(_gmailUsername, _gmailAppPassword);
+
+                    // שליחת המייל
+                    await client.SendAsync(email);
+                    // ניתוק מהשרת
+                    await client.DisconnectAsync(true);
+
+                    return new EmailResponseDto
+                    {
+                        Success = true,
+                        Message = "Email sent successfully."
+                    };
+                }
+            }
+            catch (MailKit.Security.AuthenticationException authEx)
+            {
+                // שגיאת אימות: לרוב מצביע על בעיה ב-username או ב-App Password
+                return new EmailResponseDto
+                {
+                    Success = false,
+                    Message = $"Authentication failed: {authEx.Message}. Make sure you are using an App Password."
+                };
+            }
+            catch (Exception ex)
+            {
+                // טיפול בשגיאות כלליות אחרות
+                return new EmailResponseDto
+                {
+                    Success = false,
+                    Message = $"Failed to send email: {ex.Message}"
+                };
+            }
+        }
+    
         public async Task<EmailResponseDto> SendPasswordResetEmailAsync(ResetPasswordRequestDto request, string resetLink)
         {
             
