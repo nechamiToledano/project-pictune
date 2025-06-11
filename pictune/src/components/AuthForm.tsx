@@ -14,10 +14,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { Link, useNavigate } from "react-router-dom"
 import ForgotPassword from "./ForgotPassword"
+import GoogleLoginButton from "./GoogleLoginButton"
 import Background from "@/components/Background"
-import { toast } from "sonner"
-import { RootState } from "@/store/store"
-import { useSelector } from "react-redux"
 
 interface AuthFormProps {
   defaultTab: "signup" | "signin"
@@ -44,9 +42,9 @@ export default function AuthForm({
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const navigate = useNavigate()
-  const loading = useSelector((state: RootState) => state.user.loading);
 
   // Reset form when tab changes
   useEffect(() => {
@@ -93,8 +91,7 @@ export default function AuthForm({
     // Update URL to reflect the current tab
     navigate(`/${value}`, { replace: true })
   }
-  
-  
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
@@ -145,19 +142,22 @@ export default function AuthForm({
 
     if (!validateForm()) return
 
+    setIsSubmitting(true)
+
     try {
-  await  onAuthSubmit({
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      onAuthSubmit({
         userName: formData.userName,
         email: activeTab === "signup" ? formData.email : undefined,
         password: formData.password,
         rememberMe: formData.rememberMe,
         acceptTerms: formData.acceptTerms,
       })
-
     } catch (error) {
       console.error("Error submitting form:", error)
-      toast.error("There was an error connecting. Please try again.")
     } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -181,6 +181,7 @@ export default function AuthForm({
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
       <Background />
 
       <div className="container mx-auto px-4 z-10 py-10">
@@ -320,9 +321,9 @@ export default function AuthForm({
                         <Button
                           type="submit"
                           className="w-full py-6 transition-all bg-gradient-to-r from-red-700/50 to-blue-700/50 hover:from-red-700 hover:to-blue-700 text-white"
-                          disabled={loading}
+                          disabled={isSubmitting}
                         >
-                          {loading ? (
+                          {isSubmitting ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Signing in...
@@ -333,7 +334,20 @@ export default function AuthForm({
                               <ArrowRight className="ml-2 h-4 w-4" />
                             </>
                           )}
-                        </Button>                         
+                        </Button>
+
+                        <div className="relative flex items-center justify-center w-full mt-2">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-700"></div>
+                          </div>
+                          <div className="relative px-4 bg-black/30 text-xs uppercase text-gray-400">
+                            Or
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-2">
+                          <GoogleLoginButton />
+                        </div>
                       </CardFooter>
                     </form>
                   </TabsContent>
@@ -541,9 +555,9 @@ export default function AuthForm({
                         <Button
                           type="submit"
                           className="w-full py-6 transition-all bg-gradient-to-r from-red-600/20 to-blue-600/20 hover:from-red-700 hover:to-blue-700 text-white"
-                          disabled={loading}
+                          disabled={isSubmitting}
                         >
-                          {loading ? (
+                          {isSubmitting ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Creating account...
@@ -556,7 +570,19 @@ export default function AuthForm({
                           )}
                         </Button>
 
+                        <div className="relative flex items-center justify-center w-full mt-2">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-700"></div>
+                          </div>
+                          <div className="relative px-4 bg-black/30 text-xs uppercase text-gray-400">
+                            Or continue with
+                          </div>
+                        </div>
 
+                        <div className="grid grid-cols-1 gap-2">
+                          <GoogleLoginButton />
+                         
+                        </div>
                       </CardFooter>
                     </form>
                   </TabsContent>
@@ -597,4 +623,3 @@ export default function AuthForm({
     </section>
   )
 }
-

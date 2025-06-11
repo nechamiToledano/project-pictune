@@ -17,6 +17,25 @@ const initialState: UserState = {
 };
 
 
+export const googleLogin = createAsyncThunk(
+  "user/googleLogin",
+  async (credential: string, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/google-login", { credential });
+
+      const { token, user } = response.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("userName", user.userName);
+      localStorage.setItem("email", user.email);
+
+      return { userName: user.userName, email: user.email, isLoggedIn: true };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Google login failed");
+    }
+  }
+);
+
 export const autoLogin = createAsyncThunk(
   "user/autoLogin",
   async (_, { rejectWithValue }) => {
@@ -197,6 +216,20 @@ const userSlice = createSlice({
         state.userName = "";
         state.email = "";
         state.loading = false;
+      })
+      .addCase(googleLogin.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userName = action.payload.userName;
+        state.email = action.payload.email;
+        state.isLoggedIn = true;
+        state.error = null;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

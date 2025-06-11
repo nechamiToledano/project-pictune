@@ -11,6 +11,6 @@ namespace PicTune.Core.IServices
         Task<UserDto?> GetUserByIdAsync(string userId);
         Task<UserDto?> GetUserByUsernameAsync(string username);
         Task<User?> UpdateUserByIdAsync(string userId, User model);
-        
+        Task<string> LoginWithGoogleAsync(string credential);
     }
 }

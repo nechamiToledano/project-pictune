@@ -16,6 +16,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Http;
 using PicTune.Core.DTOs;
+using Google.Apis.Auth;
 
 namespace PicTune.Service.Services
 {
@@ -216,6 +217,24 @@ namespace PicTune.Service.Services
             };
 
             return userDto;
+        }
+        public async Task<string> LoginWithGoogleAsync(string credential)
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(credential);
+
+            var user = await _userManager.FindByEmailAsync(payload.Email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = payload.Email,
+                    Email = payload.Email
+                };
+                await _userManager.CreateAsync(user);
+            }
+
+            var token = _jwtService.CreateToken(user);
+            return token;
         }
 
     }

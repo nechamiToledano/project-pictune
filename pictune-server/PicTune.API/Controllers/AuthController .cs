@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DotNetEnv;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -74,6 +75,28 @@ namespace PicTune.API.Controllers
                 user = user
             });
 
+        }
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(dto.Credential);
+
+            // בדקי אם המשתמש כבר קיים במערכת
+            var user = await _userManager.FindByEmailAsync(payload.Email);
+            if (user == null)
+            {
+                user = new ApplicationUser { UserName = payload.Email, Email = payload.Email };
+                await _userManager.CreateAsync(user);
+            }
+
+            // צרי JWT משלך
+            var token = _jwtService.CreateToken(user);
+            return Ok(new { token });
+        }
+
+        public class GoogleLoginDto
+        {
+            public string Credential { get; set; }
         }
 
         /// <summary>
