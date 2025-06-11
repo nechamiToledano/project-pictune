@@ -1,4 +1,4 @@
-﻿namespace PicTune.API.Controllers
+﻿namespace PicTune.Core.DTOs
 {
     public class GoogleLoginDto
     {

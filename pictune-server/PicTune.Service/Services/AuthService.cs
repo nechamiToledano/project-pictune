@@ -225,16 +225,21 @@ namespace PicTune.Service.Services
             var user = await _userManager.FindByEmailAsync(payload.Email);
             if (user == null)
             {
-                user = new ApplicationUser
+                user = new User
                 {
                     UserName = payload.Email,
-                    Email = payload.Email
+                    Email = payload.Email,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
                 };
                 await _userManager.CreateAsync(user);
+
+                await EnsureRolesExistAsync();
+
+                await _userManager.AddToRoleAsync(user, "Viewer");
             }
 
-            var token = _jwtService.CreateToken(user);
-            return token;
+            return await GenerateJwtTokenAsync(user);
         }
 
     }

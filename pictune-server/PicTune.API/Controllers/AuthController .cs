@@ -34,7 +34,7 @@ namespace PicTune.API.Controllers
         }
 
 
-   
+
 
         /// <summary>
         /// Registers a new user.
@@ -51,7 +51,7 @@ namespace PicTune.API.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
             return Ok(new { success = true, message = "User registered successfully." });
-  
+
         }
 
         /// <summary>
@@ -74,30 +74,30 @@ namespace PicTune.API.Controllers
                 token = token,
                 user = user
             });
-
         }
         [HttpPost("google-login")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Credential))
+                return BadRequest(new { Message = "Missing Google credential." });
+
+            var token = await _authService.LoginWithGoogleAsync(dto.Credential);
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { Message = "Google login failed." });
+
             var payload = await GoogleJsonWebSignature.ValidateAsync(dto.Credential);
+            var user = await _authService.GetUserByUsernameAsync(payload.Email);
 
-            // בדקי אם המשתמש כבר קיים במערכת
-            var user = await _userManager.FindByEmailAsync(payload.Email);
-            if (user == null)
+            return Ok(new
             {
-                user = new ApplicationUser { UserName = payload.Email, Email = payload.Email };
-                await _userManager.CreateAsync(user);
-            }
-
-            // צרי JWT משלך
-            var token = _jwtService.CreateToken(user);
-            return Ok(new { token });
+                token = token,
+                user = user
+            });
         }
 
-        public class GoogleLoginDto
-        {
-            public string Credential { get; set; }
-        }
+
+
+    
 
         /// <summary>
         /// Gets the profile of the logged-in user.
@@ -134,8 +134,8 @@ namespace PicTune.API.Controllers
                 UserName = model.UserName,
                 Email = model.Email
             };
-            
-var updatedUser = await _authService.UpdateUserByIdAsync(userId, userToUpdate);
+
+            var updatedUser = await _authService.UpdateUserByIdAsync(userId, userToUpdate);
             if (updatedUser == null)
                 return BadRequest(new { Message = "Failed to update profile." });
 
