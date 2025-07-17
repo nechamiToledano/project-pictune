@@ -31,8 +31,10 @@ export const googleLogin = createAsyncThunk(
 
       return { userName: user.userName, email: user.email, isLoggedIn: true };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Google login failed");
-    }
+  console.error("Google login error", error);
+  return rejectWithValue(error.response?.data?.message || "Google login failed");
+}
+
   }
 );
 
@@ -218,19 +220,19 @@ const userSlice = createSlice({
         state.loading = false;
       })
       .addCase(googleLogin.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(googleLogin.fulfilled, (state, action) => {
-        state.loading = false;
-        state.userName = action.payload.userName;
-        state.email = action.payload.email;
-        state.isLoggedIn = true;
-        state.error = null;
-      })
-      .addCase(googleLogin.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+    state.loading = true;
+  })
+  .addCase(googleLogin.fulfilled, (state, action) => {
+    state.loading = false;
+    state.userName = action.payload.userName;
+    state.email = action.payload.email;
+    state.isLoggedIn = true;
+    state.error = null;
+  })
+  .addCase(googleLogin.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload as string;
+  });
   },
 });
 

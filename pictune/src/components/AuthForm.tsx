@@ -341,7 +341,7 @@ export default function AuthForm({
                             <div className="w-full border-t border-gray-700"></div>
                           </div>
                           <div className="relative px-4 bg-black/30 text-xs uppercase text-gray-400">
-                            Or
+                            Or Continue with
                           </div>
                         </div>
 
