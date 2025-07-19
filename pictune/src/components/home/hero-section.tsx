@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Upload, Sparkles, ChevronRight, Play, Music, Headphones, Video, FileAudio } from "lucide-react"
+import { Upload, Sparkles, ChevronRight, Music, Headphones, Video, FileAudio } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -215,13 +215,7 @@ const navigate=useNavigate();
                   
                 </Button>
 
-                <Button
-                  variant="outline"
-                  className="border-gray-700 text-white hover:bg-white/10 h-12 px-8 text-lg group"
-                >
-                  <Play className="mr-2 h-4 w-4 group-hover:text-red-400 transition-colors" />
-                  Watch Demo
-                </Button>
+              
               </div>
             </motion.div>
           </div>

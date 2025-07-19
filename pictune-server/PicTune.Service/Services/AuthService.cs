@@ -220,27 +220,51 @@ namespace PicTune.Service.Services
         }
         public async Task<string> LoginWithGoogleAsync(string credential)
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(credential);
+            GoogleJsonWebSignature.Payload payload;
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(credential);
+            }
+            catch
+            {
+                return string.Empty; // טוקן לא תקין
+            }
 
-            var user = await _userManager.FindByEmailAsync(payload.Email);
+            var email = payload.Email;
+            if (string.IsNullOrWhiteSpace(email))
+                return string.Empty;
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            // אם המשתמש לא קיים – צור חדש
             if (user == null)
             {
                 user = new User
                 {
-                    UserName = payload.Email,
-                    Email = payload.Email,
+                    UserName = email,
+                    Email = email,
                     CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow,
+                    EmailConfirmed = true
                 };
-                await _userManager.CreateAsync(user);
+
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                    return string.Empty; // אפשר להחזיר גם שגיאה מפורטת בהמשך
 
                 await EnsureRolesExistAsync();
+                await _userManager.AddToRoleAsync(user, "Viewer");
+            }
 
+            // גם אם המשתמש קיים — ודא שיש לו תפקיד Viewer
+            if (!await _userManager.IsInRoleAsync(user, "Viewer"))
+            {
                 await _userManager.AddToRoleAsync(user, "Viewer");
             }
 
             return await GenerateJwtTokenAsync(user);
         }
+
 
     }
 }

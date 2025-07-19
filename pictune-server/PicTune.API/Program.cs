@@ -151,6 +151,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("MyPolicy");
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
+    await next();
+});
+
 app.UseRouting();
 
 app.UseAuthentication();
