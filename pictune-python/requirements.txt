@@ -7,3 +7,4 @@ moviepy==2.2.1
 python-multipart
 arabic-reshaper
 python-bidi
+google-generativeai
