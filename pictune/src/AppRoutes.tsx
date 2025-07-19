@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
 }
 
 const AppRoutes: React.FC = () => {
-  const isAuthenticated = useSelector((state: RootState) => state.user.isLoggedIn);
+ const isAuthenticated = useSelector((state: RootState) => state.user.isLoggedIn);
 
   return (
     <Routes>
