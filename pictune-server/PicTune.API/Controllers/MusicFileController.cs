@@ -1,4 +1,4 @@
-﻿using Amazon.S3.Model;
+using Amazon.S3.Model;
 using Amazon.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +43,15 @@ namespace PicTune.API.Controllers
             var file = await _musicFileService.GetMusicFileByIdAsync(id);
             if (file == null) return NotFound();
             return Ok(file);
+        }
+
+        [HttpPut("{id}/lyrics")]
+        [Authorize]
+        public async Task<IActionResult> UpdateLyrics(int id, [FromBody] string transcript)
+        {
+            var updated = await _musicFileService.UpdateLyricsAsync(id, transcript);
+            if (updated == null) return NotFound();
+            return Ok(new { transcript = updated });
         }
 
         [HttpPut("{id}")]

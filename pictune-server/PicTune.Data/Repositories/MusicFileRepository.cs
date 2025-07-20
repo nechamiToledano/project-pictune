@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PicTune.Core.IRepositories;
 using PicTune.Core.Models;
 using System.Collections.Generic;
@@ -51,6 +51,15 @@ namespace PicTune.Data.Repositories
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<string?> UpdateLyricsAsync(int fileId, string newLyrics)
+        {
+            var musicFile = await _context.MusicFiles.FindAsync(fileId);
+            if (musicFile == null) return null;
+            musicFile.Transcript = newLyrics;
+            await _context.SaveChangesAsync();
+            return musicFile.Transcript;
         }
 
         public async Task AddAsync(MusicFile musicFile)

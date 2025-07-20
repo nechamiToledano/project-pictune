@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import type { AppDispatch, RootState } from "@/store/store"
 import { useDispatch, useSelector } from "react-redux"
-import { transcribeMusicFile } from "@/store/slices/musicFilesSlice"
+import { transcribeMusicFile, updateLyrics } from "@/store/slices/musicFilesSlice"
 
 interface SongLyricsProps {
   songId: number
@@ -225,15 +225,20 @@ console.log(isPlaying);
 
   const saveLyrics = async () => {
     try {
-      // In a real implementation, you would dispatch an action to save the edited transcript
-      // For now, we'll just update the local state
-      // dispatch(updateLyrics({ songId, transcript: editedLyrics }))
-      setIsEditing(false)
-      toast.success("Lyrics saved successfully!")
-
-      // Re-parse the timed transcript after editing
-      parseTimedLyrics(editedLyrics)
-    } catch (error) {
+      const resultAction = await dispatch(updateLyrics({ id: songId, transcript: editedLyrics }))
+      if (updateLyrics.fulfilled.match(resultAction)) {
+        setIsEditing(false)
+        toast.success("Lyrics saved successfully!")
+        // Re-parse the timed transcript after editing
+        parseTimedLyrics(editedLyrics)
+      } else {
+        throw new Error(
+          typeof resultAction.payload === "string"
+            ? resultAction.payload
+            : resultAction.error?.message || "Unknown error"
+        )
+      }
+    } catch (error: any) {
       console.error("Error saving lyrics:", error)
       toast.error("Failed to save lyrics")
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PicTune.Core.DTOs;
 using PicTune.Core.Models;
 using System;
@@ -21,6 +21,7 @@ namespace PicTune.Core.IRepositories
         Task<List<StatPoint>> GetMusicUploadStatsAsync(string timeRange);
         Task<List<HourlyStatDto>> GetUploadStatsByHourAsync();
         Task SyncMissingMusicFilesFromS3Async();
+        Task<string?> UpdateLyricsAsync(int fileId, string newLyrics);
 
 
     }

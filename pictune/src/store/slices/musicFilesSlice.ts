@@ -133,6 +133,21 @@ export const toggleLikeMusicFile = createAsyncThunk<number, number, { rejectValu
   }
 )
 
+export const updateLyrics = createAsyncThunk(
+  'musicFiles/updateLyrics',
+  async (
+    { id, transcript }: { id: number; transcript: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.put(`/files/${id}/lyrics`, { transcript });
+      return { id, transcript: response.data.transcript ?? transcript };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update lyrics');
+    }
+  }
+);
+
 export const transcribeMusicFile = createAsyncThunk(
   'musicFiles/transcribe',
   async (id: number, { rejectWithValue }) => {
@@ -166,6 +181,13 @@ const musicFilesSlice = createSlice({
       .addCase(fetchMusicFiles.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string
+      })
+      .addCase(updateLyrics.fulfilled, (state, action: PayloadAction<{ id: number, transcript: string }>) => {
+        const file = state.files.find(f => f.id === action.payload.id)
+        if (file) file.transcript = action.payload.transcript
+        if (state.selectedFile?.id === action.payload.id) {
+          state.selectedFile.transcript = action.payload.transcript
+        }
       })
       .addCase(transcribeMusicFile.fulfilled, (state, action: PayloadAction<{ id: number, transcript: string }>) => {
         state.lyricsLoading = false

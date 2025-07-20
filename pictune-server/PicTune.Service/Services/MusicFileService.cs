@@ -1,4 +1,4 @@
-﻿using Amazon;
+using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -91,6 +91,12 @@ namespace PicTune.Service
         {
             return await _repository.GetAllMusicFilesAsync(userId, favorites);
         }
+        public async Task<string?> UpdateLyricsAsync(int fileId, string newLyrics)
+        {
+            var updatedLyrics = await _repository.UpdateLyricsAsync(fileId, newLyrics);
+            return updatedLyrics;
+        }
+
         public async Task<string?> GeneratePreSignedUrlAsync(int fileId)
         {
             var file = await _repository.GetByIdAsync(fileId);

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import LoadingSpinner from "@/components/LoadingSpinner"
 import {  Play, Pause, AlertTriangle, Music4 } from "lucide-react"
 import { fetchImage, fetchMusicFileById, fetchMusicFileUrl } from "@/store/slices/musicFilesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
@@ -117,55 +118,9 @@ export default function SongDetails() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
         <div className="relative z-10">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-6">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-red-500/20 to-blue-500/20 animate-pulse"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <svg
-                  className="animate-spin h-10 w-10 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-            <div className="text-center">
-              <h3 className="text-xl font-medium text-white mb-2">Loading Song</h3>
-              <p className="text-gray-400">Please wait while we prepare your music...</p>
-            </div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <LoadingSpinner text="Loading Song..." size="lg" />
           </motion.div>
-        </div>
-
-        {/* Background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(10)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-red-500/5 to-blue-500/5"
-              style={{
-                width: Math.random() * 300 + 50,
-                height: Math.random() * 300 + 50,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, Math.random() * 100 - 50],
-                opacity: [0.1, 0.3, 0.1],
-              }}
-              transition={{
-                duration: Math.random() * 10 + 10,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "reverse",
-              }}
-            />
-          ))}
         </div>
       </div>
     )
@@ -285,6 +240,17 @@ export default function SongDetails() {
   return (
     <section className="relative min-h-screen overflow-hidden">
       <Background />
+
+      {/* Back to All Music Button */}
+      <div className="relative z-20 container mx-auto px-4 pt-8 flex flex-col">
+        <Button
+          variant="outline"
+          className="w-fit mb-6 border-gray-700 text-white hover:bg-white/10"
+          onClick={() => navigate("/music")}
+        >
+          ← Back to All Music
+        </Button>
+      </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 flex flex-col min-h-screen mt-14">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
