@@ -1,9 +1,9 @@
-import os
 import json
+import os
 import re
 from typing import Dict, List
 from dotenv import load_dotenv
-import google.generativeai as genai
+from openai import OpenAI
 from pydantic import BaseModel
 
 class Song(BaseModel):
@@ -12,10 +12,10 @@ class Song(BaseModel):
 
 # Load API key
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Create Gemini model
-model = genai.GenerativeModel('gemini-pro')
+# Create OpenAI client
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def generate_playlist_by_user_prompt(user_prompt: str, songs: List[Song]) -> Dict:
     song_descriptions = "\n".join([f"{song.id}: {song.transcript}" for song in songs])
@@ -39,11 +39,14 @@ def generate_playlist_by_user_prompt(user_prompt: str, songs: List[Song]) -> Dic
 """
 
     try:
-        response = model.generate_content(prompt)
-        json_text = response.text
+        response = client.chat.completions.create(
+            model="gpt-4o-mini", 
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.5
+        )
+        json_text = response.choices[0].message.content
         json_text = re.sub(r"```json\s*|\s*```", "", json_text).strip()
         return json.loads(json_text)
     except Exception as e:
-        print("Error using Gemini to generate playlist:", e)
+        print("Error creating user-based playlist:", e)
         return {}
-
