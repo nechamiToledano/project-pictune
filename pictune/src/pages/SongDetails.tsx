@@ -241,16 +241,7 @@ export default function SongDetails() {
     <section className="relative min-h-screen overflow-hidden">
       <Background />
 
-      {/* Back to All Music Button */}
-      <div className="relative z-20 container mx-auto px-4 pt-8 flex flex-col">
-        <Button
-          variant="outline"
-          className="w-fit mb-6 border-gray-700 text-white hover:bg-white/10"
-          onClick={() => navigate("/music")}
-        >
-          ← Back to All Music
-        </Button>
-      </div>
+    
 
       <div className="relative z-10 container mx-auto px-4 py-8 flex flex-col min-h-screen mt-14">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -332,6 +323,7 @@ export default function SongDetails() {
               <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                 {song.displayName}
               </h1>
+           
               <p className="text-white/70 mb-6">Enjoy your music with our enhanced audio player</p>
 
               <div className="mb-8">
@@ -339,7 +331,13 @@ export default function SongDetails() {
                 <SongLyrics songId={song.id} currentTime={currentTime} isPlaying={isPlaying} duration={duration} />
               </div>
 
-           
+              <Button
+                variant="outline"
+                className="w-fit border-gray-700 text-white hover:bg-white/10"
+                onClick={() => navigate("/music")}
+              >
+                ← Back to All Music
+              </Button>
             </div>
           </div>
         </motion.div>
